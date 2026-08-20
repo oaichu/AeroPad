@@ -1527,31 +1527,44 @@ html.light .qr-card-apple {
   font-size: 0.775rem;
 }
 
-/* Decoder Section */
+/* Decoder Section — Perfectly Balanced 50/50 Grid */
 .decoder-layout {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
+  align-items: stretch;
 }
 
 .decoder-input-card, .decoder-result-card {
-  padding: 28px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 540px;
+}
+
+.decoder-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .drop-zone {
   border: 2px dashed var(--border-active);
   border-radius: var(--radius-lg);
-  padding: 36px 20px;
+  padding: 28px 20px;
   text-align: center;
   cursor: pointer;
   background: var(--bg-glass);
   transition: all 0.25s ease;
-  margin: 18px 0;
+  margin: 14px 0;
 }
 
 .drop-zone:hover, .drop-zone.dragover {
   border-color: var(--accent-cyan);
-  background: rgba(0, 242, 254, 0.05);
+  background: rgba(0, 242, 254, 0.06);
+  transform: scale(1.01);
 }
 
 .file-hidden {
@@ -1559,30 +1572,36 @@ html.light .qr-card-apple {
 }
 
 .drop-icon-circle {
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: rgba(0, 242, 254, 0.1);
   color: var(--accent-cyan);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 12px;
+  margin: 0 auto 10px;
+  transition: transform 0.2s ease;
+}
+
+.drop-zone:hover .drop-icon-circle {
+  transform: translateY(-2px);
+  background: rgba(0, 242, 254, 0.2);
 }
 
 .drop-icon-circle svg {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
 }
 
 .drop-content h4 {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   margin-bottom: 4px;
 }
 
 .drop-content p {
-  font-size: 0.8125rem;
+  font-size: 0.775rem;
   color: var(--text-muted);
 }
 
@@ -1594,7 +1613,7 @@ html.light .qr-card-apple {
 .divider-text {
   text-align: center;
   position: relative;
-  margin: 18px 0;
+  margin: 14px 0;
 }
 
 .divider-text::before {
@@ -1611,7 +1630,7 @@ html.light .qr-card-apple {
   position: relative;
   background: var(--bg-surface);
   padding: 0 12px;
-  font-size: 0.7rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--text-muted);
@@ -1621,6 +1640,19 @@ html.light .qr-card-apple {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.badge-accent {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent-cyan);
+  background: rgba(0, 242, 254, 0.12);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  margin-bottom: 8px;
 }
 
 .badge-success {
@@ -1639,21 +1671,28 @@ html.light .qr-card-apple {
 .decoded-details {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin: 18px 0;
+  gap: 10px;
+  margin: 16px 0;
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
   font-size: 0.875rem;
+}
+
+html.light .detail-row {
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .detail-label {
   color: var(--text-secondary);
+  font-size: 0.8125rem;
 }
 
 .secret-clip-wrap {
@@ -1667,16 +1706,23 @@ html.light .qr-card-apple {
   border: none;
   color: var(--text-muted);
   cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.btn-icon-sm:hover {
+  color: var(--accent-cyan);
 }
 
 .btn-icon-sm svg {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
 }
 
 .live-test-box {
-  margin: 20px 0;
+  margin: 16px 0;
+  padding: 18px;
   text-align: center;
+  border-radius: var(--radius-lg);
 }
 
 .test-header {
@@ -1709,8 +1755,9 @@ html.light .qr-card-apple {
   font-size: 2.25rem;
   font-weight: 700;
   color: var(--accent-cyan);
-  letter-spacing: 0.25em;
-  margin: 12px 0;
+  letter-spacing: 0.22em;
+  margin: 10px 0;
+  text-shadow: 0 0 20px rgba(0, 242, 254, 0.35);
 }
 
 .test-progress-bar {
@@ -2197,10 +2244,13 @@ html.light .qr-card-apple {
         <!-- 2FA SUBTAB 3: DECODER / SCANNER -->
         <div id="subtab-decoder" class="totp-subpane">
           <div class="decoder-layout">
-            <!-- Dropzone / Scanner Card -->
+            <!-- Left Card: Dropzone / Input Scanner -->
             <div class="decoder-input-card glass-panel">
-              <h3 data-i18n="dec_heading">Decode QR Code &amp; 2FA Key</h3>
-              <p class="text-secondary" data-i18n="dec_subheading">Drag &amp; drop QR code image, paste image from clipboard (Ctrl+V) or paste otpauth:// link to extract Secret Key &amp; view real-time 6-digit code.</p>
+              <div class="panel-header">
+                <span class="badge-accent">QR &amp; OTPAUTH SCANNER</span>
+                <h3 data-i18n="dec_heading">Decode QR Code &amp; 2FA Key</h3>
+                <p class="text-secondary" data-i18n="dec_subheading">Drag &amp; drop QR code image, paste image from clipboard (Ctrl+V) or paste otpauth:// link to extract Secret Key &amp; view real-time 6-digit code.</p>
+              </div>
 
               <!-- Drag & Drop Zone -->
               <div class="drop-zone" id="qrDropZone">
@@ -2218,31 +2268,32 @@ html.light .qr-card-apple {
               <div class="divider-text"><span data-i18n="paste_prompt">OR PASTE OTPAUTH URI / SECRET KEY</span></div>
               <div class="paste-field-group">
                 <textarea id="rawOtpInput" class="glass-textarea font-mono" rows="2" placeholder="e.g. otpauth://totp/Google:user@gmail.com?secret=JBSWY3DPEHPK3PXP&issuer=Google&#10;or enter raw Base32 Secret Key..."></textarea>
-                <button id="decodeBtn" class="btn-primary-gradient">
+                <button id="decodeBtn" class="btn-primary-gradient full-width">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
                   <span data-i18n="decode_now_btn">Decode Now</span>
                 </button>
               </div>
             </div>
 
-            <!-- Decoded Result Card -->
+            <!-- Right Card: Decoded Result & Live OTP -->
             <div class="decoder-result-card glass-panel" id="decoderResultCard">
               <div class="panel-header">
-                <span class="badge-success">DECODED RESULT</span>
-                <h4 data-i18n="dec_result_title">2FA Account Information</h4>
+                <span class="badge-success">DECODED CREDENTIALS &amp; LIVE OTP</span>
+                <h3 data-i18n="dec_result_title">2FA Account Information</h3>
+                <p class="text-secondary">Extracted credentials and live 30-second token preview generated in real-time.</p>
               </div>
 
               <div class="decoded-details">
                 <div class="detail-row">
-                  <span class="detail-label" data-i18n="gen_issuer">Issuer:</span>
+                  <span class="detail-label" data-i18n="gen_issuer">Issuer</span>
                   <span class="detail-val font-semibold" id="decIssuer">---</span>
                 </div>
                 <div class="detail-row">
-                  <span class="detail-label" data-i18n="gen_account">Account:</span>
+                  <span class="detail-label" data-i18n="gen_account">Account</span>
                   <span class="detail-val font-mono" id="decAccount">---</span>
                 </div>
                 <div class="detail-row">
-                  <span class="detail-label" data-i18n="gen_secret">Secret Key:</span>
+                  <span class="detail-label" data-i18n="gen_secret">Secret Key</span>
                   <div class="secret-clip-wrap">
                     <span class="detail-val font-mono text-cyan" id="decSecret">---</span>
                     <button class="btn-icon-sm" id="copyDecSecret" title="Copy Secret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
