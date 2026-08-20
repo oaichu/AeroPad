@@ -330,6 +330,19 @@
                     </select>
                   </div>
                 </div>
+                <div class="input-field-group full-width">
+                  <div class="label-with-action">
+                    <label data-i18n="modal_password_label">Account Password (Optional)</label>
+                    <button type="button" id="genPassBtn" class="btn-text-action" title="Generate Secure Password">🎲 <span data-i18n="gen_pass_quick">Generate</span></button>
+                  </div>
+                  <div class="password-input-wrap">
+                    <input type="password" id="genPassword" class="glass-input font-mono" placeholder="e.g. •••••••• (Optional account login password)">
+                    <button type="button" class="btn-toggle-eye" id="toggleGenPassVisibility" title="Toggle Show/Hide Password">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-open"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-closed hidden"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div class="form-buttons">
@@ -434,6 +447,13 @@
                       <button class="btn-icon-sm" id="copyDecSecret" title="Copy Secret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
                     </div>
                   </div>
+                  <div class="detail-row">
+                    <span class="detail-label" data-i18n="modal_password_label">Password</span>
+                    <div class="secret-clip-wrap dec-pass-field">
+                      <input type="password" id="decPasswordInput" class="glass-input-inline font-mono" placeholder="Optional password...">
+                      <button type="button" class="btn-icon-sm" id="toggleDecPassVisibility" title="Toggle Show/Hide Password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-open"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-closed hidden"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg></button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -492,6 +512,19 @@
         <div class="input-field-group">
           <label data-i18n="gen_secret">Secret Key (Base32)</label>
           <input type="text" id="modalSecret" class="glass-input font-mono" placeholder="e.g. JBSWY3DPEHPK3PXP">
+        </div>
+        <div class="input-field-group">
+          <div class="label-with-action">
+            <label data-i18n="modal_password_label">Account Password (Optional)</label>
+            <button type="button" class="btn-text-action" id="genModalPassBtn" title="Generate Secure Password">🎲 <span data-i18n="gen_pass_quick">Generate</span></button>
+          </div>
+          <div class="password-input-wrap">
+            <input type="password" id="modalPassword" class="glass-input font-mono" placeholder="e.g. •••••••• (Leave empty if not needed)">
+            <button type="button" class="btn-toggle-eye" id="toggleModalPassVisibility" title="Toggle Show/Hide Password">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-open"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-closed hidden"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            </button>
+          </div>
         </div>
       </div>
       <div class="modal-footer">

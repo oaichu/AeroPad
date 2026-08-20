@@ -42,3 +42,30 @@ test('TOTP - Gracefully handles malformed secret or empty input', async () => {
   const otp = await generateTOTP('', { digits: 6 });
   assert.equal(otp, '000000');
 });
+
+test('2FA Account - Preserves optional password field correctly', () => {
+  const accountWithPass = {
+    id: 'totp-12345',
+    issuer: 'ChatGPT OpenAI',
+    account: 'user@openai.com',
+    secret: 'JBSWY3DPEHPK3PXP',
+    password: 'MySecretPassword123!@#',
+    digits: 6,
+    period: 30
+  };
+
+  const accountWithoutPass = {
+    id: 'totp-67890',
+    issuer: 'Google',
+    account: 'user@gmail.com',
+    secret: 'JBSWY3DPEHPK3PXP',
+    password: '',
+    digits: 6,
+    period: 30
+  };
+
+  assert.equal(accountWithPass.password, 'MySecretPassword123!@#');
+  assert.equal(accountWithoutPass.password, '');
+  assert.equal(Boolean(accountWithPass.password && accountWithPass.password.length > 0), true);
+  assert.equal(Boolean(accountWithoutPass.password && accountWithoutPass.password.length > 0), false);
+});

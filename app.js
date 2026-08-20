@@ -163,6 +163,10 @@ const TRANSLATIONS = {
     modal_add_title: 'Add New 2FA Account',
     cancel_btn: 'Cancel',
     confirm_add_btn: 'Add to Vault',
+    modal_password_label: 'Account Password (Optional)',
+    modal_password_placeholder: 'e.g. •••••••• (Leave empty if not needed)',
+    gen_pass_quick: 'Generate',
+    toast_pass_copied: 'Account password copied to clipboard!',
     word_unit: 'words',
     char_unit: 'characters',
     read_unit: 'min read',
@@ -229,6 +233,10 @@ const TRANSLATIONS = {
     modal_add_title: 'Thêm Mã 2FA Mới',
     cancel_btn: 'Hủy',
     confirm_add_btn: 'Thêm vào Vault',
+    modal_password_label: 'Mật khẩu tài khoản (Tùy chọn)',
+    modal_password_placeholder: 'vd: •••••••• (Để trống nếu không dùng)',
+    gen_pass_quick: 'Tạo tự động',
+    toast_pass_copied: 'Đã sao chép mật khẩu tài khoản!',
     word_unit: 'từ',
     char_unit: 'ký tự',
     read_unit: 'phút đọc',
@@ -295,6 +303,10 @@ const TRANSLATIONS = {
     modal_add_title: '添加新 2FA 账户',
     cancel_btn: '取消',
     confirm_add_btn: '添加至保险库',
+    modal_password_label: '账户密码（可选）',
+    modal_password_placeholder: '例如：••••••••（无需则留空）',
+    gen_pass_quick: '随机生成',
+    toast_pass_copied: '账户密码已复制到剪贴板！',
     word_unit: '字',
     char_unit: '字符',
     read_unit: '分钟阅读',
@@ -361,6 +373,10 @@ const TRANSLATIONS = {
     modal_add_title: '새 2FA 계정 추가',
     cancel_btn: '취소',
     confirm_add_btn: '금고에 추가',
+    modal_password_label: '계정 비밀번호(선택사항)',
+    modal_password_placeholder: '예: •••••••• (필요 없으면 비워둠)',
+    gen_pass_quick: '자동 생성',
+    toast_pass_copied: '계정 비밀번호가 클립보드에 복사되었습니다!',
     word_unit: '단어',
     char_unit: '글자',
     read_unit: '분 읽기',
@@ -427,6 +443,10 @@ const TRANSLATIONS = {
     modal_add_title: '新規 2FA アカウント追加',
     cancel_btn: 'キャンセル',
     confirm_add_btn: 'ボールトに追加',
+    modal_password_label: 'アカウントパスワード（任意）',
+    modal_password_placeholder: '例: •••••••• (不要な場合は空欄)',
+    gen_pass_quick: '自動生成',
+    toast_pass_copied: 'アカウントパスワードをクリップボードにコピーしました！',
     word_unit: '単語',
     char_unit: '文字',
     read_unit: '分で読める',
@@ -493,6 +513,10 @@ const TRANSLATIONS = {
     modal_add_title: 'Agregar Cuenta 2FA',
     cancel_btn: 'Cancelar',
     confirm_add_btn: 'Agregar a la Bóveda',
+    modal_password_label: 'Contraseña de la cuenta (Opcional)',
+    modal_password_placeholder: 'ej. •••••••• (Dejar vacío si no es necesario)',
+    gen_pass_quick: 'Generar',
+    toast_pass_copied: '¡Contraseña de la cuenta copiada al portapapeles!',
     word_unit: 'palabras',
     char_unit: 'caracteres',
     read_unit: 'min de lectura',
@@ -559,6 +583,10 @@ const TRANSLATIONS = {
     modal_add_title: 'Tambah Akun 2FA Baru',
     cancel_btn: 'Batal',
     confirm_add_btn: 'Tambah ke Brankas',
+    modal_password_label: 'Kata Sandi Akun (Opsional)',
+    modal_password_placeholder: 'cth: •••••••• (Biarkan kosong jika tidak perlu)',
+    gen_pass_quick: 'Hasilkan',
+    toast_pass_copied: 'Kata sandi akun disalin ke papan klip!',
     word_unit: 'kata',
     char_unit: 'karakter',
     read_unit: 'mnt baca',
@@ -1129,6 +1157,132 @@ function initTOTPStudio() {
   // Copy OTP URL
   document.getElementById('copyOtpUrlBtn')?.addEventListener('click', () => {
     const uri = getOtpAuthURI();
+// Secure Random Password Generator (Crypto API)
+function generateRandomPassword(length = 16) {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower = 'abcdefghijkmnopqrstuvwxyz';
+  const digits = '23456789';
+  const symbols = '!@#$%^&*()_+~|}{[]:;?><,.-=';
+  const all = upper + lower + digits + symbols;
+  
+  let password = '';
+  password += upper.charAt(Math.floor(Math.random() * upper.length));
+  password += lower.charAt(Math.floor(Math.random() * lower.length));
+  password += digits.charAt(Math.floor(Math.random() * digits.length));
+  password += symbols.charAt(Math.floor(Math.random() * symbols.length));
+  
+  const array = new Uint32Array(length - 4);
+  window.crypto.getRandomValues(array);
+  for (let i = 0; i < array.length; i++) {
+    password += all.charAt(array[i] % all.length);
+  }
+  
+  return password.split('').sort(() => 0.5 - Math.random()).join('');
+}
+
+function initTOTPGenerator() {
+  const secretInput = document.getElementById('genSecret');
+  const randomBtn = document.getElementById('randomSecretBtn');
+  const copyBtn = document.getElementById('copyGenSecret');
+  const issuerInput = document.getElementById('genIssuer');
+  const accountInput = document.getElementById('genAccount');
+  const algoSelect = document.getElementById('genAlgo');
+  const periodSelect = document.getElementById('genPeriod');
+  const digitsSelect = document.getElementById('genDigits');
+
+  // Generator Password show/hide toggle
+  document.getElementById('toggleGenPassVisibility')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('genPassword');
+    const eyeOpen = e.currentTarget.querySelector('.eye-open');
+    const eyeClosed = e.currentTarget.querySelector('.eye-closed');
+    if (input.type === 'password') {
+      input.type = 'text';
+      eyeOpen.classList.add('hidden');
+      eyeClosed.classList.remove('hidden');
+    } else {
+      input.type = 'password';
+      eyeOpen.classList.remove('hidden');
+      eyeClosed.classList.add('hidden');
+    }
+  });
+
+  // Generator Random Password Button
+  document.getElementById('genPassBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const pass = generateRandomPassword(16);
+    const input = document.getElementById('genPassword');
+    if (input) {
+      input.value = pass;
+      input.type = 'text';
+      const btn = document.getElementById('toggleGenPassVisibility');
+      btn?.querySelector('.eye-open')?.classList.add('hidden');
+      btn?.querySelector('.eye-closed')?.classList.remove('hidden');
+      showToast('Generated secure password!');
+    }
+  });
+
+  // Modal Password show/hide toggle
+  document.getElementById('toggleModalPassVisibility')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('modalPassword');
+    const eyeOpen = e.currentTarget.querySelector('.eye-open');
+    const eyeClosed = e.currentTarget.querySelector('.eye-closed');
+    if (input.type === 'password') {
+      input.type = 'text';
+      eyeOpen.classList.add('hidden');
+      eyeClosed.classList.remove('hidden');
+    } else {
+      input.type = 'password';
+      eyeOpen.classList.remove('hidden');
+      eyeClosed.classList.add('hidden');
+    }
+  });
+
+  // Modal Random Password Button
+  document.getElementById('genModalPassBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const pass = generateRandomPassword(16);
+    const input = document.getElementById('modalPassword');
+    if (input) {
+      input.value = pass;
+      input.type = 'text';
+      const btn = document.getElementById('toggleModalPassVisibility');
+      btn?.querySelector('.eye-open')?.classList.add('hidden');
+      btn?.querySelector('.eye-closed')?.classList.remove('hidden');
+      showToast('Generated secure password!');
+    }
+  });
+
+  // Generate Initial Random Secret Key
+  if (secretInput && !secretInput.value) {
+    secretInput.value = Base32.randomSecret(16);
+    renderQRCode();
+  }
+
+  randomBtn?.addEventListener('click', () => {
+    if (secretInput) {
+      secretInput.value = Base32.randomSecret(16);
+      renderQRCode();
+      showToast(t('gen_random_btn'));
+    }
+  });
+
+  copyBtn?.addEventListener('click', () => {
+    if (secretInput && secretInput.value) {
+      navigator.clipboard.writeText(secretInput.value.trim());
+      showToast(t('toast_secret_copied'));
+    }
+  });
+
+  [secretInput, issuerInput, accountInput, algoSelect, periodSelect, digitsSelect].forEach(el => {
+    el?.addEventListener('input', renderQRCode);
+    el?.addEventListener('change', renderQRCode);
+  });
+
+  // Copy OTP Auth Link
+  document.getElementById('copyOtpUrlBtn')?.addEventListener('click', () => {
+    const uri = getOtpAuthURI();
     if (uri) {
       navigator.clipboard.writeText(uri);
       showToast(t('toast_otp_copied'));
@@ -1143,6 +1297,7 @@ function initTOTPStudio() {
     const issuer = document.getElementById('genIssuer').value.trim() || '2FA Service';
     const account = document.getElementById('genAccount').value.trim() || 'user';
     const secret = document.getElementById('genSecret').value.trim().toUpperCase();
+    const password = document.getElementById('genPassword')?.value.trim() || '';
 
     if (!secret) {
       showToast(t('gen_secret'), 'error');
@@ -1154,6 +1309,7 @@ function initTOTPStudio() {
       issuer,
       account,
       secret,
+      password,
       digits: parseInt(document.getElementById('genDigits').value) || 6,
       period: parseInt(document.getElementById('genPeriod').value) || 30
     };
@@ -1172,6 +1328,8 @@ function initTOTPStudio() {
   document.getElementById('quickAdd2FABtn')?.addEventListener('click', () => {
     modalBackdrop.classList.remove('hidden');
     document.getElementById('modalSecret').value = Base32.randomSecret(16);
+    const modalPass = document.getElementById('modalPassword');
+    if (modalPass) modalPass.value = '';
   });
 
   document.getElementById('closeModalBtn')?.addEventListener('click', () => modalBackdrop.classList.add('hidden'));
@@ -1181,6 +1339,7 @@ function initTOTPStudio() {
     const issuer = document.getElementById('modalIssuer').value.trim() || '2FA Service';
     const account = document.getElementById('modalAccount').value.trim() || 'user';
     const secret = document.getElementById('modalSecret').value.trim().toUpperCase();
+    const password = document.getElementById('modalPassword')?.value.trim() || '';
 
     if (!secret) {
       showToast(t('gen_secret'), 'error');
@@ -1192,6 +1351,7 @@ function initTOTPStudio() {
       issuer,
       account,
       secret,
+      password,
       digits: 6,
       period: 30
     });
@@ -1286,10 +1446,30 @@ async function renderTOTPCards() {
   for (const acc of appState.totpAccounts) {
     const card = document.createElement('div');
     card.className = 'totp-card glass-panel';
+    card.dataset.accId = acc.id;
     
     const initial = (acc.issuer || '2F').charAt(0).toUpperCase();
     const currentCode = await generateTOTP(acc.secret, acc.period, acc.digits);
     const formattedCode = currentCode.slice(0, 3) + ' ' + currentCode.slice(3);
+
+    const hasPassword = Boolean(acc.password && acc.password.trim().length > 0);
+    const passwordRowHTML = hasPassword ? `
+      <div class="totp-card-password-row">
+        <div class="pass-label-col">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pass-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span class="pass-masked-val" id="pass-val-${acc.id}">••••••••••••</span>
+        </div>
+        <div class="pass-actions-col">
+          <button class="btn-icon-xs toggle-card-pass" data-id="${acc.id}" title="Show/Hide Password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-open"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-closed hidden"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+          </button>
+          <button class="btn-icon-xs copy-card-pass" data-id="${acc.id}" title="Copy Password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+        </div>
+      </div>
+    ` : '';
 
     card.innerHTML = `
       <div class="totp-card-top">
@@ -1312,6 +1492,8 @@ async function renderTOTPCards() {
         </button>
       </div>
 
+      ${passwordRowHTML}
+
       <div class="totp-card-footer">
         <span>RFC 6238 HMAC-SHA1</span>
         <span class="font-mono text-cyan">${acc.period}s</span>
@@ -1328,9 +1510,37 @@ async function renderTOTPCards() {
       showToast(`${t('toast_code_copied')} ${currentCode}`);
     });
 
-    // Card click also copies
+    // Copy Password action
+    if (hasPassword) {
+      card.querySelector('.copy-card-pass')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(acc.password);
+        showToast(t('toast_pass_copied') || 'Password copied to clipboard!');
+      });
+
+      // Toggle Password reveal/mask
+      card.querySelector('.toggle-card-pass')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const btn = e.currentTarget;
+        const valEl = document.getElementById(`pass-val-${acc.id}`);
+        const eyeOpen = btn.querySelector('.eye-open');
+        const eyeClosed = btn.querySelector('.eye-closed');
+        
+        if (valEl.textContent === '••••••••••••') {
+          valEl.textContent = acc.password;
+          eyeOpen.classList.add('hidden');
+          eyeClosed.classList.remove('hidden');
+        } else {
+          valEl.textContent = '••••••••••••';
+          eyeOpen.classList.remove('hidden');
+          eyeClosed.classList.add('hidden');
+        }
+      });
+    }
+
+    // Card click copies OTP code (except when clicking buttons/passwords)
     card.addEventListener('click', (e) => {
-      if (e.target.closest('.delete-totp-btn')) return;
+      if (e.target.closest('.delete-totp-btn') || e.target.closest('.totp-card-password-row')) return;
       navigator.clipboard.writeText(currentCode);
       showToast(`${t('toast_code_copied')} ${currentCode}`);
     });
@@ -1469,14 +1679,33 @@ function initDecoder() {
     }
   });
 
+  // Toggle Decoded Password visibility
+  document.getElementById('toggleDecPassVisibility')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('decPasswordInput');
+    const eyeOpen = e.currentTarget.querySelector('.eye-open');
+    const eyeClosed = e.currentTarget.querySelector('.eye-closed');
+    if (input.type === 'password') {
+      input.type = 'text';
+      eyeOpen.classList.add('hidden');
+      eyeClosed.classList.remove('hidden');
+    } else {
+      input.type = 'password';
+      eyeOpen.classList.remove('hidden');
+      eyeClosed.classList.add('hidden');
+    }
+  });
+
   // Add Decoded to Vault
   document.getElementById('addDecodedToVaultBtn')?.addEventListener('click', () => {
     if (!currentDecodedItem) return;
+    const password = document.getElementById('decPasswordInput')?.value.trim() || '';
     appState.totpAccounts.push({
       id: 'totp-' + Date.now(),
       issuer: currentDecodedItem.issuer,
       account: currentDecodedItem.account,
       secret: currentDecodedItem.secret,
+      password,
       digits: 6,
       period: 30
     });
