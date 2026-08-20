@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AetherPad & 2FA Studio — Apple + Web3 Security Vault</title>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- QRCode.js & jsQR CDN for real QR generating and scanning in demo -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-canvas text-primary antialiased">
+  <!-- Dynamic Ambient Glow Background -->
+  <div class="ambient-glow glow-top-left"></div>
+  <div class="ambient-glow glow-bottom-right"></div>
+  <div class="mesh-grid"></div>
+
+  <!-- App Wrapper -->
+  <div class="app-layout">
+    <!-- Top Glass Navigation Bar -->
+    <header class="top-nav glass-panel">
+      <div class="nav-brand">
+        <div class="brand-symbol">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" stroke="url(#brandGrad)" />
+            <path d="M12 8v8M8 12h8" stroke="#00F2FE" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="brandGrad" x1="3" y1="2" x2="21" y2="25" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#00F2FE"/>
+                <stop offset="0.5" stop-color="#6366F1"/>
+                <stop offset="1" stop-color="#10B981"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Aether<span class="text-gradient">Pad</span></span>
+          <span class="brand-badge">2FA &amp; CIPHER VAULT</span>
+        </div>
+      </div>
+
+      <!-- Segmented Navigation Pills -->
+      <nav class="nav-segments glass-segment">
+        <button class="nav-pill active" data-tab="notepad">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span>Smart Notepad</span>
+        </button>
+        <button class="nav-pill" data-tab="totp">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0110 0v4"></path></svg>
+          <span>2FA Studio</span>
+          <span class="badge-pulse">LIVE</span>
+        </button>
+        <button class="nav-pill" data-tab="hosting">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          <span>Free Hosting &amp; Domain</span>
+        </button>
+      </nav>
+
+      <!-- Right Controls -->
+      <div class="nav-actions">
+        <div class="security-chip" title="Mã hóa hoàn toàn tại trình duyệt - Không qua máy chủ">
+          <span class="status-dot"></span>
+          <span class="chip-label">Zero-Knowledge</span>
+        </div>
+        <button id="themeToggle" class="icon-button" title="Chuyển đổi giao diện Sáng / Tối">
+          <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+        <button id="vaultLockBtn" class="lock-button glass-pill" title="Khóa / Mở Vault">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span>Vault Unlocked</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="main-content">
+      
+      <!-- ==============================================
+           TAB 1: SMART NOTEPAD
+           ============================================== -->
+      <section id="tab-notepad" class="tab-pane active">
+        <div class="notepad-layout">
+          <!-- Sidebar: Note Explorer -->
+          <aside class="notepad-sidebar glass-panel">
+            <div class="sidebar-header">
+              <div class="search-box glass-input-group">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="noteSearch" placeholder="Tìm ghi chú...">
+              </div>
+              <button id="newNoteBtn" class="btn-primary-gradient btn-icon-round" title="Ghi chú mới">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            </div>
+
+            <!-- Notes List -->
+            <div class="notes-list-scroll" id="notesList">
+              <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Vault Storage Status -->
+            <div class="sidebar-footer">
+              <div class="vault-stat">
+                <div class="stat-row">
+                  <span>Dung lượng đã dùng</span>
+                  <span id="storageUsage">14.2 KB</span>
+                </div>
+                <div class="progress-track"><div class="progress-bar" style="width: 8%"></div></div>
+                <div class="stat-sub">Mã hóa AES-256 • LocalStorage Cục bộ</div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Main Note Editor -->
+          <div class="notepad-editor glass-panel">
+            <div class="editor-header">
+              <input type="text" id="noteTitle" class="editor-title-input" placeholder="Tiêu đề ghi chú...">
+              <div class="editor-actions">
+                <span class="save-indicator" id="saveIndicator">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Đã lưu</span>
+                </span>
+                <div class="editor-mode-toggle glass-pill">
+                  <button class="mode-btn active" data-mode="edit">Soạn thảo</button>
+                  <button class="mode-btn" data-mode="split">Chia đôi</button>
+                  <button class="mode-btn" data-mode="preview">Xem trước</button>
+                </div>
+                <div class="dropdown-export">
+                  <button id="exportBtn" class="btn-glass">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <span>Xuất file</span>
+                  </button>
+                  <div class="dropdown-menu glass-panel" id="exportMenu">
+                    <button data-export="md">Markdown (.md)</button>
+                    <button data-export="txt">Plain Text (.txt)</button>
+                    <button data-export="json">Encrypted Backup (.json)</button>
+                  </div>
+                </div>
+                <button id="deleteNoteBtn" class="btn-danger-ghost" title="Xóa ghi chú này">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="editor-toolbar">
+              <button data-format="bold" title="In đậm (Ctrl+B)"><b>B</b></button>
+              <button data-format="italic" title="In nghiêng (Ctrl+I)"><i>I</i></button>
+              <button data-format="heading" title="Tiêu đề (H2)">H2</button>
+              <button data-format="code" title="Code block"><code>&lt;/&gt;</code></button>
+              <button data-format="quote" title="Trích dẫn">“”</button>
+              <button data-format="list" title="Danh sách gạch đầu dòng">• List</button>
+              <button data-format="check" title="Checklist / To-do">☑ Task</button>
+              <div class="toolbar-divider"></div>
+              <button id="copyNoteContent" title="Sao chép toàn bộ nội dung" class="btn-tool-copy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Sao chép</span>
+              </button>
+            </div>
+
+            <!-- Editor Body -->
+            <div class="editor-workspace" id="editorWorkspace">
+              <textarea id="noteContent" class="raw-editor" placeholder="Bắt đầu gõ ghi chú của bạn... Hỗ trợ định dạng Markdown, danh sách to-do, seed phrases hoặc mã bảo mật bí mật..."></textarea>
+              <div id="notePreview" class="markdown-preview hidden"></div>
+            </div>
+
+            <!-- Editor Footer -->
+            <div class="editor-footer">
+              <div class="editor-meta">
+                <span id="wordCount">0 từ</span>
+                <span class="meta-dot">•</span>
+                <span id="charCount">0 ký tự</span>
+                <span class="meta-dot">•</span>
+                <span id="readTime">1 phút đọc</span>
+              </div>
+              <div class="editor-tags">
+                <span class="tag-badge">#Crypto</span>
+                <span class="tag-badge">#Private</span>
+                <span class="tag-badge">#Zero-Leak</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           TAB 2: 2FA STUDIO & AUTHENTICATOR
+           ============================================== -->
+      <section id="tab-totp" class="tab-pane">
+        <!-- 2FA Subnav Tabs -->
+        <div class="totp-subnav-container">
+          <div class="glass-segment totp-subnav">
+            <button class="totp-subpill active" data-subtab="vault">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span>Live TOTP Vault</span>
+            </button>
+            <button class="totp-subpill" data-subtab="generator">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Tạo Mới 2FA (Secret &amp; QR)</span>
+            </button>
+            <button class="totp-subpill" data-subtab="decoder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"></path><path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"></path></svg>
+              <span>Giải Mã &amp; Quét QR 2FA</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2FA SUBTAB 1: LIVE TOTP VAULT -->
+        <div id="subtab-vault" class="totp-subpane active">
+          <div class="totp-vault-header">
+            <div class="vault-title-wrap">
+              <h2>Mã Xác Thực 2 Bước (TOTP)</h2>
+              <p class="text-secondary">Tự động làm mới theo chuẩn RFC 6238 HMAC-SHA1. Chạy hoàn toàn trên Web Crypto API cục bộ.</p>
+            </div>
+            <div class="vault-controls">
+              <div class="global-timer-badge glass-pill">
+                <svg class="timer-ring" width="28" height="28" viewBox="0 0 36 36">
+                  <path class="timer-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  <path id="globalCountdownCircle" class="timer-progress" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                </svg>
+                <span id="globalCountdownSec" class="timer-num">30s</span>
+              </div>
+              <button id="quickAdd2FABtn" class="btn-primary-gradient">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Thêm Mã Mới</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- TOTP Cards Grid -->
+          <div class="totp-grid" id="totpCardsGrid">
+            <!-- Dynamic TOTP items -->
+          </div>
+        </div>
+
+        <!-- 2FA SUBTAB 2: GENERATOR -->
+        <div id="subtab-generator" class="totp-subpane">
+          <div class="gen-layout">
+            <div class="gen-form-panel glass-panel">
+              <div class="panel-header">
+                <h3>Tạo Khóa Bí Mật &amp; Mã QR 2FA Mới</h3>
+                <p class="text-secondary">Sinh khóa Base32 bảo mật cao để kích hoạt xác thực 2 bước cho dịch vụ hoặc ứng dụng của bạn.</p>
+              </div>
+
+              <div class="form-grid">
+                <div class="input-field-group">
+                  <label>Tên Đơn Vị Phát Hành (Issuer)</label>
+                  <input type="text" id="genIssuer" class="glass-input" value="AetherVault Cloud" placeholder="vd: Binance, Google, GitHub, Telegram...">
+                </div>
+                <div class="input-field-group">
+                  <label>Tên Tài Khoản / Email (Account)</label>
+                  <input type="text" id="genAccount" class="glass-input" value="admin@aethervault.io" placeholder="vd: security@domain.com">
+                </div>
+                <div class="input-field-group full-width">
+                  <div class="label-with-action">
+                    <label>Khóa Bí Mật (Secret Key Base32)</label>
+                    <button id="randomSecretBtn" class="btn-text-action">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                      <span>Sinh ngẫu nhiên mới</span>
+                    </button>
+                  </div>
+                  <div class="secret-input-wrap">
+                    <input type="text" id="genSecret" class="glass-input font-mono" value="JBSWY3DPEHPK3PXP" placeholder="16 hoặc 32 ký tự Base32 (A-Z, 2-7)">
+                    <button id="copyGenSecret" class="btn-inner-copy" title="Sao chép Secret">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="input-field-group">
+                  <label>Thuật toán Hash</label>
+                  <select id="genAlgo" class="glass-select">
+                    <option value="SHA1" selected>SHA-1 (Chuẩn phổ biến nhất)</option>
+                    <option value="SHA256">SHA-256</option>
+                    <option value="SHA512">SHA-512</option>
+                  </select>
+                </div>
+                <div class="input-field-group">
+                  <label>Chu kỳ &amp; Chữ số</label>
+                  <div class="two-col-inputs">
+                    <select id="genPeriod" class="glass-select">
+                      <option value="30" selected>30 giây (Mặc định)</option>
+                      <option value="60">60 giây</option>
+                    </select>
+                    <select id="genDigits" class="glass-select">
+                      <option value="6" selected>6 chữ số</option>
+                      <option value="8">8 chữ số</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-buttons">
+                <button id="saveToVaultBtn" class="btn-primary-gradient">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                  <span>Lưu Trực Tiếp Vào Vault</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Live QR Preview Card -->
+            <div class="gen-preview-panel glass-panel">
+              <div class="qr-card-apple">
+                <div class="qr-glow-layer"></div>
+                <div class="qr-canvas-container" id="qrContainer">
+                  <!-- QR Code rendered dynamically -->
+                </div>
+                <div class="qr-meta-info">
+                  <div class="qr-issuer-name" id="previewIssuer">AetherVault Cloud</div>
+                  <div class="qr-account-name" id="previewAccount">admin@aethervault.io</div>
+                </div>
+                <div class="qr-actions">
+                  <button id="downloadQRBtn" class="btn-glass btn-sm">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <span>Tải QR PNG</span>
+                  </button>
+                  <button id="copyOtpUrlBtn" class="btn-glass btn-sm">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    <span>Copy OTP Link</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2FA SUBTAB 3: DECODER / SCANNER -->
+        <div id="subtab-decoder" class="totp-subpane">
+          <div class="decoder-layout">
+            <!-- Dropzone / Scanner Card -->
+            <div class="decoder-input-card glass-panel">
+              <h3>Giải Mã Mã QR &amp; Khóa 2FA</h3>
+              <p class="text-secondary">Kéo thả ảnh QR Code, dán ảnh từ clipboard (Ctrl+V) hoặc dán link otpauth:// để trích xuất Secret Key &amp; xem mã 6 số tức thì.</p>
+
+              <!-- Drag & Drop Zone -->
+              <div class="drop-zone" id="qrDropZone">
+                <input type="file" id="qrFileInput" accept="image/*" class="file-hidden">
+                <div class="drop-content">
+                  <div class="drop-icon-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  </div>
+                  <h4>Kéo thả ảnh mã QR vào đây</h4>
+                  <p>hoặc <span>nhấp để duyệt tệp</span> / dán ảnh từ Clipboard (Ctrl+V)</p>
+                </div>
+              </div>
+
+              <!-- Or Paste Text / URI -->
+              <div class="divider-text"><span>HOẶC DÁN CHUỖI OTPAUTH / SECRET KEY</span></div>
+              <div class="paste-field-group">
+                <textarea id="rawOtpInput" class="glass-textarea font-mono" rows="2" placeholder="vd: otpauth://totp/Google:user@gmail.com?secret=JBSWY3DPEHPK3PXP&issuer=Google&#10;hoặc nhập trực tiếp Secret Key Base32..."></textarea>
+                <button id="decodeBtn" class="btn-primary-gradient">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                  <span>Giải Mã Ngay</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Decoded Result Card -->
+            <div class="decoder-result-card glass-panel" id="decoderResultCard">
+              <div class="panel-header">
+                <span class="badge-success">KẾT QUẢ GIẢI MÃ THÀNH CÔNG</span>
+                <h4>Thông Tin Tài Khoản 2FA</h4>
+              </div>
+
+              <div class="decoded-details">
+                <div class="detail-row">
+                  <span class="detail-label">Đơn vị (Issuer):</span>
+                  <span class="detail-val font-semibold" id="decIssuer">Google Security</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Tài khoản (Account):</span>
+                  <span class="detail-val font-mono" id="decAccount">user@gmail.com</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Khóa bí mật trích xuất:</span>
+                  <div class="secret-clip-wrap">
+                    <span class="detail-val font-mono text-cyan" id="decSecret">JBSWY3DPEHPK3PXP</span>
+                    <button class="btn-icon-sm" id="copyDecSecret" title="Copy Secret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Verification Code Box -->
+              <div class="live-test-box glass-panel-nested">
+                <div class="test-header">
+                  <span>MÃ 6 SỐ THỜI GIAN THỰC ĐƯỢC TẠO RA:</span>
+                  <span class="live-pulse-dot"></span>
+                </div>
+                <div class="live-code-display" id="decLiveCode">
+                  <span>---</span> <span>---</span>
+                </div>
+                <div class="test-progress-bar">
+                  <div class="test-progress-fill" id="decProgressFill"></div>
+                </div>
+              </div>
+
+              <button id="addDecodedToVaultBtn" class="btn-primary-gradient full-width">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Lưu Tài Khoản Này Vào Vault Của Bạn</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           TAB 3: FREE HOSTING & DOMAIN GUIDE
+           ============================================== -->
+      <section id="tab-hosting" class="tab-pane">
+        <div class="hosting-guide-container">
+          <div class="guide-hero">
+            <span class="badge-web3">100% FREE &amp; PERMANENT HOSTING</span>
+            <h2>Hướng Dẫn Triển Khai &amp; Tên Miền Miễn Phí 0đ</h2>
+            <p class="text-secondary">Vì dự án không mang tính thương mại và là ứng dụng Client-side bảo mật tuyệt đối, bạn có thể triển khai với chi phí 0đ trọn đời cùng tốc độ CDN đỉnh cao.</p>
+          </div>
+
+          <div class="hosting-grid">
+            <!-- Platform 1: Cloudflare Pages -->
+            <div class="hosting-card glass-panel featured-platform">
+              <div class="featured-ribbon">KHUYÊN DÙNG SỐ 1</div>
+              <div class="platform-icon cloudflare-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#F6821F" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>
+              </div>
+              <h3>Cloudflare Pages</h3>
+              <p class="platform-desc">Tốc độ nhanh nhất tại Việt Nam (có POP Edge tại Hà Nội &amp; TP.HCM), băng thông vô hạn, SSL tự động.</p>
+              <ul class="feature-checklist">
+                <li>✓ Chi phí: <b>0đ vĩnh viễn</b></li>
+                <li>✓ Băng thông: <b>Không giới hạn (Unlimited Bandwidth)</b></li>
+                <li>✓ Tên miền miễn phí: <code>ten-app.pages.dev</code></li>
+                <li>✓ Hỗ trợ Custom Domain miễn phí + bảo vệ DDoS</li>
+              </ul>
+              <div class="deploy-steps">
+                <div class="step-num">1</div>
+                <div>Đẩy mã nguồn lên GitHub Repo.</div>
+                <div class="step-num">2</div>
+                <div>Truy cập <b>pages.cloudflare.com</b> &gt; Connect GitHub &gt; Deploy!</div>
+              </div>
+            </div>
+
+            <!-- Platform 2: Vercel -->
+            <div class="hosting-card glass-panel">
+              <div class="platform-icon vercel-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L24 22H0L12 1Z"></path></svg>
+              </div>
+              <h3>Vercel</h3>
+              <p class="platform-desc">Giao diện quản lý mượt mà chuẩn Apple, triển khai 1 click từ GitHub, tối ưu cho Next.js/React/HTML.</p>
+              <ul class="feature-checklist">
+                <li>✓ Chi phí: <b>0đ vĩnh viễn (Hobby Plan)</b></li>
+                <li>✓ Tên miền miễn phí: <code>ten-app.vercel.app</code></li>
+                <li>✓ CI/CD tự động deploy khi git push</li>
+                <li>✓ 100GB băng thông/tháng (quá thừa cho cá nhân)</li>
+              </ul>
+            </div>
+
+            <!-- Platform 3: GitHub Pages -->
+            <div class="hosting-card glass-panel">
+              <div class="platform-icon github-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              </div>
+              <h3>GitHub Pages</h3>
+              <p class="platform-desc">Trực tiếp từ kho lưu trữ mã nguồn, cực kỳ uy tín và dễ quản lý.</p>
+              <ul class="feature-checklist">
+                <li>✓ Chi phí: <b>0đ trọn đời</b></li>
+                <li>✓ Tên miền miễn phí: <code>username.github.io/app</code></li>
+                <li>✓ Miễn phí chứng chỉ SSL HTTPS</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Free Custom Domain Providers -->
+          <div class="domain-section glass-panel">
+            <h3>🌐 Các Tùy Chọn Tên Miền Miễn Phí Đẹp &amp; Uy Tín</h3>
+            <div class="domain-options-grid">
+              <div class="domain-item">
+                <div class="domain-badge">Khuyên dùng</div>
+                <h4>Subdomain Chính Hãng (Vercel / Cloudflare)</h4>
+                <p><code>your-brand.pages.dev</code> hoặc <code>your-brand.vercel.app</code></p>
+                <div class="domain-status">✓ Cực đẹp, chuyên nghiệp, không bị đánh giá spam, SSL trọn đời.</div>
+              </div>
+              <div class="domain-item">
+                <div class="domain-badge">Miễn phí vĩnh viễn</div>
+                <h4>Tên miền EU.org</h4>
+                <p><code>your-name.eu.org</code></p>
+                <div class="domain-status">✓ Cấp tên miền miễn phí hoạt động từ 1996, hỗ trợ DNS Cloudflare đầy đủ.</div>
+              </div>
+              <div class="domain-item">
+                <div class="domain-badge">Dành cho Dev</div>
+                <h4>is-a.dev / js.org</h4>
+                <p><code>your-project.is-a.dev</code></p>
+                <div class="domain-status">✓ Dành cho các dự án Open-Source trên GitHub thông qua Pull Request.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast Notification Overlay -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Quick Add 2FA Modal -->
+  <div id="modalBackdrop" class="modal-backdrop hidden">
+    <div class="modal-box glass-panel">
+      <div class="modal-header">
+        <h3>Thêm Mã 2FA Mới</h3>
+        <button id="closeModalBtn" class="btn-icon-sm">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="input-field-group">
+          <label>Tên dịch vụ (Issuer)</label>
+          <input type="text" id="modalIssuer" class="glass-input" placeholder="vd: Binance, Facebook, AWS...">
+        </div>
+        <div class="input-field-group">
+          <label>Tài khoản (Account / Email)</label>
+          <input type="text" id="modalAccount" class="glass-input" placeholder="vd: yourname@gmail.com">
+        </div>
+        <div class="input-field-group">
+          <label>Khóa bí mật (Secret Key Base32)</label>
+          <input type="text" id="modalSecret" class="glass-input font-mono" placeholder="vd: JBSWY3DPEHPK3PXP">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelModalBtn" class="btn-glass">Hủy</button>
+        <button id="confirmAdd2FABtn" class="btn-primary-gradient">Thêm vào Vault</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
