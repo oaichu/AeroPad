@@ -1,0 +1,23 @@
+{
+  "name": "aeropad",
+  "version": "1.0.0",
+  "description": "Decentralized Apple-Grade Notepad & RFC 6238 2FA TOTP Vault",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "node --check app.js"
+  },
+  "keywords": [
+    "2fa",
+    "totp",
+    "authenticator",
+    "notepad",
+    "markdown",
+    "zero-knowledge",
+    "apple-design",
+    "web3",
+    "cloudflare-pages"
+  ],
+  "author": "oaichu",
+  "license": "MIT"
+}
