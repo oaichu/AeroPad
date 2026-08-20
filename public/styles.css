@@ -471,6 +471,98 @@ html.light .glass-input-group {
   transform: translateY(-1px);
 }
 
+/* Premium Apple + Web3 'Thêm Mã Mới' Action Button */
+.btn-add-vault {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 20px 6px 8px;
+  border-radius: var(--radius-full);
+  background: var(--grad-aurora);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #07090E;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 20px -2px rgba(0, 242, 254, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  user-select: none;
+}
+
+.btn-add-vault:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(0, 242, 254, 0.6), 0 0 18px rgba(99, 102, 241, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.btn-add-vault:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 10px rgba(0, 242, 254, 0.3);
+}
+
+.btn-icon-capsule {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(7, 9, 14, 0.92);
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-icon-capsule svg {
+  width: 15px;
+  height: 15px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-add-vault:hover .btn-icon-capsule svg {
+  transform: rotate(90deg) scale(1.15);
+  color: #FFFFFF;
+}
+
+.btn-add-vault:hover .btn-icon-capsule {
+  background: #07090E;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.7);
+}
+
+.btn-text-label {
+  font-weight: 700;
+  color: #07090E;
+}
+
+/* Sub-pixel subtle animated light reflection */
+.btn-shimmer {
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  transform: rotate(25deg);
+  pointer-events: none;
+  animation: shimmer-swipe 4s infinite ease-in-out;
+}
+
+@keyframes shimmer-swipe {
+  0% { left: -60%; opacity: 0; }
+  15% { opacity: 1; }
+  35% { left: 140%; opacity: 0; }
+  100% { left: 140%; opacity: 0; }
+}
+
 .btn-icon-round {
   width: 38px;
   height: 38px;
