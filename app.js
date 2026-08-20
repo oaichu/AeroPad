@@ -647,15 +647,20 @@ function initLanguage() {
     menu?.classList.toggle('show');
   });
 
-  document.addEventListener('click', () => {
-    wrap?.classList.remove('open');
-    menu?.classList.remove('show');
+  document.addEventListener('click', (e) => {
+    if (!wrap?.contains(e.target)) {
+      wrap?.classList.remove('open');
+      menu?.classList.remove('show');
+    }
   });
 
-  menu?.querySelectorAll('button[data-lang]').forEach(opt => {
-    opt.addEventListener('click', () => {
-      const selectedLang = opt.dataset.lang;
-      applyLanguage(selectedLang);
+  menu?.querySelectorAll('.lang-opt').forEach(opt => {
+    opt.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const selectedLang = opt.getAttribute('data-lang');
+      if (selectedLang) {
+        applyLanguage(selectedLang);
+      }
       wrap?.classList.remove('open');
       menu?.classList.remove('show');
     });
