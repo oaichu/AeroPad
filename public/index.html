@@ -289,16 +289,16 @@
 
               <div class="form-grid">
                 <div class="input-field-group">
-                  <label data-i18n="gen_issuer">Issuer Name</label>
+                  <label><span data-i18n="gen_issuer">Issuer Name</span> <span class="req-star">*</span></label>
                   <input type="text" id="genIssuer" class="glass-input" placeholder="e.g. Binance, Google, GitHub, Telegram...">
                 </div>
                 <div class="input-field-group">
-                  <label data-i18n="gen_account">Account / Email</label>
+                  <label><span data-i18n="gen_account">Account / Email</span> <span class="req-star">*</span></label>
                   <input type="text" id="genAccount" class="glass-input" placeholder="e.g. user@domain.com">
                 </div>
                 <div class="input-field-group full-width">
                   <div class="label-with-action">
-                    <label data-i18n="gen_secret">Secret Key (Base32)</label>
+                    <label><span data-i18n="gen_secret">Secret Key (Base32)</span> <span class="req-star">*</span></label>
                     <button id="randomSecretBtn" class="btn-text-action">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
                       <span data-i18n="gen_random_btn">Generate New Random</span>
@@ -504,15 +504,18 @@
       </div>
       <div class="modal-body">
         <div class="input-field-group">
-          <label data-i18n="gen_issuer">Issuer</label>
+          <label><span data-i18n="gen_issuer">Issuer</span> <span class="req-star">*</span></label>
           <input type="text" id="modalIssuer" class="glass-input" placeholder="e.g. Binance, Facebook, AWS...">
         </div>
         <div class="input-field-group">
-          <label data-i18n="gen_account">Account / Email</label>
+          <label><span data-i18n="gen_account">Account / Email</span> <span class="req-star">*</span></label>
           <input type="text" id="modalAccount" class="glass-input" placeholder="e.g. yourname@gmail.com">
         </div>
         <div class="input-field-group">
-          <label data-i18n="gen_secret">Secret Key (Base32)</label>
+          <div class="label-with-action">
+            <label><span data-i18n="gen_secret">Secret Key (Base32)</span> <span class="req-star">*</span></label>
+            <button type="button" class="btn-text-action" id="genModalSecretBtn" title="Generate Random Secret Key">🎲 <span data-i18n="gen_random_btn">Generate New Random</span></button>
+          </div>
           <input type="text" id="modalSecret" class="glass-input font-mono" placeholder="e.g. JBSWY3DPEHPK3PXP">
         </div>
         <div class="input-field-group">

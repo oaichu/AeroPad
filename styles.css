@@ -1429,6 +1429,16 @@ html.light .totp-card-password-row {
   height: 14px;
 }
 
+/* Required field indicator */
+.req-star {
+  color: var(--accent-rose, #F43F5E);
+  font-weight: 700;
+  margin-left: 2px;
+  font-size: 0.95em;
+  line-height: 1;
+  display: inline;
+}
+
 /* Form Password Input & Action Controls */
 .password-input-wrap {
   position: relative;

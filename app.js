@@ -178,7 +178,8 @@ const TRANSLATIONS = {
     toast_qr_downloaded: 'QR Code downloaded as PNG',
     toast_code_copied: '2FA code copied:',
     toast_totp_added: '2FA account added to Vault',
-    toast_qr_detected: 'QR Code detected and decoded successfully!'
+    toast_qr_detected: 'QR Code detected and decoded successfully!',
+    toast_required_fields: 'Please fill in all required fields (*)'
   },
   vi: {
     name: 'Tiếng Việt',
@@ -248,7 +249,8 @@ const TRANSLATIONS = {
     toast_qr_downloaded: 'Đã tải xuống ảnh mã QR',
     toast_code_copied: 'Đã sao chép mã 2FA:',
     toast_totp_added: 'Đã thêm tài khoản vào Vault',
-    toast_qr_detected: 'Đã phát hiện và giải mã mã QR thành công!'
+    toast_qr_detected: 'Đã phát hiện và giải mã mã QR thành công!',
+    toast_required_fields: 'Vui lòng điền đầy đủ các mục bắt buộc (*)'
   },
   zh: {
     name: '简体中文',
@@ -318,7 +320,8 @@ const TRANSLATIONS = {
     toast_qr_downloaded: '二维码已下载为 PNG',
     toast_code_copied: '2FA 验证码已复制：',
     toast_totp_added: '已添加 2FA 账户至保险库',
-    toast_qr_detected: '成功识别并解码二维码！'
+    toast_qr_detected: '成功识别并解码二维码！',
+    toast_required_fields: '请填写所有必填项（*）'
   },
   ko: {
     name: '한국어',
@@ -388,7 +391,8 @@ const TRANSLATIONS = {
     toast_qr_downloaded: 'QR 코드가 PNG로 다운로드되었습니다',
     toast_code_copied: '2FA 코드가 복사되었습니다:',
     toast_totp_added: '금고에 2FA 계정이 추가되었습니다',
-    toast_qr_detected: 'QR 코드가 감지되어 디코드되었습니다!'
+    toast_qr_detected: 'QR 코드가 감지되어 디코드되었습니다!',
+    toast_required_fields: '모든 필수 항목(*)을 입력해 주세요'
   },
   ja: {
     name: '日本語',
@@ -458,7 +462,8 @@ const TRANSLATIONS = {
     toast_qr_downloaded: 'QRコードをPNGで保存しました',
     toast_code_copied: '2FAコードをコピーしました:',
     toast_totp_added: '2FAアカウントをボールトに追加しました',
-    toast_qr_detected: 'QRコードを検出してデコードしました！'
+    toast_qr_detected: 'QRコードを検出してデコードしました！',
+    toast_required_fields: 'すべての必須項目（*）を入力してください'
   },
   es: {
     name: 'Español',
@@ -528,7 +533,8 @@ const TRANSLATIONS = {
     toast_qr_downloaded: 'Código QR descargado como PNG',
     toast_code_copied: 'Código 2FA copiado:',
     toast_totp_added: 'Cuenta 2FA agregada a la Bóveda',
-    toast_qr_detected: '¡Código QR detectado y decodificado!'
+    toast_qr_detected: '¡Código QR detectado y decodificado!',
+    toast_required_fields: 'Por favor complete todos los campos obligatorios (*)'
   },
   id: {
     name: 'Bahasa Indonesia',
@@ -598,7 +604,8 @@ const TRANSLATIONS = {
     toast_qr_downloaded: 'Kode QR diunduh sebagai PNG',
     toast_code_copied: 'Kode 2FA disalin:',
     toast_totp_added: 'Akun 2FA ditambahkan ke Brankas',
-    toast_qr_detected: 'Kode QR terdeteksi dan berhasil didekode!'
+    toast_qr_detected: 'Kode QR terdeteksi dan berhasil didekode!',
+    toast_required_fields: 'Harap isi semua bidang yang wajib diisi (*)'
   }
 };
 
@@ -1230,11 +1237,18 @@ function initTOTPGenerator() {
     }
   });
 
-  // Generate Initial Random Secret Key
-  if (secretInput && !secretInput.value) {
-    secretInput.value = Base32.randomSecret(16);
-    renderQRCode();
-  }
+  // Modal Random Secret Button
+  document.getElementById('genModalSecretBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const modalSecretInput = document.getElementById('modalSecret');
+    if (modalSecretInput) {
+      modalSecretInput.value = Base32.randomSecret(16);
+      showToast(t('gen_random_btn'));
+    }
+  });
+
+  // Initial QR Code Render (starts empty with placeholder)
+  renderQRCode();
 
   randomBtn?.addEventListener('click', () => {
     if (secretInput) {
@@ -1270,13 +1284,13 @@ function initTOTPGenerator() {
 
   // Save Gen to Vault
   document.getElementById('saveToVaultBtn')?.addEventListener('click', () => {
-    const issuer = document.getElementById('genIssuer').value.trim() || '2FA Service';
-    const account = document.getElementById('genAccount').value.trim() || 'user';
-    const secret = document.getElementById('genSecret').value.trim().toUpperCase();
+    const issuer = document.getElementById('genIssuer').value.trim();
+    const account = document.getElementById('genAccount').value.trim();
+    const secret = document.getElementById('genSecret').value.trim().toUpperCase().replace(/\s+/g, '');
     const password = document.getElementById('genPassword')?.value.trim() || '';
 
-    if (!secret) {
-      showToast(t('gen_secret'), 'error');
+    if (!issuer || !account || !secret) {
+      showToast(t('toast_required_fields'), 'error');
       return;
     }
 
@@ -1303,7 +1317,9 @@ function initTOTPGenerator() {
   const modalBackdrop = document.getElementById('modalBackdrop');
   document.getElementById('quickAdd2FABtn')?.addEventListener('click', () => {
     modalBackdrop.classList.remove('hidden');
-    document.getElementById('modalSecret').value = Base32.randomSecret(16);
+    document.getElementById('modalIssuer').value = '';
+    document.getElementById('modalAccount').value = '';
+    document.getElementById('modalSecret').value = '';
     const modalPass = document.getElementById('modalPassword');
     if (modalPass) modalPass.value = '';
   });
@@ -1312,13 +1328,13 @@ function initTOTPGenerator() {
   document.getElementById('cancelModalBtn')?.addEventListener('click', () => modalBackdrop.classList.add('hidden'));
 
   document.getElementById('confirmAdd2FABtn')?.addEventListener('click', () => {
-    const issuer = document.getElementById('modalIssuer').value.trim() || '2FA Service';
-    const account = document.getElementById('modalAccount').value.trim() || 'user';
-    const secret = document.getElementById('modalSecret').value.trim().toUpperCase();
+    const issuer = document.getElementById('modalIssuer').value.trim();
+    const account = document.getElementById('modalAccount').value.trim();
+    const secret = document.getElementById('modalSecret').value.trim().toUpperCase().replace(/\s+/g, '');
     const password = document.getElementById('modalPassword')?.value.trim() || '';
 
-    if (!secret) {
-      showToast(t('gen_secret'), 'error');
+    if (!issuer || !account || !secret) {
+      showToast(t('toast_required_fields'), 'error');
       return;
     }
 

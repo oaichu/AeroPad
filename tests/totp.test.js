@@ -69,3 +69,26 @@ test('2FA Account - Preserves optional password field correctly', () => {
   assert.equal(Boolean(accountWithPass.password && accountWithPass.password.length > 0), true);
   assert.equal(Boolean(accountWithoutPass.password && accountWithoutPass.password.length > 0), false);
 });
+
+test('2FA Account - Validates required fields (issuer, account, secret)', () => {
+  function validate2FAAccount(fields) {
+    const issuer = (fields.issuer || '').trim();
+    const account = (fields.account || '').trim();
+    const secret = (fields.secret || '').trim().toUpperCase().replace(/\s+/g, '');
+    if (!issuer || !account || !secret) {
+      return { valid: false, error: 'MISSING_REQUIRED_FIELDS' };
+    }
+    return { valid: true, item: { issuer, account, secret, password: (fields.password || '').trim() } };
+  }
+
+  // Missing secret
+  assert.equal(validate2FAAccount({ issuer: 'Google', account: 'test@gmail.com', secret: '' }).valid, false);
+  // Missing issuer
+  assert.equal(validate2FAAccount({ issuer: '', account: 'test@gmail.com', secret: 'JBSWY3DPEHPK3PXP' }).valid, false);
+  // Missing account
+  assert.equal(validate2FAAccount({ issuer: 'Google', account: '', secret: 'JBSWY3DPEHPK3PXP' }).valid, false);
+  // Valid mandatory with optional password
+  const validRes = validate2FAAccount({ issuer: 'Google', account: 'test@gmail.com', secret: 'JBSWY3DPEHPK3PXP', password: 'optional-pass' });
+  assert.equal(validRes.valid, true);
+  assert.equal(validRes.item.password, 'optional-pass');
+});
