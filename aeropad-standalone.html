@@ -1636,38 +1636,55 @@ html.light .qr-card-apple {
   display: none;
 }
 
+.drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+}
+
 .drop-icon-circle {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: rgba(0, 242, 254, 0.1);
   color: var(--accent-cyan);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
-  transition: transform 0.2s ease;
+  margin: 0 auto 10px auto;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 14px rgba(0, 242, 254, 0.15);
 }
 
 .drop-zone:hover .drop-icon-circle {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.05);
   background: rgba(0, 242, 254, 0.2);
+  box-shadow: 0 0 22px rgba(0, 242, 254, 0.35);
 }
 
 .drop-icon-circle svg {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+  color: var(--accent-cyan);
+  display: block;
 }
 
 .drop-content h4 {
-  font-size: 0.9375rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  margin-bottom: 2px;
+  margin: 0 0 4px 0;
+  text-align: center;
+  color: var(--text-primary);
 }
 
 .drop-content p {
-  font-size: 0.775rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
+  margin: 0;
+  text-align: center;
 }
 
 .drop-content span {
