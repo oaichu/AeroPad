@@ -1966,38 +1966,311 @@ html.light .detail-row {
   margin-top: 20px;
 }
 
-/* Responsive Breakpoints */
+/* ==========================================================================
+   RESPONSIVE DESIGN SYSTEM (MOBILE & TABLET OPTIMIZED)
+   ========================================================================== */
+
+/* Tablet Optimization (768px to 1024px) */
 @media (max-width: 1024px) {
-  .notepad-layout {
-    grid-template-columns: 240px 1fr;
+  .app-layout {
+    padding: 16px;
+    gap: 16px;
   }
-  .gen-layout, .decoder-layout {
+
+  .top-nav {
+    padding: 10px 16px;
+  }
+
+  .notepad-layout {
+    grid-template-columns: 260px 1fr;
+    gap: 16px;
+    height: calc(100vh - 120px);
+  }
+
+  .gen-layout {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .gen-preview-panel {
+    display: flex;
+    justify-content: center;
+  }
+
+  .decoder-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .decoder-input-card, .decoder-result-card {
+    min-height: auto;
+  }
+
+  .totp-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* Mobile & Small Tablet Optimization (< 768px) */
 @media (max-width: 768px) {
+  /* Prevent Safari auto-zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
   .app-layout {
-    padding: 12px;
-  }
-  .top-nav {
-    flex-direction: column;
-    height: auto;
+    padding: 10px 12px 28px;
     gap: 12px;
-    padding: 14px;
   }
+
+  /* Responsive Top Navbar with CSS Grid */
+  .top-nav {
+    display: grid !important;
+    grid-template-columns: auto 1fr !important;
+    grid-template-areas:
+      "brand actions"
+      "segments segments" !important;
+    gap: 12px !important;
+    height: auto !important;
+    padding: 12px 14px !important;
+    align-items: center !important;
+  }
+
+  .nav-brand {
+    grid-area: brand;
+    gap: 10px;
+  }
+
+  .brand-symbol {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand-title {
+    font-size: 1.1rem;
+  }
+
+  .brand-badge {
+    font-size: 0.6rem;
+  }
+
+  .nav-actions {
+    grid-area: actions;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .security-chip {
+    display: none; /* Hide non-essential badge on tight mobile screens */
+  }
+
+  .lock-button span {
+    display: none; /* Icon-only on mobile for compact layout */
+  }
+
+  .lock-button {
+    padding: 8px;
+    border-radius: 50%;
+  }
+
+  /* Full-width segmented main tab pills */
+  .nav-segments {
+    grid-area: segments;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 3px;
+  }
+
+  .nav-pill {
+    justify-content: center;
+    padding: 8px 12px;
+    font-size: 0.8125rem;
+  }
+
+  /* Language Dropdown Mobile */
+  .lang-menu {
+    right: 0;
+    min-width: 190px;
+  }
+
+  /* Smart Notepad Mobile Layout */
   .notepad-layout {
     grid-template-columns: 1fr;
     height: auto;
+    gap: 14px;
   }
+
   .notepad-sidebar {
-    height: 320px;
+    height: 240px;
+    border-radius: var(--radius-lg);
   }
+
+  .sidebar-header {
+    padding: 10px 12px;
+  }
+
+  .notes-list-scroll {
+    padding: 8px 12px;
+  }
+
+  .sidebar-footer {
+    padding: 10px 14px;
+  }
+
+  .notepad-editor {
+    border-radius: var(--radius-lg);
+    min-height: 480px;
+  }
+
+  .editor-header {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .editor-title-input {
+    font-size: 1.15rem;
+  }
+
+  .editor-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .editor-toolbar {
+    padding: 8px 12px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    gap: 4px;
+  }
+
+  .editor-toolbar button {
+    flex-shrink: 0;
+    padding: 6px 10px;
+  }
+
+  .raw-editor, .markdown-preview {
+    padding: 16px 14px;
+    font-size: 0.9375rem;
+  }
+
+  .editor-footer {
+    padding: 10px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* 2FA Studio Mobile Layout */
+  .totp-subnav-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+
+  .totp-subnav {
+    display: flex;
+    flex-wrap: nowrap;
+    width: max-content;
+  }
+
+  .totp-subpill {
+    padding: 8px 14px;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .totp-vault-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .vault-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .btn-add-vault {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .totp-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .totp-code-display, .live-code-display {
+    font-size: 1.85rem !important;
+    letter-spacing: 0.15em !important;
+  }
+
+  /* Generator & Decoder Mobile */
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
+
   .input-field-group.full-width {
     grid-column: span 1;
+  }
+
+  .two-col-inputs {
+    flex-direction: column;
+  }
+
+  .decoder-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .decoder-input-card, .decoder-result-card {
+    padding: 20px 16px;
+  }
+
+  .decoder-card-header {
+    min-height: auto;
+    margin-bottom: 12px;
+  }
+
+  .decoder-block-top {
+    height: auto;
+    min-height: 150px;
+  }
+
+  .decoded-details {
+    gap: 8px;
+  }
+
+  .detail-row {
+    padding: 10px 12px;
+    font-size: 0.8125rem;
+  }
+
+  .decoder-block-middle {
+    height: auto;
+    min-height: 120px;
+  }
+
+  .decoder-textarea {
+    height: 110px;
+  }
+
+  .decoder-live-box {
+    height: auto;
+    padding: 14px;
+  }
+
+  .modal-box {
+    margin: 16px;
+    padding: 20px;
   }
 }
 
