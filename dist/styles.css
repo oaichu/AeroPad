@@ -189,20 +189,27 @@ html.light .glass-panel-nested {
 }
 
 .brand-symbol {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   border-radius: var(--radius-md);
   background: var(--grad-apple);
   border: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 242, 254, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 242, 254, 0.2);
+  transition: all 0.3s ease;
+}
+
+.brand-symbol:hover {
+  border-color: var(--border-glow);
+  box-shadow: 0 0 22px rgba(0, 242, 254, 0.45);
+  transform: scale(1.04);
 }
 
 .brand-icon {
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
 }
 
 .brand-text {
@@ -211,15 +218,27 @@ html.light .glass-panel-nested {
 }
 
 .brand-title {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+}
+
+.cyrillic-ae-mark {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  background: var(--grad-aurora);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-right: 1px;
 }
 
 .brand-badge {
   font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   color: var(--accent-cyan);
 }
 
