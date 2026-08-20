@@ -144,8 +144,16 @@ html.light .mesh-grid {
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
   position: relative;
-  overflow: hidden;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button svg {
+  width: 18px;
+  height: 18px;
+  max-width: 18px;
+  max-height: 18px;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .glass-panel-nested {
@@ -181,7 +189,8 @@ html.light .glass-panel-nested {
   border-radius: var(--radius-xl);
   height: 64px;
   position: relative;
-  z-index: 1000;
+  z-index: 10000;
+  overflow: visible !important;
 }
 
 .nav-brand {
