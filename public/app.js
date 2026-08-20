@@ -1130,33 +1130,9 @@ function updateStorageStat() {
 // ==========================================
 function initTOTPStudio() {
   renderTOTPCards();
+  initTOTPGenerator();
+}
 
-  // Generator random secret button
-  document.getElementById('randomSecretBtn')?.addEventListener('click', () => {
-    const newSecret = Base32.randomSecret(16);
-    const secInput = document.getElementById('genSecret');
-    if (secInput) secInput.value = newSecret;
-    renderQRCode();
-    showToast(t('toast_secret_copied'));
-  });
-
-  // Generator inputs change
-  ['genIssuer', 'genAccount', 'genSecret', 'genPeriod', 'genDigits'].forEach(id => {
-    document.getElementById(id)?.addEventListener('input', renderQRCode);
-  });
-
-  // Copy Gen Secret
-  document.getElementById('copyGenSecret')?.addEventListener('click', () => {
-    const sec = document.getElementById('genSecret').value;
-    if (sec) {
-      navigator.clipboard.writeText(sec);
-      showToast(t('toast_secret_copied'));
-    }
-  });
-
-  // Copy OTP URL
-  document.getElementById('copyOtpUrlBtn')?.addEventListener('click', () => {
-    const uri = getOtpAuthURI();
 // Secure Random Password Generator (Crypto API)
 function generateRandomPassword(length = 16) {
   const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
