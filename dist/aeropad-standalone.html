@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AetherPad & 2FA Studio — Apple + Web3 Standalone Preview</title>
+  <title>AeroPad &amp; 2FA Studio — Apple + Web3 Security Vault</title>
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- QRCode.js & jsQR CDN for real QR generating and scanning in demo -->
+  <!-- QRCode.js & jsQR CDN for real QR generating and scanning -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <style>
 /* ==========================================================================
-   AETHERPAD & 2FA VAULT — APPLE + WEB3 LUXURY DESIGN SYSTEM (EMBEDDED)
+   AEROPAD & 2FA VAULT — APPLE + WEB3 LUXURY DESIGN SYSTEM
    ========================================================================== */
 
 :root {
@@ -256,7 +256,7 @@ html.light .glass-segment {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: var(--radius-full);
   border: none;
   background: transparent;
@@ -877,6 +877,59 @@ html.light .editor-toolbar {
   color: var(--accent-cyan);
 }
 
+/* Empty States */
+.empty-state-notes {
+  padding: 36px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.875rem;
+}
+
+.empty-state-totp {
+  grid-column: 1 / -1;
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-state-totp .empty-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-cyan);
+  margin-bottom: 6px;
+}
+
+.empty-state-totp .empty-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.empty-state-totp h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.empty-state-totp p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  max-width: 420px;
+  line-height: 1.5;
+}
+
 /* ==========================================================================
    TAB 2: 2FA STUDIO & AUTHENTICATOR
    ========================================================================== */
@@ -1236,6 +1289,8 @@ html.light .qr-card-apple {
   align-items: center;
   justify-content: center;
   margin-bottom: 18px;
+  color: #0F172A;
+  font-size: 0.8125rem;
 }
 
 .qr-canvas-container canvas, .qr-canvas-container img {
@@ -1470,199 +1525,6 @@ html.light .qr-card-apple {
 }
 
 /* ==========================================================================
-   TAB 3: HOSTING & DOMAIN GUIDE
-   ========================================================================== */
-.hosting-guide-container {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.guide-hero {
-  text-align: center;
-  max-width: 720px;
-  margin: 0 auto 12px;
-}
-
-.badge-web3 {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: var(--accent-indigo);
-  display: inline-block;
-  margin-bottom: 12px;
-}
-
-.guide-hero h2 {
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
-}
-
-.hosting-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.hosting-card {
-  padding: 28px 24px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.featured-platform {
-  border-color: rgba(0, 242, 254, 0.35);
-  box-shadow: 0 0 30px rgba(0, 242, 254, 0.15);
-}
-
-.featured-ribbon {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  background: var(--grad-aurora);
-  color: #07090E;
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-}
-
-.platform-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-md);
-  background: var(--bg-glass);
-  border: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.platform-icon svg {
-  width: 26px;
-  height: 26px;
-}
-
-.hosting-card h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.platform-desc {
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 16px;
-}
-
-.feature-checklist {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  margin-bottom: 20px;
-}
-
-.feature-checklist code {
-  font-family: var(--font-mono);
-  color: var(--accent-cyan);
-  background: rgba(0, 242, 254, 0.08);
-  padding: 2px 4px;
-  border-radius: 4px;
-}
-
-.deploy-steps {
-  margin-top: auto;
-  display: grid;
-  grid-template-columns: 24px 1fr;
-  gap: 8px 10px;
-  font-size: 0.775rem;
-  color: var(--text-secondary);
-  padding-top: 14px;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.step-num {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--bg-glass);
-  border: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: var(--accent-cyan);
-  font-size: 0.7rem;
-}
-
-.domain-section {
-  padding: 28px;
-}
-
-.domain-section h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 18px;
-}
-
-.domain-options-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.domain-item {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 16px;
-}
-
-html.light .domain-item {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-.domain-badge {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--accent-cyan);
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.domain-item h4 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.domain-item p code {
-  font-family: var(--font-mono);
-  color: var(--accent-cyan);
-  font-size: 0.8125rem;
-}
-
-.domain-status {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 8px;
-  line-height: 1.4;
-}
-
-/* ==========================================================================
    TOAST & MODALS
    ========================================================================== */
 .toast-container {
@@ -1742,9 +1604,6 @@ html.light .domain-item {
   .notepad-layout {
     grid-template-columns: 240px 1fr;
   }
-  .hosting-grid, .domain-options-grid {
-    grid-template-columns: 1fr;
-  }
   .gen-layout, .decoder-layout {
     grid-template-columns: 1fr;
   }
@@ -1774,7 +1633,8 @@ html.light .domain-item {
     grid-column: span 1;
   }
 }
-  </style>
+
+</style>
 </head>
 <body class="bg-canvas text-primary antialiased">
   <!-- Dynamic Ambient Glow Background -->
@@ -1801,7 +1661,7 @@ html.light .domain-item {
           </svg>
         </div>
         <div class="brand-text">
-          <span class="brand-title">Aether<span class="text-gradient">Pad</span></span>
+          <span class="brand-title">Aero<span class="text-gradient">Pad</span></span>
           <span class="brand-badge">2FA &amp; CIPHER VAULT</span>
         </div>
       </div>
@@ -1816,10 +1676,6 @@ html.light .domain-item {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0110 0v4"></path></svg>
           <span>2FA Studio</span>
           <span class="badge-pulse">LIVE</span>
-        </button>
-        <button class="nav-pill" data-tab="hosting">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-          <span>Free Hosting &amp; Domain</span>
         </button>
       </nav>
 
@@ -1870,9 +1726,9 @@ html.light .domain-item {
               <div class="vault-stat">
                 <div class="stat-row">
                   <span>Dung lượng đã dùng</span>
-                  <span id="storageUsage">14.2 KB</span>
+                  <span id="storageUsage">0 KB</span>
                 </div>
-                <div class="progress-track"><div class="progress-bar" style="width: 8%"></div></div>
+                <div class="progress-track"><div class="progress-bar" id="storageProgressBar" style="width: 2%"></div></div>
                 <div class="stat-sub">Mã hóa AES-256 • LocalStorage Cục bộ</div>
               </div>
             </div>
@@ -1941,7 +1797,6 @@ html.light .domain-item {
                 <span id="readTime">1 phút đọc</span>
               </div>
               <div class="editor-tags">
-                <span class="tag-badge">#Crypto</span>
                 <span class="tag-badge">#Private</span>
                 <span class="tag-badge">#Zero-Leak</span>
               </div>
@@ -1996,7 +1851,7 @@ html.light .domain-item {
 
           <!-- TOTP Cards Grid -->
           <div class="totp-grid" id="totpCardsGrid">
-            <!-- Dynamic TOTP items -->
+            <!-- Dynamic TOTP items or empty state -->
           </div>
         </div>
 
@@ -2012,11 +1867,11 @@ html.light .domain-item {
               <div class="form-grid">
                 <div class="input-field-group">
                   <label>Tên Đơn Vị Phát Hành (Issuer)</label>
-                  <input type="text" id="genIssuer" class="glass-input" value="AetherVault Cloud" placeholder="vd: Binance, Google, GitHub, Telegram...">
+                  <input type="text" id="genIssuer" class="glass-input" placeholder="vd: Binance, Google, GitHub, Telegram...">
                 </div>
                 <div class="input-field-group">
                   <label>Tên Tài Khoản / Email (Account)</label>
-                  <input type="text" id="genAccount" class="glass-input" value="admin@aethervault.io" placeholder="vd: security@domain.com">
+                  <input type="text" id="genAccount" class="glass-input" placeholder="vd: user@domain.com">
                 </div>
                 <div class="input-field-group full-width">
                   <div class="label-with-action">
@@ -2027,7 +1882,7 @@ html.light .domain-item {
                     </button>
                   </div>
                   <div class="secret-input-wrap">
-                    <input type="text" id="genSecret" class="glass-input font-mono" value="JBSWY3DPEHPK3PXP" placeholder="16 hoặc 32 ký tự Base32 (A-Z, 2-7)">
+                    <input type="text" id="genSecret" class="glass-input font-mono" placeholder="16 hoặc 32 ký tự Base32 (A-Z, 2-7)">
                     <button id="copyGenSecret" class="btn-inner-copy" title="Sao chép Secret">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                     </button>
@@ -2069,11 +1924,11 @@ html.light .domain-item {
               <div class="qr-card-apple">
                 <div class="qr-glow-layer"></div>
                 <div class="qr-canvas-container" id="qrContainer">
-                  <!-- QR Code rendered dynamically -->
+                  <span style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:10px;">Chưa có mã QR.<br>Hãy sinh hoặc nhập Secret Key.</span>
                 </div>
                 <div class="qr-meta-info">
-                  <div class="qr-issuer-name" id="previewIssuer">AetherVault Cloud</div>
-                  <div class="qr-account-name" id="previewAccount">admin@aethervault.io</div>
+                  <div class="qr-issuer-name" id="previewIssuer">Chưa đặt tên</div>
+                  <div class="qr-account-name" id="previewAccount">user@account</div>
                 </div>
                 <div class="qr-actions">
                   <button id="downloadQRBtn" class="btn-glass btn-sm">
@@ -2124,23 +1979,23 @@ html.light .domain-item {
             <!-- Decoded Result Card -->
             <div class="decoder-result-card glass-panel" id="decoderResultCard">
               <div class="panel-header">
-                <span class="badge-success">KẾT QUẢ GIẢI MÃ THÀNH CÔNG</span>
+                <span class="badge-success">KẾT QUẢ GIẢI MÃ</span>
                 <h4>Thông Tin Tài Khoản 2FA</h4>
               </div>
 
               <div class="decoded-details">
                 <div class="detail-row">
                   <span class="detail-label">Đơn vị (Issuer):</span>
-                  <span class="detail-val font-semibold" id="decIssuer">Google Security</span>
+                  <span class="detail-val font-semibold" id="decIssuer">---</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-label">Tài khoản (Account):</span>
-                  <span class="detail-val font-mono" id="decAccount">user@gmail.com</span>
+                  <span class="detail-val font-mono" id="decAccount">---</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-label">Khóa bí mật trích xuất:</span>
                   <div class="secret-clip-wrap">
-                    <span class="detail-val font-mono text-cyan" id="decSecret">JBSWY3DPEHPK3PXP</span>
+                    <span class="detail-val font-mono text-cyan" id="decSecret">---</span>
                     <button class="btn-icon-sm" id="copyDecSecret" title="Copy Secret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
                   </div>
                 </div>
@@ -2164,97 +2019,6 @@ html.light .domain-item {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 <span>Lưu Tài Khoản Này Vào Vault Của Bạn</span>
               </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ==============================================
-           TAB 3: FREE HOSTING & DOMAIN GUIDE
-           ============================================== -->
-      <section id="tab-hosting" class="tab-pane">
-        <div class="hosting-guide-container">
-          <div class="guide-hero">
-            <span class="badge-web3">100% FREE &amp; PERMANENT HOSTING</span>
-            <h2>Hướng Dẫn Triển Khai &amp; Tên Miền Miễn Phí 0đ</h2>
-            <p class="text-secondary">Vì dự án không mang tính thương mại và là ứng dụng Client-side bảo mật tuyệt đối, bạn có thể triển khai với chi phí 0đ trọn đời cùng tốc độ CDN đỉnh cao.</p>
-          </div>
-
-          <div class="hosting-grid">
-            <!-- Platform 1: Cloudflare Pages -->
-            <div class="hosting-card glass-panel featured-platform">
-              <div class="featured-ribbon">KHUYÊN DÙNG SỐ 1</div>
-              <div class="platform-icon cloudflare-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#F6821F" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>
-              </div>
-              <h3>Cloudflare Pages</h3>
-              <p class="platform-desc">Tốc độ nhanh nhất tại Việt Nam (có POP Edge tại Hà Nội &amp; TP.HCM), băng thông vô hạn, SSL tự động.</p>
-              <ul class="feature-checklist">
-                <li>✓ Chi phí: <b>0đ vĩnh viễn</b></li>
-                <li>✓ Băng thông: <b>Không giới hạn (Unlimited Bandwidth)</b></li>
-                <li>✓ Tên miền miễn phí: <code>ten-app.pages.dev</code></li>
-                <li>✓ Hỗ trợ Custom Domain miễn phí + bảo vệ DDoS</li>
-              </ul>
-              <div class="deploy-steps">
-                <div class="step-num">1</div>
-                <div>Đẩy mã nguồn lên GitHub Repo.</div>
-                <div class="step-num">2</div>
-                <div>Truy cập <b>pages.cloudflare.com</b> &gt; Connect GitHub &gt; Deploy!</div>
-              </div>
-            </div>
-
-            <!-- Platform 2: Vercel -->
-            <div class="hosting-card glass-panel">
-              <div class="platform-icon vercel-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L24 22H0L12 1Z"></path></svg>
-              </div>
-              <h3>Vercel</h3>
-              <p class="platform-desc">Giao diện quản lý mượt mà chuẩn Apple, triển khai 1 click từ GitHub, tối ưu cho Next.js/React/HTML.</p>
-              <ul class="feature-checklist">
-                <li>✓ Chi phí: <b>0đ vĩnh viễn (Hobby Plan)</b></li>
-                <li>✓ Tên miền miễn phí: <code>ten-app.vercel.app</code></li>
-                <li>✓ CI/CD tự động deploy khi git push</li>
-                <li>✓ 100GB băng thông/tháng (quá thừa cho cá nhân)</li>
-              </ul>
-            </div>
-
-            <!-- Platform 3: GitHub Pages -->
-            <div class="hosting-card glass-panel">
-              <div class="platform-icon github-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-              </div>
-              <h3>GitHub Pages</h3>
-              <p class="platform-desc">Trực tiếp từ kho lưu trữ mã nguồn, cực kỳ uy tín và dễ quản lý.</p>
-              <ul class="feature-checklist">
-                <li>✓ Chi phí: <b>0đ trọn đời</b></li>
-                <li>✓ Tên miền miễn phí: <code>username.github.io/app</code></li>
-                <li>✓ Miễn phí chứng chỉ SSL HTTPS</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Free Custom Domain Providers -->
-          <div class="domain-section glass-panel">
-            <h3>🌐 Các Tùy Chọn Tên Miền Miễn Phí Đẹp &amp; Uy Tín</h3>
-            <div class="domain-options-grid">
-              <div class="domain-item">
-                <div class="domain-badge">Khuyên dùng</div>
-                <h4>Subdomain Chính Hãng (Vercel / Cloudflare)</h4>
-                <p><code>your-brand.pages.dev</code> hoặc <code>your-brand.vercel.app</code></p>
-                <div class="domain-status">✓ Cực đẹp, chuyên nghiệp, không bị đánh giá spam, SSL trọn đời.</div>
-              </div>
-              <div class="domain-item">
-                <div class="domain-badge">Miễn phí vĩnh viễn</div>
-                <h4>Tên miền EU.org</h4>
-                <p><code>your-name.eu.org</code></p>
-                <div class="domain-status">✓ Cấp tên miền miễn phí hoạt động từ 1996, hỗ trợ DNS Cloudflare đầy đủ.</div>
-              </div>
-              <div class="domain-item">
-                <div class="domain-badge">Dành cho Dev</div>
-                <h4>is-a.dev / js.org</h4>
-                <p><code>your-project.is-a.dev</code></p>
-                <div class="domain-status">✓ Dành cho các dự án Open-Source trên GitHub thông qua Pull Request.</div>
-              </div>
             </div>
           </div>
         </div>
@@ -2295,8 +2059,13 @@ html.light .domain-item {
 
   <script>
 /**
- * AETHERPAD & 2FA VAULT — FULL CLIENT-SIDE APP LOGIC (STANDALONE)
+ * AEROPAD & 2FA VAULT — FULL CLIENT-SIDE APP LOGIC
+ * RFC 6238 TOTP Engine + Client-Side Zero-Knowledge Notes & QR Studio
  */
+
+// ==========================================
+// 1. BASE32 & TOTP CRYPTO ENGINE (Web Crypto)
+// ==========================================
 const Base32 = {
   alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
   
@@ -2357,8 +2126,10 @@ const Base32 = {
   }
 };
 
+// TOTP Generator (RFC 6238)
 async function generateTOTP(secretBase32, period = 30, digits = 6, algo = 'SHA-1') {
   try {
+    if (!secretBase32) return '------';
     const keyBytes = Base32.decode(secretBase32);
     if (keyBytes.byteLength === 0) return '------';
 
@@ -2395,66 +2166,26 @@ async function generateTOTP(secretBase32, period = 30, digits = 6, algo = 'SHA-1
   }
 }
 
-const DEFAULT_NOTES = [
-  {
-    id: 'note-1',
-    title: '🔐 Web3 & Cold Storage Checklist',
-    content: `# Security Blueprint for High-Value Assets\n\n- [x] Khởi tạo ví lạnh Hardware Wallet\n- [x] Sao lưu Seed Phrase vào Titanium Plate\n- [ ] Kích hoạt xác thực 2FA TOTP cho Binance & Kraken\n- [ ] Đặt Master Key cho AetherPad Vault\n\n> "Bảo mật không phải là một sản phẩm, đó là một quy trình."`,
-    updatedAt: Date.now() - 1000 * 60 * 15
-  },
-  {
-    id: 'note-2',
-    title: '🌐 Cloudflare Pages + DNS Free Setup',
-    content: `# Triển Khai Không Tốn Kém\n\n1. Tạo repository trên GitHub: \`aether-vault\`\n2. Đẩy code tĩnh (HTML/CSS/JS) lên branch \`main\`\n3. Vào Cloudflare Dashboard -> Workers & Pages -> Create Application\n4. Chọn repo và click **Deploy Site**\n5. URL mặc định: \`https://aether-vault.pages.dev\` (SSL trọn đời, 0đ/tháng)`,
-    updatedAt: Date.now() - 1000 * 60 * 120
-  }
-];
+// ==========================================
+// 2. STATE & CLEAN STORAGE (No Mock Data)
+// ==========================================
+const DEFAULT_NOTES = [];
+const DEFAULT_VAULT_ACCOUNTS = [];
 
-const DEFAULT_VAULT_ACCOUNTS = [
-  {
-    id: 'totp-1',
-    issuer: 'Binance Exchange',
-    account: 'trader@web3.io',
-    secret: 'JBSWY3DPEHPK3PXP',
-    digits: 6,
-    period: 30
-  },
-  {
-    id: 'totp-2',
-    issuer: 'GitHub DevSecOps',
-    account: 'oaichu-security',
-    secret: 'NBSWY3DPEHPK3PXQ',
-    digits: 6,
-    period: 30
-  },
-  {
-    id: 'totp-3',
-    issuer: 'Google Cloud Platform',
-    account: 'admin@aethervault.io',
-    secret: 'MZXW6YTBOI======',
-    digits: 6,
-    period: 30
-  },
-  {
-    id: 'totp-4',
-    issuer: 'Solana Validator',
-    account: 'sol_val_key_01',
-    secret: 'KRUGS4ZANFZSAYJA',
-    digits: 6,
-    period: 30
-  }
-];
-
+// App State
 let appState = {
-  notes: JSON.parse(localStorage.getItem('aether_notes')) || DEFAULT_NOTES,
+  notes: JSON.parse(localStorage.getItem('aeropad_notes')) || DEFAULT_NOTES,
   activeNoteId: null,
-  totpAccounts: JSON.parse(localStorage.getItem('aether_totp')) || DEFAULT_VAULT_ACCOUNTS,
-  theme: localStorage.getItem('aether_theme') || 'dark',
+  totpAccounts: JSON.parse(localStorage.getItem('aeropad_totp')) || DEFAULT_VAULT_ACCOUNTS,
+  theme: localStorage.getItem('aeropad_theme') || 'dark',
   currentTab: 'notepad',
   current2FASubtab: 'vault',
   editorMode: 'edit'
 };
 
+// ==========================================
+// 3. INITIALIZATION & ROUTING
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initNavigation();
@@ -2465,8 +2196,10 @@ document.addEventListener('DOMContentLoaded', () => {
   updateStorageStat();
 });
 
+// Toast Notifications
 function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer');
+  if (!container) return;
   const toast = document.createElement('div');
   toast.className = 'toast-item glass-panel';
   
@@ -2486,6 +2219,9 @@ function showToast(message, type = 'info') {
   }, 2600);
 }
 
+// ==========================================
+// 4. THEME & NAVIGATION
+// ==========================================
 function initTheme() {
   const root = document.documentElement;
   if (appState.theme === 'light') {
@@ -2496,7 +2232,7 @@ function initTheme() {
     root.classList.add('dark');
   }
 
-  document.getElementById('themeToggle').addEventListener('click', () => {
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
     if (root.classList.contains('dark')) {
       root.classList.remove('dark');
       root.classList.add('light');
@@ -2506,12 +2242,13 @@ function initTheme() {
       root.classList.add('dark');
       appState.theme = 'dark';
     }
-    localStorage.setItem('aether_theme', appState.theme);
+    localStorage.setItem('aeropad_theme', appState.theme);
     renderQRCode();
   });
 }
 
 function initNavigation() {
+  // Main Segmented Tabs
   document.querySelectorAll('.nav-pill').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-pill').forEach(b => b.classList.remove('active'));
@@ -2519,11 +2256,13 @@ function initNavigation() {
       
       btn.classList.add('active');
       const tabId = btn.dataset.tab;
-      document.getElementById(`tab-${tabId}`).classList.add('active');
+      const targetPane = document.getElementById(`tab-${tabId}`);
+      if (targetPane) targetPane.classList.add('active');
       appState.currentTab = tabId;
     });
   });
 
+  // 2FA Subnav Tabs
   document.querySelectorAll('.totp-subpill').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.totp-subpill').forEach(b => b.classList.remove('active'));
@@ -2531,7 +2270,8 @@ function initNavigation() {
 
       btn.classList.add('active');
       const subtab = btn.dataset.subtab;
-      document.getElementById(`subtab-${subtab}`).classList.add('active');
+      const targetSubpane = document.getElementById(`subtab-${subtab}`);
+      if (targetSubpane) targetSubpane.classList.add('active');
       appState.current2FASubtab = subtab;
 
       if (subtab === 'generator') {
@@ -2540,12 +2280,16 @@ function initNavigation() {
     });
   });
 
+  // Master Lock Button
   const vaultBtn = document.getElementById('vaultLockBtn');
-  vaultBtn.addEventListener('click', () => {
+  vaultBtn?.addEventListener('click', () => {
     showToast('Vault bảo mật đang ở trạng thái Hoạt Động (Unlocked)');
   });
 }
 
+// ==========================================
+// 5. SMART NOTEPAD LOGIC
+// ==========================================
 function initNotepad() {
   if (appState.notes.length > 0) {
     appState.activeNoteId = appState.notes[0].id;
@@ -2553,11 +2297,12 @@ function initNotepad() {
   renderNotesList();
   loadActiveNote();
 
+  // Inputs
   const titleInput = document.getElementById('noteTitle');
   const contentInput = document.getElementById('noteContent');
 
-  titleInput.addEventListener('input', autoSaveNote);
-  contentInput.addEventListener('input', () => {
+  titleInput?.addEventListener('input', autoSaveNote);
+  contentInput?.addEventListener('input', () => {
     autoSaveNote();
     updateWordCounts();
     if (appState.editorMode !== 'edit') {
@@ -2565,40 +2310,27 @@ function initNotepad() {
     }
   });
 
-  document.getElementById('newNoteBtn').addEventListener('click', () => {
-    const newNote = {
-      id: 'note-' + Date.now(),
-      title: 'Ghi chú không tiêu đề',
-      content: '',
-      updatedAt: Date.now()
-    };
-    appState.notes.unshift(newNote);
-    appState.activeNoteId = newNote.id;
-    saveNotesToStorage();
-    renderNotesList();
-    loadActiveNote();
-    titleInput.focus();
-    showToast('Đã tạo ghi chú mới');
-  });
+  // New Note
+  document.getElementById('newNoteBtn')?.addEventListener('click', createNewNote);
 
-  document.getElementById('deleteNoteBtn').addEventListener('click', () => {
-    if (appState.notes.length <= 1) {
-      showToast('Cần giữ lại ít nhất 1 ghi chú', 'error');
-      return;
-    }
+  // Delete Note
+  document.getElementById('deleteNoteBtn')?.addEventListener('click', () => {
+    if (appState.notes.length === 0) return;
     appState.notes = appState.notes.filter(n => n.id !== appState.activeNoteId);
-    appState.activeNoteId = appState.notes[0].id;
+    appState.activeNoteId = appState.notes.length > 0 ? appState.notes[0].id : null;
     saveNotesToStorage();
     renderNotesList();
     loadActiveNote();
     showToast('Đã xóa ghi chú');
   });
 
-  document.getElementById('noteSearch').addEventListener('input', (e) => {
+  // Search Notes
+  document.getElementById('noteSearch')?.addEventListener('input', (e) => {
     const q = e.target.value.toLowerCase();
     renderNotesList(q);
   });
 
+  // Editor Modes (Edit / Split / Preview)
   document.querySelectorAll('.editor-mode-toggle button').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.editor-mode-toggle button').forEach(b => b.classList.remove('active'));
@@ -2624,6 +2356,7 @@ function initNotepad() {
     });
   });
 
+  // Format Toolbar Actions
   document.querySelectorAll('.editor-toolbar button[data-format]').forEach(btn => {
     btn.addEventListener('click', () => {
       const format = btn.dataset.format;
@@ -2631,23 +2364,27 @@ function initNotepad() {
     });
   });
 
-  document.getElementById('copyNoteContent').addEventListener('click', () => {
+  // Copy Note Content
+  document.getElementById('copyNoteContent')?.addEventListener('click', () => {
     const note = appState.notes.find(n => n.id === appState.activeNoteId);
     if (note) {
       navigator.clipboard.writeText(`${note.title}\n\n${note.content}`);
       showToast('Đã sao chép nội dung ghi chú');
+    } else {
+      showToast('Chưa có ghi chú nào để sao chép', 'error');
     }
   });
 
+  // Export Dropdown
   const exportBtn = document.getElementById('exportBtn');
   const exportMenu = document.getElementById('exportMenu');
-  exportBtn.addEventListener('click', (e) => {
+  exportBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     exportMenu.classList.toggle('show');
   });
-  document.addEventListener('click', () => exportMenu.classList.remove('show'));
+  document.addEventListener('click', () => exportMenu?.classList.remove('show'));
 
-  exportMenu.querySelectorAll('button').forEach(btn => {
+  exportMenu?.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
       const format = btn.dataset.export;
       exportNoteFile(format);
@@ -2655,14 +2392,47 @@ function initNotepad() {
   });
 }
 
+function createNewNote() {
+  const newNote = {
+    id: 'note-' + Date.now(),
+    title: 'Ghi chú mới',
+    content: '',
+    updatedAt: Date.now()
+  };
+  appState.notes.unshift(newNote);
+  appState.activeNoteId = newNote.id;
+  saveNotesToStorage();
+  renderNotesList();
+  loadActiveNote();
+  const titleInput = document.getElementById('noteTitle');
+  if (titleInput) {
+    titleInput.focus();
+    titleInput.select();
+  }
+  showToast('Đã tạo ghi chú mới');
+}
+
 function renderNotesList(filterQuery = '') {
   const list = document.getElementById('notesList');
+  if (!list) return;
   list.innerHTML = '';
 
   const filtered = appState.notes.filter(n => 
     n.title.toLowerCase().includes(filterQuery) || 
     n.content.toLowerCase().includes(filterQuery)
   );
+
+  if (filtered.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state-notes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;opacity:0.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        <p>Chưa có ghi chú nào.</p>
+        <button class="btn-primary-gradient btn-sm" id="emptyCreateNoteBtn" style="margin-top:4px">+ Tạo ghi chú mới</button>
+      </div>
+    `;
+    document.getElementById('emptyCreateNoteBtn')?.addEventListener('click', createNewNote);
+    return;
+  }
 
   filtered.forEach(note => {
     const item = document.createElement('div');
@@ -2689,48 +2459,74 @@ function renderNotesList(filterQuery = '') {
 
 function loadActiveNote() {
   const note = appState.notes.find(n => n.id === appState.activeNoteId);
-  if (!note) return;
+  const titleInput = document.getElementById('noteTitle');
+  const contentInput = document.getElementById('noteContent');
 
-  document.getElementById('noteTitle').value = note.title;
-  document.getElementById('noteContent').value = note.content;
+  if (!note) {
+    if (titleInput) titleInput.value = '';
+    if (contentInput) contentInput.value = '';
+    updateWordCounts();
+    renderMarkdownPreview();
+    return;
+  }
+
+  if (titleInput) titleInput.value = note.title;
+  if (contentInput) contentInput.value = note.content;
   updateWordCounts();
   renderMarkdownPreview();
 }
 
 function autoSaveNote() {
-  const note = appState.notes.find(n => n.id === appState.activeNoteId);
-  if (!note) return;
-
-  note.title = document.getElementById('noteTitle').value;
-  note.content = document.getElementById('noteContent').value;
-  note.updatedAt = Date.now();
+  if (appState.notes.length === 0) {
+    const newNote = {
+      id: 'note-' + Date.now(),
+      title: document.getElementById('noteTitle').value || 'Ghi chú mới',
+      content: document.getElementById('noteContent').value || '',
+      updatedAt: Date.now()
+    };
+    appState.notes.push(newNote);
+    appState.activeNoteId = newNote.id;
+  } else {
+    const note = appState.notes.find(n => n.id === appState.activeNoteId);
+    if (!note) return;
+    note.title = document.getElementById('noteTitle').value;
+    note.content = document.getElementById('noteContent').value;
+    note.updatedAt = Date.now();
+  }
 
   saveNotesToStorage();
   renderNotesList();
 
   const indicator = document.getElementById('saveIndicator');
-  indicator.style.opacity = '1';
+  if (indicator) indicator.style.opacity = '1';
 }
 
 function saveNotesToStorage() {
-  localStorage.setItem('aether_notes', JSON.stringify(appState.notes));
+  localStorage.setItem('aeropad_notes', JSON.stringify(appState.notes));
   updateStorageStat();
 }
 
 function updateWordCounts() {
-  const text = document.getElementById('noteContent').value;
+  const contentEl = document.getElementById('noteContent');
+  const text = contentEl ? contentEl.value : '';
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
   const chars = text.length;
   const readMinutes = Math.max(1, Math.ceil(words / 200));
 
-  document.getElementById('wordCount').textContent = `${words} từ`;
-  document.getElementById('charCount').textContent = `${chars} ký tự`;
-  document.getElementById('readTime').textContent = `${readMinutes} phút đọc`;
+  const wordEl = document.getElementById('wordCount');
+  const charEl = document.getElementById('charCount');
+  const readEl = document.getElementById('readTime');
+
+  if (wordEl) wordEl.textContent = `${words} từ`;
+  if (charEl) charEl.textContent = `${chars} ký tự`;
+  if (readEl) readEl.textContent = `${readMinutes} phút đọc`;
 }
 
 function renderMarkdownPreview() {
-  const text = document.getElementById('noteContent').value;
+  const contentEl = document.getElementById('noteContent');
+  const text = contentEl ? contentEl.value : '';
   const preview = document.getElementById('notePreview');
+  if (!preview) return;
   
   let html = escapeHTML(text)
     .replace(/^# (.*$)/gim, '<h1>$1</h1>')
@@ -2750,6 +2546,7 @@ function renderMarkdownPreview() {
 
 function insertFormatting(type) {
   const textarea = document.getElementById('noteContent');
+  if (!textarea) return;
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   const selText = textarea.value.substring(start, end);
@@ -2773,7 +2570,10 @@ function insertFormatting(type) {
 
 function exportNoteFile(type) {
   const note = appState.notes.find(n => n.id === appState.activeNoteId);
-  if (!note) return;
+  if (!note) {
+    showToast('Chưa có ghi chú nào để xuất file', 'error');
+    return;
+  }
 
   let content = '';
   let filename = `${(note.title || 'note').replace(/\s+/g, '_')}`;
@@ -2782,9 +2582,11 @@ function exportNoteFile(type) {
   if (type === 'md') {
     content = `# ${note.title}\n\n${note.content}`;
     filename += '.md';
+    mimeType = 'text/markdown';
   } else if (type === 'txt') {
     content = `${note.title}\n\n${note.content}`;
     filename += '.txt';
+    mimeType = 'text/plain';
   } else if (type === 'json') {
     content = JSON.stringify(note, null, 2);
     filename += '-backup.json';
@@ -2809,36 +2611,54 @@ function updateStorageStat() {
   if (el) el.textContent = `${kb} KB`;
 }
 
+// ==========================================
+// 6. 2FA STUDIO & LIVE TOTP VAULT
+// ==========================================
 function initTOTPStudio() {
   renderTOTPCards();
 
-  document.getElementById('randomSecretBtn').addEventListener('click', () => {
+  // Generator random secret button
+  document.getElementById('randomSecretBtn')?.addEventListener('click', () => {
     const newSecret = Base32.randomSecret(16);
-    document.getElementById('genSecret').value = newSecret;
+    const secInput = document.getElementById('genSecret');
+    if (secInput) secInput.value = newSecret;
     renderQRCode();
     showToast('Đã sinh khóa Secret Key mới');
   });
 
+  // Generator inputs change
   ['genIssuer', 'genAccount', 'genSecret', 'genPeriod', 'genDigits'].forEach(id => {
-    document.getElementById(id).addEventListener('input', renderQRCode);
+    document.getElementById(id)?.addEventListener('input', renderQRCode);
   });
 
-  document.getElementById('copyGenSecret').addEventListener('click', () => {
+  // Copy Gen Secret
+  document.getElementById('copyGenSecret')?.addEventListener('click', () => {
     const sec = document.getElementById('genSecret').value;
-    navigator.clipboard.writeText(sec);
-    showToast('Đã sao chép khóa bí mật');
+    if (sec) {
+      navigator.clipboard.writeText(sec);
+      showToast('Đã sao chép khóa bí mật');
+    } else {
+      showToast('Chưa có Secret Key để sao chép', 'error');
+    }
   });
 
-  document.getElementById('copyOtpUrlBtn').addEventListener('click', () => {
+  // Copy OTP URL
+  document.getElementById('copyOtpUrlBtn')?.addEventListener('click', () => {
     const uri = getOtpAuthURI();
-    navigator.clipboard.writeText(uri);
-    showToast('Đã sao chép đường dẫn OTP Auth');
+    if (uri) {
+      navigator.clipboard.writeText(uri);
+      showToast('Đã sao chép đường dẫn OTP Auth');
+    } else {
+      showToast('Vui lòng nhập Secret Key trước', 'error');
+    }
   });
 
-  document.getElementById('downloadQRBtn').addEventListener('click', downloadQRPNG);
+  // Download QR PNG
+  document.getElementById('downloadQRBtn')?.addEventListener('click', downloadQRPNG);
 
-  document.getElementById('saveToVaultBtn').addEventListener('click', () => {
-    const issuer = document.getElementById('genIssuer').value.trim() || 'Custom Issuer';
+  // Save Gen to Vault
+  document.getElementById('saveToVaultBtn')?.addEventListener('click', () => {
+    const issuer = document.getElementById('genIssuer').value.trim() || 'Tài Khoản 2FA';
     const account = document.getElementById('genAccount').value.trim() || 'user';
     const secret = document.getElementById('genSecret').value.trim().toUpperCase();
 
@@ -2857,23 +2677,25 @@ function initTOTPStudio() {
     };
 
     appState.totpAccounts.push(newItem);
-    localStorage.setItem('aether_totp', JSON.stringify(appState.totpAccounts));
+    localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
     renderTOTPCards();
     showToast('Đã lưu mã 2FA vào Vault');
 
-    document.querySelector('.totp-subpill[data-subtab="vault"]').click();
+    // Switch to Vault
+    document.querySelector('.totp-subpill[data-subtab="vault"]')?.click();
   });
 
+  // Quick Add 2FA Modal
   const modalBackdrop = document.getElementById('modalBackdrop');
-  document.getElementById('quickAdd2FABtn').addEventListener('click', () => {
+  document.getElementById('quickAdd2FABtn')?.addEventListener('click', () => {
     modalBackdrop.classList.remove('hidden');
     document.getElementById('modalSecret').value = Base32.randomSecret(16);
   });
 
-  document.getElementById('closeModalBtn').addEventListener('click', () => modalBackdrop.classList.add('hidden'));
-  document.getElementById('cancelModalBtn').addEventListener('click', () => modalBackdrop.classList.add('hidden'));
+  document.getElementById('closeModalBtn')?.addEventListener('click', () => modalBackdrop.classList.add('hidden'));
+  document.getElementById('cancelModalBtn')?.addEventListener('click', () => modalBackdrop.classList.add('hidden'));
 
-  document.getElementById('confirmAdd2FABtn').addEventListener('click', () => {
+  document.getElementById('confirmAdd2FABtn')?.addEventListener('click', () => {
     const issuer = document.getElementById('modalIssuer').value.trim() || 'Mã Xác Thực';
     const account = document.getElementById('modalAccount').value.trim() || 'user';
     const secret = document.getElementById('modalSecret').value.trim().toUpperCase();
@@ -2892,7 +2714,7 @@ function initTOTPStudio() {
       period: 30
     });
 
-    localStorage.setItem('aether_totp', JSON.stringify(appState.totpAccounts));
+    localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
     renderTOTPCards();
     modalBackdrop.classList.add('hidden');
     showToast('Đã thêm tài khoản 2FA');
@@ -2900,11 +2722,13 @@ function initTOTPStudio() {
 }
 
 function getOtpAuthURI() {
-  const issuer = encodeURIComponent(document.getElementById('genIssuer').value.trim() || 'AetherPad');
-  const account = encodeURIComponent(document.getElementById('genAccount').value.trim() || 'user');
-  const secret = document.getElementById('genSecret').value.trim().toUpperCase();
-  const digits = document.getElementById('genDigits').value;
-  const period = document.getElementById('genPeriod').value;
+  const secret = (document.getElementById('genSecret')?.value || '').trim().toUpperCase();
+  if (!secret) return '';
+
+  const issuer = encodeURIComponent(document.getElementById('genIssuer')?.value.trim() || 'AeroPad');
+  const account = encodeURIComponent(document.getElementById('genAccount')?.value.trim() || 'user');
+  const digits = document.getElementById('genDigits')?.value || '6';
+  const period = document.getElementById('genPeriod')?.value || '30';
 
   return `otpauth://totp/${issuer}:${account}?secret=${secret}&issuer=${issuer}&digits=${digits}&period=${period}`;
 }
@@ -2913,12 +2737,19 @@ function renderQRCode() {
   const uri = getOtpAuthURI();
   const container = document.getElementById('qrContainer');
   if (!container) return;
-  container.innerHTML = '';
 
+  const issVal = document.getElementById('genIssuer')?.value.trim();
+  const accVal = document.getElementById('genAccount')?.value.trim();
   const prevIss = document.getElementById('previewIssuer');
   const prevAcc = document.getElementById('previewAccount');
-  if (prevIss) prevIss.textContent = document.getElementById('genIssuer').value || 'AetherPad';
-  if (prevAcc) prevAcc.textContent = document.getElementById('genAccount').value || 'admin@aethervault.io';
+  
+  if (prevIss) prevIss.textContent = issVal || 'Chưa đặt tên';
+  if (prevAcc) prevAcc.textContent = accVal || 'user@account';
+
+  if (!uri) {
+    container.innerHTML = `<span style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:10px;">Chưa có mã QR.<br>Hãy sinh hoặc nhập Secret Key.</span>`;
+    return;
+  }
 
   try {
     if (typeof qrcode !== 'undefined') {
@@ -2934,7 +2765,10 @@ function renderQRCode() {
 
 function downloadQRPNG() {
   const img = document.querySelector('#qrContainer img');
-  if (!img) return;
+  if (!img) {
+    showToast('Chưa có hình ảnh mã QR để tải', 'error');
+    return;
+  }
 
   const canvas = document.createElement('canvas');
   canvas.width = 300;
@@ -2956,6 +2790,19 @@ async function renderTOTPCards() {
   const grid = document.getElementById('totpCardsGrid');
   if (!grid) return;
   grid.innerHTML = '';
+
+  if (appState.totpAccounts.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state-totp glass-panel">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <h3>Chưa có mã 2FA nào trong Vault</h3>
+        <p>Hãy bấm 'Thêm Mã Mới' hoặc sang tab 'Tạo Mới 2FA' / 'Giải Mã & Quét QR' để lưu tài khoản 2FA an toàn.</p>
+      </div>
+    `;
+    return;
+  }
 
   for (const acc of appState.totpAccounts) {
     const card = document.createElement('div');
@@ -2995,22 +2842,25 @@ async function renderTOTPCards() {
       </div>
     `;
 
-    card.querySelector('.btn-copy-code').addEventListener('click', (e) => {
+    // Copy action
+    card.querySelector('.btn-copy-code')?.addEventListener('click', (e) => {
       e.stopPropagation();
       navigator.clipboard.writeText(currentCode);
       showToast(`Đã sao chép mã: ${currentCode}`);
     });
 
+    // Card click also copies
     card.addEventListener('click', (e) => {
       if (e.target.closest('.delete-totp-btn')) return;
       navigator.clipboard.writeText(currentCode);
       showToast(`Đã sao chép mã: ${currentCode}`);
     });
 
-    card.querySelector('.delete-totp-btn').addEventListener('click', (e) => {
+    // Delete
+    card.querySelector('.delete-totp-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();
       appState.totpAccounts = appState.totpAccounts.filter(a => a.id !== acc.id);
-      localStorage.setItem('aether_totp', JSON.stringify(appState.totpAccounts));
+      localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
       renderTOTPCards();
       showToast('Đã xóa tài khoản khỏi Vault');
     });
@@ -3019,12 +2869,14 @@ async function renderTOTPCards() {
   }
 }
 
+// Global 30s Countdown Engine Loop
 function startGlobalTOTPTimer() {
   setInterval(async () => {
     const now = Math.floor(Date.now() / 1000);
     const remain = 30 - (now % 30);
     const percent = (remain / 30) * 100;
 
+    // Global Top Badge
     const secEl = document.getElementById('globalCountdownSec');
     const circleEl = document.getElementById('globalCountdownCircle');
     if (secEl) secEl.textContent = `${remain}s`;
@@ -3037,13 +2889,16 @@ function startGlobalTOTPTimer() {
       }
     }
 
+    // Decoder preview timer bar
     const decProg = document.getElementById('decProgressFill');
     if (decProg) decProg.style.width = `${percent}%`;
 
+    // If new cycle starts (remain === 30), update all TOTP cards
     if (remain === 30 || remain === 29) {
       updateAllTOTPValues();
     }
 
+    // Update individual card progress bars
     appState.totpAccounts.forEach(acc => {
       const p = document.getElementById(`prog-${acc.id}`);
       if (p) p.style.width = `${percent}%`;
@@ -3060,6 +2915,7 @@ async function updateAllTOTPValues() {
     }
   }
 
+  // Update decoded live test if visible
   if (currentDecodedSecret) {
     const testCode = await generateTOTP(currentDecodedSecret);
     const display = document.getElementById('decLiveCode');
@@ -3067,6 +2923,9 @@ async function updateAllTOTPValues() {
   }
 }
 
+// ==========================================
+// 7. 2FA DECODER & QR SCANNER
+// ==========================================
 let currentDecodedSecret = null;
 let currentDecodedItem = null;
 
@@ -3078,6 +2937,7 @@ function initDecoder() {
 
   if (!dropZone) return;
 
+  // Drag & drop
   dropZone.addEventListener('click', () => fileInput.click());
   dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -3098,6 +2958,7 @@ function initDecoder() {
     }
   });
 
+  // Paste image from clipboard
   window.addEventListener('paste', (e) => {
     if (appState.currentTab === 'totp' && appState.current2FASubtab === 'decoder') {
       const items = (e.clipboardData || e.originalEvent.clipboardData).items;
@@ -3111,7 +2972,8 @@ function initDecoder() {
     }
   });
 
-  decodeBtn.addEventListener('click', () => {
+  // Decode text button
+  decodeBtn?.addEventListener('click', () => {
     const text = rawInput.value.trim();
     if (!text) {
       showToast('Vui lòng dán chuỗi otpauth:// hoặc Secret Key', 'error');
@@ -3120,14 +2982,16 @@ function initDecoder() {
     parseAndDisplayOTPString(text);
   });
 
-  document.getElementById('copyDecSecret').addEventListener('click', () => {
+  // Copy Decoded Secret
+  document.getElementById('copyDecSecret')?.addEventListener('click', () => {
     if (currentDecodedSecret) {
       navigator.clipboard.writeText(currentDecodedSecret);
       showToast('Đã sao chép khóa bí mật giải mã');
     }
   });
 
-  document.getElementById('addDecodedToVaultBtn').addEventListener('click', () => {
+  // Add Decoded to Vault
+  document.getElementById('addDecodedToVaultBtn')?.addEventListener('click', () => {
     if (!currentDecodedItem) return;
     appState.totpAccounts.push({
       id: 'totp-' + Date.now(),
@@ -3137,10 +3001,10 @@ function initDecoder() {
       digits: 6,
       period: 30
     });
-    localStorage.setItem('aether_totp', JSON.stringify(appState.totpAccounts));
+    localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
     renderTOTPCards();
     showToast('Đã thêm vào Vault thành công!');
-    document.querySelector('.totp-subpill[data-subtab="vault"]').click();
+    document.querySelector('.totp-subpill[data-subtab="vault"]')?.click();
   });
 }
 
@@ -3156,6 +3020,7 @@ function handleQRFile(file) {
       ctx.drawImage(img, 0, 0);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       
+      // Use jsQR to decode
       if (typeof jsQR !== 'undefined') {
         const code = jsQR(imageData.data, imageData.width, imageData.height);
         if (code) {
@@ -3181,15 +3046,15 @@ async function parseAndDisplayOTPString(input) {
   if (input.startsWith('otpauth://')) {
     try {
       const url = new URL(input);
-      const label = decodeURIComponent(url.pathname.replace(/^\/\/totp\//, ''));
+      const label = decodeURIComponent(url.pathname.replace(/^\/+/, '').replace(/^totp\//i, ''));
       if (label.includes(':')) {
         const parts = label.split(':');
         issuer = parts[0];
-        account = parts[1];
-      } else {
+        account = parts.slice(1).join(':');
+      } else if (label) {
         account = label;
       }
-      secret = url.searchParams.get('secret') || '';
+      secret = (url.searchParams.get('secret') || '').replace(/[\s-]/g, '').toUpperCase();
       if (url.searchParams.get('issuer')) {
         issuer = url.searchParams.get('issuer');
       }
@@ -3197,8 +3062,9 @@ async function parseAndDisplayOTPString(input) {
       console.warn('URL Parse warning:', err);
     }
   } else {
+    // Pure Base32 key
     secret = input.replace(/[\s-]/g, '').toUpperCase();
-    issuer = 'Direct Secret Key';
+    issuer = 'Khóa Trực Tiếp';
     account = 'Account';
   }
 
@@ -3210,16 +3076,27 @@ async function parseAndDisplayOTPString(input) {
   currentDecodedSecret = secret;
   currentDecodedItem = { issuer, account, secret };
 
-  document.getElementById('decIssuer').textContent = issuer;
-  document.getElementById('decAccount').textContent = account;
-  document.getElementById('decSecret').textContent = secret;
+  const decIss = document.getElementById('decIssuer');
+  const decAcc = document.getElementById('decAccount');
+  const decSec = document.getElementById('decSecret');
 
+  if (decIss) decIss.textContent = issuer;
+  if (decAcc) decAcc.textContent = account;
+  if (decSec) decSec.textContent = secret;
+
+  // Generate live code
   const liveCode = await generateTOTP(secret);
-  document.getElementById('decLiveCode').innerHTML = `<span>${liveCode.slice(0, 3)}</span> <span>${liveCode.slice(3)}</span>`;
+  const liveDisplay = document.getElementById('decLiveCode');
+  if (liveDisplay) {
+    liveDisplay.innerHTML = `<span>${liveCode.slice(0, 3)}</span> <span>${liveCode.slice(3)}</span>`;
+  }
 
-  document.getElementById('decoderResultCard').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('decoderResultCard')?.scrollIntoView({ behavior: 'smooth' });
 }
 
+// ==========================================
+// 8. HELPERS
+// ==========================================
 function escapeHTML(str) {
   return (str || '').replace(/[&<>'"]/g, tag => ({
     '&': '&amp;',
@@ -3239,6 +3116,7 @@ function formatTimeAgo(timestamp) {
   if (hours < 24) return `${hours} giờ trước`;
   return `${Math.floor(hours / 24)} ngày trước`;
 }
-  </script>
+
+</script>
 </body>
 </html>

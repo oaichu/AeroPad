@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AETHERPAD & 2FA VAULT — APPLE + WEB3 LUXURY DESIGN SYSTEM
+   AEROPAD & 2FA VAULT — APPLE + WEB3 LUXURY DESIGN SYSTEM
    ========================================================================== */
 
 :root {
@@ -242,7 +242,7 @@ html.light .glass-segment {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: var(--radius-full);
   border: none;
   background: transparent;
@@ -863,6 +863,59 @@ html.light .editor-toolbar {
   color: var(--accent-cyan);
 }
 
+/* Empty States */
+.empty-state-notes {
+  padding: 36px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.875rem;
+}
+
+.empty-state-totp {
+  grid-column: 1 / -1;
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-state-totp .empty-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-cyan);
+  margin-bottom: 6px;
+}
+
+.empty-state-totp .empty-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.empty-state-totp h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.empty-state-totp p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  max-width: 420px;
+  line-height: 1.5;
+}
+
 /* ==========================================================================
    TAB 2: 2FA STUDIO & AUTHENTICATOR
    ========================================================================== */
@@ -1222,6 +1275,8 @@ html.light .qr-card-apple {
   align-items: center;
   justify-content: center;
   margin-bottom: 18px;
+  color: #0F172A;
+  font-size: 0.8125rem;
 }
 
 .qr-canvas-container canvas, .qr-canvas-container img {
@@ -1456,199 +1511,6 @@ html.light .qr-card-apple {
 }
 
 /* ==========================================================================
-   TAB 3: HOSTING & DOMAIN GUIDE
-   ========================================================================== */
-.hosting-guide-container {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.guide-hero {
-  text-align: center;
-  max-width: 720px;
-  margin: 0 auto 12px;
-}
-
-.badge-web3 {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: var(--accent-indigo);
-  display: inline-block;
-  margin-bottom: 12px;
-}
-
-.guide-hero h2 {
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
-}
-
-.hosting-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.hosting-card {
-  padding: 28px 24px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.featured-platform {
-  border-color: rgba(0, 242, 254, 0.35);
-  box-shadow: 0 0 30px rgba(0, 242, 254, 0.15);
-}
-
-.featured-ribbon {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  background: var(--grad-aurora);
-  color: #07090E;
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-}
-
-.platform-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-md);
-  background: var(--bg-glass);
-  border: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.platform-icon svg {
-  width: 26px;
-  height: 26px;
-}
-
-.hosting-card h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.platform-desc {
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 16px;
-}
-
-.feature-checklist {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  margin-bottom: 20px;
-}
-
-.feature-checklist code {
-  font-family: var(--font-mono);
-  color: var(--accent-cyan);
-  background: rgba(0, 242, 254, 0.08);
-  padding: 2px 4px;
-  border-radius: 4px;
-}
-
-.deploy-steps {
-  margin-top: auto;
-  display: grid;
-  grid-template-columns: 24px 1fr;
-  gap: 8px 10px;
-  font-size: 0.775rem;
-  color: var(--text-secondary);
-  padding-top: 14px;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.step-num {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--bg-glass);
-  border: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: var(--accent-cyan);
-  font-size: 0.7rem;
-}
-
-.domain-section {
-  padding: 28px;
-}
-
-.domain-section h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 18px;
-}
-
-.domain-options-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.domain-item {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 16px;
-}
-
-html.light .domain-item {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-.domain-badge {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--accent-cyan);
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.domain-item h4 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.domain-item p code {
-  font-family: var(--font-mono);
-  color: var(--accent-cyan);
-  font-size: 0.8125rem;
-}
-
-.domain-status {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 8px;
-  line-height: 1.4;
-}
-
-/* ==========================================================================
    TOAST & MODALS
    ========================================================================== */
 .toast-container {
@@ -1727,9 +1589,6 @@ html.light .domain-item {
 @media (max-width: 1024px) {
   .notepad-layout {
     grid-template-columns: 240px 1fr;
-  }
-  .hosting-grid, .domain-options-grid {
-    grid-template-columns: 1fr;
   }
   .gen-layout, .decoder-layout {
     grid-template-columns: 1fr;

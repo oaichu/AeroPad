@@ -1,6 +1,6 @@
 /**
- * AETHERPAD & 2FA VAULT — FULL CLIENT-SIDE APP LOGIC
- * RFC 6238 TOTP Engine + Client-Side Notes & QR Studio
+ * AEROPAD & 2FA VAULT — FULL CLIENT-SIDE APP LOGIC
+ * RFC 6238 TOTP Engine + Client-Side Zero-Knowledge Notes & QR Studio
  */
 
 // ==========================================
@@ -69,6 +69,7 @@ const Base32 = {
 // TOTP Generator (RFC 6238)
 async function generateTOTP(secretBase32, period = 30, digits = 6, algo = 'SHA-1') {
   try {
+    if (!secretBase32) return '------';
     const keyBytes = Base32.decode(secretBase32);
     if (keyBytes.byteLength === 0) return '------';
 
@@ -106,64 +107,17 @@ async function generateTOTP(secretBase32, period = 30, digits = 6, algo = 'SHA-1
 }
 
 // ==========================================
-// 2. STATE & DEFAULT DATA
+// 2. STATE & CLEAN STORAGE (No Mock Data)
 // ==========================================
-const DEFAULT_NOTES = [
-  {
-    id: 'note-1',
-    title: '🔐 Web3 & Cold Storage Checklist',
-    content: `# Security Blueprint for High-Value Assets\n\n- [x] Khởi tạo ví lạnh Hardware Wallet\n- [x] Sao lưu Seed Phrase vào Titanium Plate\n- [ ] Kích hoạt xác thực 2FA TOTP cho Binance & Kraken\n- [ ] Đặt Master Key cho AetherPad Vault\n\n> "Bảo mật không phải là một sản phẩm, đó là một quy trình."`,
-    updatedAt: Date.now() - 1000 * 60 * 15
-  },
-  {
-    id: 'note-2',
-    title: '🌐 Cloudflare Pages + DNS Free Setup',
-    content: `# Triển Khai Không Tốn Kém\n\n1. Tạo repository trên GitHub: \`aether-vault\`\n2. Đẩy code tĩnh (HTML/CSS/JS) lên branch \`main\`\n3. Vào Cloudflare Dashboard -> Workers & Pages -> Create Application\n4. Chọn repo và click **Deploy Site**\n5. URL mặc định: \`https://aether-vault.pages.dev\` (SSL trọn đời, 0đ/tháng)`,
-    updatedAt: Date.now() - 1000 * 60 * 120
-  }
-];
-
-const DEFAULT_VAULT_ACCOUNTS = [
-  {
-    id: 'totp-1',
-    issuer: 'Binance Exchange',
-    account: 'trader@web3.io',
-    secret: 'JBSWY3DPEHPK3PXP',
-    digits: 6,
-    period: 30
-  },
-  {
-    id: 'totp-2',
-    issuer: 'GitHub DevSecOps',
-    account: 'oaichu-security',
-    secret: 'NBSWY3DPEHPK3PXQ',
-    digits: 6,
-    period: 30
-  },
-  {
-    id: 'totp-3',
-    issuer: 'Google Cloud Platform',
-    account: 'admin@aethervault.io',
-    secret: 'MZXW6YTBOI======',
-    digits: 6,
-    period: 30
-  },
-  {
-    id: 'totp-4',
-    issuer: 'Solana Validator',
-    account: 'sol_val_key_01',
-    secret: 'KRUGS4ZANFZSAYJA',
-    digits: 6,
-    period: 30
-  }
-];
+const DEFAULT_NOTES = [];
+const DEFAULT_VAULT_ACCOUNTS = [];
 
 // App State
 let appState = {
-  notes: JSON.parse(localStorage.getItem('aether_notes')) || DEFAULT_NOTES,
+  notes: JSON.parse(localStorage.getItem('aeropad_notes')) || DEFAULT_NOTES,
   activeNoteId: null,
-  totpAccounts: JSON.parse(localStorage.getItem('aether_totp')) || DEFAULT_VAULT_ACCOUNTS,
-  theme: localStorage.getItem('aether_theme') || 'dark',
+  totpAccounts: JSON.parse(localStorage.getItem('aeropad_totp')) || DEFAULT_VAULT_ACCOUNTS,
+  theme: localStorage.getItem('aeropad_theme') || 'dark',
   currentTab: 'notepad',
   current2FASubtab: 'vault',
   editorMode: 'edit'
@@ -185,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Toast Notifications
 function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer');
+  if (!container) return;
   const toast = document.createElement('div');
   toast.className = 'toast-item glass-panel';
   
@@ -217,7 +172,7 @@ function initTheme() {
     root.classList.add('dark');
   }
 
-  document.getElementById('themeToggle').addEventListener('click', () => {
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
     if (root.classList.contains('dark')) {
       root.classList.remove('dark');
       root.classList.add('light');
@@ -227,7 +182,7 @@ function initTheme() {
       root.classList.add('dark');
       appState.theme = 'dark';
     }
-    localStorage.setItem('aether_theme', appState.theme);
+    localStorage.setItem('aeropad_theme', appState.theme);
     renderQRCode();
   });
 }
@@ -241,7 +196,8 @@ function initNavigation() {
       
       btn.classList.add('active');
       const tabId = btn.dataset.tab;
-      document.getElementById(`tab-${tabId}`).classList.add('active');
+      const targetPane = document.getElementById(`tab-${tabId}`);
+      if (targetPane) targetPane.classList.add('active');
       appState.currentTab = tabId;
     });
   });
@@ -254,7 +210,8 @@ function initNavigation() {
 
       btn.classList.add('active');
       const subtab = btn.dataset.subtab;
-      document.getElementById(`subtab-${subtab}`).classList.add('active');
+      const targetSubpane = document.getElementById(`subtab-${subtab}`);
+      if (targetSubpane) targetSubpane.classList.add('active');
       appState.current2FASubtab = subtab;
 
       if (subtab === 'generator') {
@@ -265,7 +222,7 @@ function initNavigation() {
 
   // Master Lock Button
   const vaultBtn = document.getElementById('vaultLockBtn');
-  vaultBtn.addEventListener('click', () => {
+  vaultBtn?.addEventListener('click', () => {
     showToast('Vault bảo mật đang ở trạng thái Hoạt Động (Unlocked)');
   });
 }
@@ -284,8 +241,8 @@ function initNotepad() {
   const titleInput = document.getElementById('noteTitle');
   const contentInput = document.getElementById('noteContent');
 
-  titleInput.addEventListener('input', autoSaveNote);
-  contentInput.addEventListener('input', () => {
+  titleInput?.addEventListener('input', autoSaveNote);
+  contentInput?.addEventListener('input', () => {
     autoSaveNote();
     updateWordCounts();
     if (appState.editorMode !== 'edit') {
@@ -294,30 +251,13 @@ function initNotepad() {
   });
 
   // New Note
-  document.getElementById('newNoteBtn').addEventListener('click', () => {
-    const newNote = {
-      id: 'note-' + Date.now(),
-      title: 'Ghi chú không tiêu đề',
-      content: '',
-      updatedAt: Date.now()
-    };
-    appState.notes.unshift(newNote);
-    appState.activeNoteId = newNote.id;
-    saveNotesToStorage();
-    renderNotesList();
-    loadActiveNote();
-    titleInput.focus();
-    showToast('Đã tạo ghi chú mới');
-  });
+  document.getElementById('newNoteBtn')?.addEventListener('click', createNewNote);
 
   // Delete Note
-  document.getElementById('deleteNoteBtn').addEventListener('click', () => {
-    if (appState.notes.length <= 1) {
-      showToast('Cần giữ lại ít nhất 1 ghi chú', 'error');
-      return;
-    }
+  document.getElementById('deleteNoteBtn')?.addEventListener('click', () => {
+    if (appState.notes.length === 0) return;
     appState.notes = appState.notes.filter(n => n.id !== appState.activeNoteId);
-    appState.activeNoteId = appState.notes[0].id;
+    appState.activeNoteId = appState.notes.length > 0 ? appState.notes[0].id : null;
     saveNotesToStorage();
     renderNotesList();
     loadActiveNote();
@@ -325,7 +265,7 @@ function initNotepad() {
   });
 
   // Search Notes
-  document.getElementById('noteSearch').addEventListener('input', (e) => {
+  document.getElementById('noteSearch')?.addEventListener('input', (e) => {
     const q = e.target.value.toLowerCase();
     renderNotesList(q);
   });
@@ -365,24 +305,26 @@ function initNotepad() {
   });
 
   // Copy Note Content
-  document.getElementById('copyNoteContent').addEventListener('click', () => {
+  document.getElementById('copyNoteContent')?.addEventListener('click', () => {
     const note = appState.notes.find(n => n.id === appState.activeNoteId);
     if (note) {
       navigator.clipboard.writeText(`${note.title}\n\n${note.content}`);
       showToast('Đã sao chép nội dung ghi chú');
+    } else {
+      showToast('Chưa có ghi chú nào để sao chép', 'error');
     }
   });
 
   // Export Dropdown
   const exportBtn = document.getElementById('exportBtn');
   const exportMenu = document.getElementById('exportMenu');
-  exportBtn.addEventListener('click', (e) => {
+  exportBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     exportMenu.classList.toggle('show');
   });
-  document.addEventListener('click', () => exportMenu.classList.remove('show'));
+  document.addEventListener('click', () => exportMenu?.classList.remove('show'));
 
-  exportMenu.querySelectorAll('button').forEach(btn => {
+  exportMenu?.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
       const format = btn.dataset.export;
       exportNoteFile(format);
@@ -390,14 +332,47 @@ function initNotepad() {
   });
 }
 
+function createNewNote() {
+  const newNote = {
+    id: 'note-' + Date.now(),
+    title: 'Ghi chú mới',
+    content: '',
+    updatedAt: Date.now()
+  };
+  appState.notes.unshift(newNote);
+  appState.activeNoteId = newNote.id;
+  saveNotesToStorage();
+  renderNotesList();
+  loadActiveNote();
+  const titleInput = document.getElementById('noteTitle');
+  if (titleInput) {
+    titleInput.focus();
+    titleInput.select();
+  }
+  showToast('Đã tạo ghi chú mới');
+}
+
 function renderNotesList(filterQuery = '') {
   const list = document.getElementById('notesList');
+  if (!list) return;
   list.innerHTML = '';
 
   const filtered = appState.notes.filter(n => 
     n.title.toLowerCase().includes(filterQuery) || 
     n.content.toLowerCase().includes(filterQuery)
   );
+
+  if (filtered.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state-notes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;opacity:0.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        <p>Chưa có ghi chú nào.</p>
+        <button class="btn-primary-gradient btn-sm" id="emptyCreateNoteBtn" style="margin-top:4px">+ Tạo ghi chú mới</button>
+      </div>
+    `;
+    document.getElementById('emptyCreateNoteBtn')?.addEventListener('click', createNewNote);
+    return;
+  }
 
   filtered.forEach(note => {
     const item = document.createElement('div');
@@ -424,50 +399,75 @@ function renderNotesList(filterQuery = '') {
 
 function loadActiveNote() {
   const note = appState.notes.find(n => n.id === appState.activeNoteId);
-  if (!note) return;
+  const titleInput = document.getElementById('noteTitle');
+  const contentInput = document.getElementById('noteContent');
 
-  document.getElementById('noteTitle').value = note.title;
-  document.getElementById('noteContent').value = note.content;
+  if (!note) {
+    if (titleInput) titleInput.value = '';
+    if (contentInput) contentInput.value = '';
+    updateWordCounts();
+    renderMarkdownPreview();
+    return;
+  }
+
+  if (titleInput) titleInput.value = note.title;
+  if (contentInput) contentInput.value = note.content;
   updateWordCounts();
   renderMarkdownPreview();
 }
 
 function autoSaveNote() {
-  const note = appState.notes.find(n => n.id === appState.activeNoteId);
-  if (!note) return;
-
-  note.title = document.getElementById('noteTitle').value;
-  note.content = document.getElementById('noteContent').value;
-  note.updatedAt = Date.now();
+  if (appState.notes.length === 0) {
+    const newNote = {
+      id: 'note-' + Date.now(),
+      title: document.getElementById('noteTitle').value || 'Ghi chú mới',
+      content: document.getElementById('noteContent').value || '',
+      updatedAt: Date.now()
+    };
+    appState.notes.push(newNote);
+    appState.activeNoteId = newNote.id;
+  } else {
+    const note = appState.notes.find(n => n.id === appState.activeNoteId);
+    if (!note) return;
+    note.title = document.getElementById('noteTitle').value;
+    note.content = document.getElementById('noteContent').value;
+    note.updatedAt = Date.now();
+  }
 
   saveNotesToStorage();
   renderNotesList();
 
   const indicator = document.getElementById('saveIndicator');
-  indicator.style.opacity = '1';
+  if (indicator) indicator.style.opacity = '1';
 }
 
 function saveNotesToStorage() {
-  localStorage.setItem('aether_notes', JSON.stringify(appState.notes));
+  localStorage.setItem('aeropad_notes', JSON.stringify(appState.notes));
   updateStorageStat();
 }
 
 function updateWordCounts() {
-  const text = document.getElementById('noteContent').value;
+  const contentEl = document.getElementById('noteContent');
+  const text = contentEl ? contentEl.value : '';
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
   const chars = text.length;
   const readMinutes = Math.max(1, Math.ceil(words / 200));
 
-  document.getElementById('wordCount').textContent = `${words} từ`;
-  document.getElementById('charCount').textContent = `${chars} ký tự`;
-  document.getElementById('readTime').textContent = `${readMinutes} phút đọc`;
+  const wordEl = document.getElementById('wordCount');
+  const charEl = document.getElementById('charCount');
+  const readEl = document.getElementById('readTime');
+
+  if (wordEl) wordEl.textContent = `${words} từ`;
+  if (charEl) charEl.textContent = `${chars} ký tự`;
+  if (readEl) readEl.textContent = `${readMinutes} phút đọc`;
 }
 
 function renderMarkdownPreview() {
-  const text = document.getElementById('noteContent').value;
+  const contentEl = document.getElementById('noteContent');
+  const text = contentEl ? contentEl.value : '';
   const preview = document.getElementById('notePreview');
+  if (!preview) return;
   
-  // Lightweight markdown parser for instant client-side preview
   let html = escapeHTML(text)
     .replace(/^# (.*$)/gim, '<h1>$1</h1>')
     .replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -486,6 +486,7 @@ function renderMarkdownPreview() {
 
 function insertFormatting(type) {
   const textarea = document.getElementById('noteContent');
+  if (!textarea) return;
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   const selText = textarea.value.substring(start, end);
@@ -509,7 +510,10 @@ function insertFormatting(type) {
 
 function exportNoteFile(type) {
   const note = appState.notes.find(n => n.id === appState.activeNoteId);
-  if (!note) return;
+  if (!note) {
+    showToast('Chưa có ghi chú nào để xuất file', 'error');
+    return;
+  }
 
   let content = '';
   let filename = `${(note.title || 'note').replace(/\s+/g, '_')}`;
@@ -518,9 +522,11 @@ function exportNoteFile(type) {
   if (type === 'md') {
     content = `# ${note.title}\n\n${note.content}`;
     filename += '.md';
+    mimeType = 'text/markdown';
   } else if (type === 'txt') {
     content = `${note.title}\n\n${note.content}`;
     filename += '.txt';
+    mimeType = 'text/plain';
   } else if (type === 'json') {
     content = JSON.stringify(note, null, 2);
     filename += '-backup.json';
@@ -552,38 +558,47 @@ function initTOTPStudio() {
   renderTOTPCards();
 
   // Generator random secret button
-  document.getElementById('randomSecretBtn').addEventListener('click', () => {
+  document.getElementById('randomSecretBtn')?.addEventListener('click', () => {
     const newSecret = Base32.randomSecret(16);
-    document.getElementById('genSecret').value = newSecret;
+    const secInput = document.getElementById('genSecret');
+    if (secInput) secInput.value = newSecret;
     renderQRCode();
     showToast('Đã sinh khóa Secret Key mới');
   });
 
   // Generator inputs change
   ['genIssuer', 'genAccount', 'genSecret', 'genPeriod', 'genDigits'].forEach(id => {
-    document.getElementById(id).addEventListener('input', renderQRCode);
+    document.getElementById(id)?.addEventListener('input', renderQRCode);
   });
 
   // Copy Gen Secret
-  document.getElementById('copyGenSecret').addEventListener('click', () => {
+  document.getElementById('copyGenSecret')?.addEventListener('click', () => {
     const sec = document.getElementById('genSecret').value;
-    navigator.clipboard.writeText(sec);
-    showToast('Đã sao chép khóa bí mật');
+    if (sec) {
+      navigator.clipboard.writeText(sec);
+      showToast('Đã sao chép khóa bí mật');
+    } else {
+      showToast('Chưa có Secret Key để sao chép', 'error');
+    }
   });
 
   // Copy OTP URL
-  document.getElementById('copyOtpUrlBtn').addEventListener('click', () => {
+  document.getElementById('copyOtpUrlBtn')?.addEventListener('click', () => {
     const uri = getOtpAuthURI();
-    navigator.clipboard.writeText(uri);
-    showToast('Đã sao chép đường dẫn OTP Auth');
+    if (uri) {
+      navigator.clipboard.writeText(uri);
+      showToast('Đã sao chép đường dẫn OTP Auth');
+    } else {
+      showToast('Vui lòng nhập Secret Key trước', 'error');
+    }
   });
 
   // Download QR PNG
-  document.getElementById('downloadQRBtn').addEventListener('click', downloadQRPNG);
+  document.getElementById('downloadQRBtn')?.addEventListener('click', downloadQRPNG);
 
   // Save Gen to Vault
-  document.getElementById('saveToVaultBtn').addEventListener('click', () => {
-    const issuer = document.getElementById('genIssuer').value.trim() || 'Custom Issuer';
+  document.getElementById('saveToVaultBtn')?.addEventListener('click', () => {
+    const issuer = document.getElementById('genIssuer').value.trim() || 'Tài Khoản 2FA';
     const account = document.getElementById('genAccount').value.trim() || 'user';
     const secret = document.getElementById('genSecret').value.trim().toUpperCase();
 
@@ -602,25 +617,25 @@ function initTOTPStudio() {
     };
 
     appState.totpAccounts.push(newItem);
-    localStorage.setItem('aether_totp', JSON.stringify(appState.totpAccounts));
+    localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
     renderTOTPCards();
     showToast('Đã lưu mã 2FA vào Vault');
 
     // Switch to Vault
-    document.querySelector('.totp-subpill[data-subtab="vault"]').click();
+    document.querySelector('.totp-subpill[data-subtab="vault"]')?.click();
   });
 
   // Quick Add 2FA Modal
   const modalBackdrop = document.getElementById('modalBackdrop');
-  document.getElementById('quickAdd2FABtn').addEventListener('click', () => {
+  document.getElementById('quickAdd2FABtn')?.addEventListener('click', () => {
     modalBackdrop.classList.remove('hidden');
     document.getElementById('modalSecret').value = Base32.randomSecret(16);
   });
 
-  document.getElementById('closeModalBtn').addEventListener('click', () => modalBackdrop.classList.add('hidden'));
-  document.getElementById('cancelModalBtn').addEventListener('click', () => modalBackdrop.classList.add('hidden'));
+  document.getElementById('closeModalBtn')?.addEventListener('click', () => modalBackdrop.classList.add('hidden'));
+  document.getElementById('cancelModalBtn')?.addEventListener('click', () => modalBackdrop.classList.add('hidden'));
 
-  document.getElementById('confirmAdd2FABtn').addEventListener('click', () => {
+  document.getElementById('confirmAdd2FABtn')?.addEventListener('click', () => {
     const issuer = document.getElementById('modalIssuer').value.trim() || 'Mã Xác Thực';
     const account = document.getElementById('modalAccount').value.trim() || 'user';
     const secret = document.getElementById('modalSecret').value.trim().toUpperCase();
@@ -639,7 +654,7 @@ function initTOTPStudio() {
       period: 30
     });
 
-    localStorage.setItem('aether_totp', JSON.stringify(appState.totpAccounts));
+    localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
     renderTOTPCards();
     modalBackdrop.classList.add('hidden');
     showToast('Đã thêm tài khoản 2FA');
@@ -647,11 +662,13 @@ function initTOTPStudio() {
 }
 
 function getOtpAuthURI() {
-  const issuer = encodeURIComponent(document.getElementById('genIssuer').value.trim() || 'AetherPad');
-  const account = encodeURIComponent(document.getElementById('genAccount').value.trim() || 'user');
-  const secret = document.getElementById('genSecret').value.trim().toUpperCase();
-  const digits = document.getElementById('genDigits').value;
-  const period = document.getElementById('genPeriod').value;
+  const secret = (document.getElementById('genSecret')?.value || '').trim().toUpperCase();
+  if (!secret) return '';
+
+  const issuer = encodeURIComponent(document.getElementById('genIssuer')?.value.trim() || 'AeroPad');
+  const account = encodeURIComponent(document.getElementById('genAccount')?.value.trim() || 'user');
+  const digits = document.getElementById('genDigits')?.value || '6';
+  const period = document.getElementById('genPeriod')?.value || '30';
 
   return `otpauth://totp/${issuer}:${account}?secret=${secret}&issuer=${issuer}&digits=${digits}&period=${period}`;
 }
@@ -660,12 +677,19 @@ function renderQRCode() {
   const uri = getOtpAuthURI();
   const container = document.getElementById('qrContainer');
   if (!container) return;
-  container.innerHTML = '';
 
+  const issVal = document.getElementById('genIssuer')?.value.trim();
+  const accVal = document.getElementById('genAccount')?.value.trim();
   const prevIss = document.getElementById('previewIssuer');
   const prevAcc = document.getElementById('previewAccount');
-  if (prevIss) prevIss.textContent = document.getElementById('genIssuer').value || 'AetherPad';
-  if (prevAcc) prevAcc.textContent = document.getElementById('genAccount').value || 'admin@aethervault.io';
+  
+  if (prevIss) prevIss.textContent = issVal || 'Chưa đặt tên';
+  if (prevAcc) prevAcc.textContent = accVal || 'user@account';
+
+  if (!uri) {
+    container.innerHTML = `<span style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:10px;">Chưa có mã QR.<br>Hãy sinh hoặc nhập Secret Key.</span>`;
+    return;
+  }
 
   try {
     if (typeof qrcode !== 'undefined') {
@@ -681,7 +705,10 @@ function renderQRCode() {
 
 function downloadQRPNG() {
   const img = document.querySelector('#qrContainer img');
-  if (!img) return;
+  if (!img) {
+    showToast('Chưa có hình ảnh mã QR để tải', 'error');
+    return;
+  }
 
   const canvas = document.createElement('canvas');
   canvas.width = 300;
@@ -703,6 +730,19 @@ async function renderTOTPCards() {
   const grid = document.getElementById('totpCardsGrid');
   if (!grid) return;
   grid.innerHTML = '';
+
+  if (appState.totpAccounts.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state-totp glass-panel">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <h3>Chưa có mã 2FA nào trong Vault</h3>
+        <p>Hãy bấm 'Thêm Mã Mới' hoặc sang tab 'Tạo Mới 2FA' / 'Giải Mã & Quét QR' để lưu tài khoản 2FA an toàn.</p>
+      </div>
+    `;
+    return;
+  }
 
   for (const acc of appState.totpAccounts) {
     const card = document.createElement('div');
@@ -743,7 +783,7 @@ async function renderTOTPCards() {
     `;
 
     // Copy action
-    card.querySelector('.btn-copy-code').addEventListener('click', (e) => {
+    card.querySelector('.btn-copy-code')?.addEventListener('click', (e) => {
       e.stopPropagation();
       navigator.clipboard.writeText(currentCode);
       showToast(`Đã sao chép mã: ${currentCode}`);
@@ -757,10 +797,10 @@ async function renderTOTPCards() {
     });
 
     // Delete
-    card.querySelector('.delete-totp-btn').addEventListener('click', (e) => {
+    card.querySelector('.delete-totp-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();
       appState.totpAccounts = appState.totpAccounts.filter(a => a.id !== acc.id);
-      localStorage.setItem('aether_totp', JSON.stringify(appState.totpAccounts));
+      localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
       renderTOTPCards();
       showToast('Đã xóa tài khoản khỏi Vault');
     });
@@ -873,7 +913,7 @@ function initDecoder() {
   });
 
   // Decode text button
-  decodeBtn.addEventListener('click', () => {
+  decodeBtn?.addEventListener('click', () => {
     const text = rawInput.value.trim();
     if (!text) {
       showToast('Vui lòng dán chuỗi otpauth:// hoặc Secret Key', 'error');
@@ -883,7 +923,7 @@ function initDecoder() {
   });
 
   // Copy Decoded Secret
-  document.getElementById('copyDecSecret').addEventListener('click', () => {
+  document.getElementById('copyDecSecret')?.addEventListener('click', () => {
     if (currentDecodedSecret) {
       navigator.clipboard.writeText(currentDecodedSecret);
       showToast('Đã sao chép khóa bí mật giải mã');
@@ -891,7 +931,7 @@ function initDecoder() {
   });
 
   // Add Decoded to Vault
-  document.getElementById('addDecodedToVaultBtn').addEventListener('click', () => {
+  document.getElementById('addDecodedToVaultBtn')?.addEventListener('click', () => {
     if (!currentDecodedItem) return;
     appState.totpAccounts.push({
       id: 'totp-' + Date.now(),
@@ -901,10 +941,10 @@ function initDecoder() {
       digits: 6,
       period: 30
     });
-    localStorage.setItem('aether_totp', JSON.stringify(appState.totpAccounts));
+    localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
     renderTOTPCards();
     showToast('Đã thêm vào Vault thành công!');
-    document.querySelector('.totp-subpill[data-subtab="vault"]').click();
+    document.querySelector('.totp-subpill[data-subtab="vault"]')?.click();
   });
 }
 
@@ -946,15 +986,15 @@ async function parseAndDisplayOTPString(input) {
   if (input.startsWith('otpauth://')) {
     try {
       const url = new URL(input);
-      const label = decodeURIComponent(url.pathname.replace(/^\/\/totp\//, ''));
+      const label = decodeURIComponent(url.pathname.replace(/^\/+/, '').replace(/^totp\//i, ''));
       if (label.includes(':')) {
         const parts = label.split(':');
         issuer = parts[0];
-        account = parts[1];
-      } else {
+        account = parts.slice(1).join(':');
+      } else if (label) {
         account = label;
       }
-      secret = url.searchParams.get('secret') || '';
+      secret = (url.searchParams.get('secret') || '').replace(/[\s-]/g, '').toUpperCase();
       if (url.searchParams.get('issuer')) {
         issuer = url.searchParams.get('issuer');
       }
@@ -964,7 +1004,7 @@ async function parseAndDisplayOTPString(input) {
   } else {
     // Pure Base32 key
     secret = input.replace(/[\s-]/g, '').toUpperCase();
-    issuer = 'Direct Secret Key';
+    issuer = 'Khóa Trực Tiếp';
     account = 'Account';
   }
 
@@ -976,15 +1016,22 @@ async function parseAndDisplayOTPString(input) {
   currentDecodedSecret = secret;
   currentDecodedItem = { issuer, account, secret };
 
-  document.getElementById('decIssuer').textContent = issuer;
-  document.getElementById('decAccount').textContent = account;
-  document.getElementById('decSecret').textContent = secret;
+  const decIss = document.getElementById('decIssuer');
+  const decAcc = document.getElementById('decAccount');
+  const decSec = document.getElementById('decSecret');
+
+  if (decIss) decIss.textContent = issuer;
+  if (decAcc) decAcc.textContent = account;
+  if (decSec) decSec.textContent = secret;
 
   // Generate live code
   const liveCode = await generateTOTP(secret);
-  document.getElementById('decLiveCode').innerHTML = `<span>${liveCode.slice(0, 3)}</span> <span>${liveCode.slice(3)}</span>`;
+  const liveDisplay = document.getElementById('decLiveCode');
+  if (liveDisplay) {
+    liveDisplay.innerHTML = `<span>${liveCode.slice(0, 3)}</span> <span>${liveCode.slice(3)}</span>`;
+  }
 
-  document.getElementById('decoderResultCard').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('decoderResultCard')?.scrollIntoView({ behavior: 'smooth' });
 }
 
 // ==========================================

@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AetherPad & 2FA Studio — Apple + Web3 Security Vault</title>
+  <title>AeroPad &amp; 2FA Studio — Apple + Web3 Security Vault</title>
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- QRCode.js & jsQR CDN for real QR generating and scanning in demo -->
+  <!-- QRCode.js & jsQR CDN for real QR generating and scanning -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <link rel="stylesheet" href="styles.css">
@@ -38,7 +38,7 @@
           </svg>
         </div>
         <div class="brand-text">
-          <span class="brand-title">Aether<span class="text-gradient">Pad</span></span>
+          <span class="brand-title">Aero<span class="text-gradient">Pad</span></span>
           <span class="brand-badge">2FA &amp; CIPHER VAULT</span>
         </div>
       </div>
@@ -53,10 +53,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0110 0v4"></path></svg>
           <span>2FA Studio</span>
           <span class="badge-pulse">LIVE</span>
-        </button>
-        <button class="nav-pill" data-tab="hosting">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-          <span>Free Hosting &amp; Domain</span>
         </button>
       </nav>
 
@@ -107,9 +103,9 @@
               <div class="vault-stat">
                 <div class="stat-row">
                   <span>Dung lượng đã dùng</span>
-                  <span id="storageUsage">14.2 KB</span>
+                  <span id="storageUsage">0 KB</span>
                 </div>
-                <div class="progress-track"><div class="progress-bar" style="width: 8%"></div></div>
+                <div class="progress-track"><div class="progress-bar" id="storageProgressBar" style="width: 2%"></div></div>
                 <div class="stat-sub">Mã hóa AES-256 • LocalStorage Cục bộ</div>
               </div>
             </div>
@@ -178,7 +174,6 @@
                 <span id="readTime">1 phút đọc</span>
               </div>
               <div class="editor-tags">
-                <span class="tag-badge">#Crypto</span>
                 <span class="tag-badge">#Private</span>
                 <span class="tag-badge">#Zero-Leak</span>
               </div>
@@ -233,7 +228,7 @@
 
           <!-- TOTP Cards Grid -->
           <div class="totp-grid" id="totpCardsGrid">
-            <!-- Dynamic TOTP items -->
+            <!-- Dynamic TOTP items or empty state -->
           </div>
         </div>
 
@@ -249,11 +244,11 @@
               <div class="form-grid">
                 <div class="input-field-group">
                   <label>Tên Đơn Vị Phát Hành (Issuer)</label>
-                  <input type="text" id="genIssuer" class="glass-input" value="AetherVault Cloud" placeholder="vd: Binance, Google, GitHub, Telegram...">
+                  <input type="text" id="genIssuer" class="glass-input" placeholder="vd: Binance, Google, GitHub, Telegram...">
                 </div>
                 <div class="input-field-group">
                   <label>Tên Tài Khoản / Email (Account)</label>
-                  <input type="text" id="genAccount" class="glass-input" value="admin@aethervault.io" placeholder="vd: security@domain.com">
+                  <input type="text" id="genAccount" class="glass-input" placeholder="vd: user@domain.com">
                 </div>
                 <div class="input-field-group full-width">
                   <div class="label-with-action">
@@ -264,7 +259,7 @@
                     </button>
                   </div>
                   <div class="secret-input-wrap">
-                    <input type="text" id="genSecret" class="glass-input font-mono" value="JBSWY3DPEHPK3PXP" placeholder="16 hoặc 32 ký tự Base32 (A-Z, 2-7)">
+                    <input type="text" id="genSecret" class="glass-input font-mono" placeholder="16 hoặc 32 ký tự Base32 (A-Z, 2-7)">
                     <button id="copyGenSecret" class="btn-inner-copy" title="Sao chép Secret">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                     </button>
@@ -306,11 +301,11 @@
               <div class="qr-card-apple">
                 <div class="qr-glow-layer"></div>
                 <div class="qr-canvas-container" id="qrContainer">
-                  <!-- QR Code rendered dynamically -->
+                  <span style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:10px;">Chưa có mã QR.<br>Hãy sinh hoặc nhập Secret Key.</span>
                 </div>
                 <div class="qr-meta-info">
-                  <div class="qr-issuer-name" id="previewIssuer">AetherVault Cloud</div>
-                  <div class="qr-account-name" id="previewAccount">admin@aethervault.io</div>
+                  <div class="qr-issuer-name" id="previewIssuer">Chưa đặt tên</div>
+                  <div class="qr-account-name" id="previewAccount">user@account</div>
                 </div>
                 <div class="qr-actions">
                   <button id="downloadQRBtn" class="btn-glass btn-sm">
@@ -361,23 +356,23 @@
             <!-- Decoded Result Card -->
             <div class="decoder-result-card glass-panel" id="decoderResultCard">
               <div class="panel-header">
-                <span class="badge-success">KẾT QUẢ GIẢI MÃ THÀNH CÔNG</span>
+                <span class="badge-success">KẾT QUẢ GIẢI MÃ</span>
                 <h4>Thông Tin Tài Khoản 2FA</h4>
               </div>
 
               <div class="decoded-details">
                 <div class="detail-row">
                   <span class="detail-label">Đơn vị (Issuer):</span>
-                  <span class="detail-val font-semibold" id="decIssuer">Google Security</span>
+                  <span class="detail-val font-semibold" id="decIssuer">---</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-label">Tài khoản (Account):</span>
-                  <span class="detail-val font-mono" id="decAccount">user@gmail.com</span>
+                  <span class="detail-val font-mono" id="decAccount">---</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-label">Khóa bí mật trích xuất:</span>
                   <div class="secret-clip-wrap">
-                    <span class="detail-val font-mono text-cyan" id="decSecret">JBSWY3DPEHPK3PXP</span>
+                    <span class="detail-val font-mono text-cyan" id="decSecret">---</span>
                     <button class="btn-icon-sm" id="copyDecSecret" title="Copy Secret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
                   </div>
                 </div>
@@ -401,97 +396,6 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 <span>Lưu Tài Khoản Này Vào Vault Của Bạn</span>
               </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ==============================================
-           TAB 3: FREE HOSTING & DOMAIN GUIDE
-           ============================================== -->
-      <section id="tab-hosting" class="tab-pane">
-        <div class="hosting-guide-container">
-          <div class="guide-hero">
-            <span class="badge-web3">100% FREE &amp; PERMANENT HOSTING</span>
-            <h2>Hướng Dẫn Triển Khai &amp; Tên Miền Miễn Phí 0đ</h2>
-            <p class="text-secondary">Vì dự án không mang tính thương mại và là ứng dụng Client-side bảo mật tuyệt đối, bạn có thể triển khai với chi phí 0đ trọn đời cùng tốc độ CDN đỉnh cao.</p>
-          </div>
-
-          <div class="hosting-grid">
-            <!-- Platform 1: Cloudflare Pages -->
-            <div class="hosting-card glass-panel featured-platform">
-              <div class="featured-ribbon">KHUYÊN DÙNG SỐ 1</div>
-              <div class="platform-icon cloudflare-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#F6821F" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>
-              </div>
-              <h3>Cloudflare Pages</h3>
-              <p class="platform-desc">Tốc độ nhanh nhất tại Việt Nam (có POP Edge tại Hà Nội &amp; TP.HCM), băng thông vô hạn, SSL tự động.</p>
-              <ul class="feature-checklist">
-                <li>✓ Chi phí: <b>0đ vĩnh viễn</b></li>
-                <li>✓ Băng thông: <b>Không giới hạn (Unlimited Bandwidth)</b></li>
-                <li>✓ Tên miền miễn phí: <code>ten-app.pages.dev</code></li>
-                <li>✓ Hỗ trợ Custom Domain miễn phí + bảo vệ DDoS</li>
-              </ul>
-              <div class="deploy-steps">
-                <div class="step-num">1</div>
-                <div>Đẩy mã nguồn lên GitHub Repo.</div>
-                <div class="step-num">2</div>
-                <div>Truy cập <b>pages.cloudflare.com</b> &gt; Connect GitHub &gt; Deploy!</div>
-              </div>
-            </div>
-
-            <!-- Platform 2: Vercel -->
-            <div class="hosting-card glass-panel">
-              <div class="platform-icon vercel-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L24 22H0L12 1Z"></path></svg>
-              </div>
-              <h3>Vercel</h3>
-              <p class="platform-desc">Giao diện quản lý mượt mà chuẩn Apple, triển khai 1 click từ GitHub, tối ưu cho Next.js/React/HTML.</p>
-              <ul class="feature-checklist">
-                <li>✓ Chi phí: <b>0đ vĩnh viễn (Hobby Plan)</b></li>
-                <li>✓ Tên miền miễn phí: <code>ten-app.vercel.app</code></li>
-                <li>✓ CI/CD tự động deploy khi git push</li>
-                <li>✓ 100GB băng thông/tháng (quá thừa cho cá nhân)</li>
-              </ul>
-            </div>
-
-            <!-- Platform 3: GitHub Pages -->
-            <div class="hosting-card glass-panel">
-              <div class="platform-icon github-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-              </div>
-              <h3>GitHub Pages</h3>
-              <p class="platform-desc">Trực tiếp từ kho lưu trữ mã nguồn, cực kỳ uy tín và dễ quản lý.</p>
-              <ul class="feature-checklist">
-                <li>✓ Chi phí: <b>0đ trọn đời</b></li>
-                <li>✓ Tên miền miễn phí: <code>username.github.io/app</code></li>
-                <li>✓ Miễn phí chứng chỉ SSL HTTPS</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Free Custom Domain Providers -->
-          <div class="domain-section glass-panel">
-            <h3>🌐 Các Tùy Chọn Tên Miền Miễn Phí Đẹp &amp; Uy Tín</h3>
-            <div class="domain-options-grid">
-              <div class="domain-item">
-                <div class="domain-badge">Khuyên dùng</div>
-                <h4>Subdomain Chính Hãng (Vercel / Cloudflare)</h4>
-                <p><code>your-brand.pages.dev</code> hoặc <code>your-brand.vercel.app</code></p>
-                <div class="domain-status">✓ Cực đẹp, chuyên nghiệp, không bị đánh giá spam, SSL trọn đời.</div>
-              </div>
-              <div class="domain-item">
-                <div class="domain-badge">Miễn phí vĩnh viễn</div>
-                <h4>Tên miền EU.org</h4>
-                <p><code>your-name.eu.org</code></p>
-                <div class="domain-status">✓ Cấp tên miền miễn phí hoạt động từ 1996, hỗ trợ DNS Cloudflare đầy đủ.</div>
-              </div>
-              <div class="domain-item">
-                <div class="domain-badge">Dành cho Dev</div>
-                <h4>is-a.dev / js.org</h4>
-                <p><code>your-project.is-a.dev</code></p>
-                <div class="domain-status">✓ Dành cho các dự án Open-Source trên GitHub thông qua Pull Request.</div>
-              </div>
             </div>
           </div>
         </div>
