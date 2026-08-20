@@ -1,6 +1,6 @@
 /**
  * AEROPAD & 2FA VAULT — FULL CLIENT-SIDE APP LOGIC
- * RFC 6238 TOTP Engine + Client-Side Zero-Knowledge Notes & QR Studio
+ * RFC 6238 TOTP Engine + Client-Side Zero-Knowledge Notes & Multi-Language System
  */
 
 // ==========================================
@@ -107,26 +107,500 @@ async function generateTOTP(secretBase32, period = 30, digits = 6, algo = 'SHA-1
 }
 
 // ==========================================
-// 2. STATE & CLEAN STORAGE (No Mock Data)
+// 2. INTERNATIONALIZATION (i18n — 7 Languages)
+// ==========================================
+const TRANSLATIONS = {
+  en: {
+    name: 'English',
+    flag: '🇺🇸',
+    brand_badge: '2FA & CIPHER VAULT',
+    tab_notepad: 'Smart Notepad',
+    tab_totp: '2FA Studio',
+    zero_knowledge: 'Zero-Knowledge',
+    vault_unlocked: 'Vault Unlocked',
+    search_notes: 'Search notes...',
+    storage_used: 'Storage used',
+    storage_sub: 'AES-256 Encrypted • Local Storage',
+    note_title_placeholder: 'Note title...',
+    saved_status: 'Saved',
+    mode_edit: 'Edit',
+    mode_split: 'Split',
+    mode_preview: 'Preview',
+    export_file: 'Export',
+    copy_content: 'Copy',
+    note_content_placeholder: 'Start typing your note... Markdown, to-do lists, seed phrases, or private security keys supported...',
+    empty_notes_title: 'No notes yet.',
+    empty_notes_btn: '+ Create New Note',
+    subtab_vault: 'Live TOTP Vault',
+    subtab_gen: 'New 2FA (Secret & QR)',
+    subtab_decoder: 'Decode & Scan QR 2FA',
+    vault_heading: 'Two-Factor Authentication (TOTP)',
+    vault_subheading: 'Auto-refreshes via RFC 6238 HMAC-SHA1. Runs 100% locally on Web Crypto API.',
+    add_new_code_btn: 'Add New Code',
+    empty_totp_title: 'No 2FA accounts in Vault',
+    empty_totp_desc: 'Click "Add New Code" or switch to "New 2FA" / "Decode & Scan QR" to store 2FA accounts securely.',
+    gen_heading: 'Generate New Secret Key & 2FA QR',
+    gen_subheading: 'Generate high-entropy Base32 secret keys to enable two-factor authentication for your apps or services.',
+    gen_issuer: 'Issuer Name',
+    gen_account: 'Account / Email',
+    gen_secret: 'Secret Key (Base32)',
+    gen_random_btn: 'Generate New Random',
+    gen_hash_algo: 'Hash Algorithm',
+    gen_period_digits: 'Period & Digits',
+    save_to_vault_btn: 'Save Directly to Vault',
+    no_qr_placeholder: 'No QR Code yet.<br>Generate or enter a Secret Key.',
+    download_qr_png: 'Download QR PNG',
+    copy_otp_link: 'Copy OTP Link',
+    dec_heading: 'Decode QR Code & 2FA Key',
+    dec_subheading: 'Drag & drop QR code image, paste image from clipboard (Ctrl+V) or paste otpauth:// link to extract Secret Key & view real-time 6-digit code.',
+    drop_title: 'Drag & drop QR code image here',
+    drop_subtitle: 'or browse file / paste image from clipboard (Ctrl+V)',
+    paste_prompt: 'OR PASTE OTPAUTH URI / SECRET KEY',
+    decode_now_btn: 'Decode Now',
+    dec_result_title: '2FA Account Information',
+    dec_live_label: 'REAL-TIME GENERATED 6-DIGIT CODE:',
+    save_dec_to_vault: 'Save This Account to Your Vault',
+    modal_add_title: 'Add New 2FA Account',
+    cancel_btn: 'Cancel',
+    confirm_add_btn: 'Add to Vault',
+    word_unit: 'words',
+    char_unit: 'characters',
+    read_unit: 'min read',
+    toast_created_note: 'New note created',
+    toast_deleted_note: 'Note deleted',
+    toast_copied_note: 'Note content copied to clipboard',
+    toast_secret_copied: 'Secret key copied',
+    toast_otp_copied: 'OTP Auth link copied',
+    toast_qr_downloaded: 'QR Code downloaded as PNG',
+    toast_code_copied: '2FA code copied:',
+    toast_totp_added: '2FA account added to Vault',
+    toast_qr_detected: 'QR Code detected and decoded successfully!'
+  },
+  vi: {
+    name: 'Tiếng Việt',
+    flag: '🇻🇳',
+    brand_badge: '2FA & KHO MẬT MÃ',
+    tab_notepad: 'Ghi Chú Thông Minh',
+    tab_totp: 'Xác Thực 2FA',
+    zero_knowledge: 'Zero-Knowledge',
+    vault_unlocked: 'Vault Đang Mở',
+    search_notes: 'Tìm ghi chú...',
+    storage_used: 'Dung lượng đã dùng',
+    storage_sub: 'Mã hóa AES-256 • LocalStorage Cục bộ',
+    note_title_placeholder: 'Tiêu đề ghi chú...',
+    saved_status: 'Đã lưu',
+    mode_edit: 'Soạn thảo',
+    mode_split: 'Chia đôi',
+    mode_preview: 'Xem trước',
+    export_file: 'Xuất file',
+    copy_content: 'Sao chép',
+    note_content_placeholder: 'Bắt đầu gõ ghi chú của bạn... Hỗ trợ định dạng Markdown, danh sách to-do, seed phrases hoặc mã bảo mật bí mật...',
+    empty_notes_title: 'Chưa có ghi chú nào.',
+    empty_notes_btn: '+ Tạo ghi chú mới',
+    subtab_vault: 'Kho Mã TOTP Trực Tiếp',
+    subtab_gen: 'Tạo Mới 2FA (Secret & QR)',
+    subtab_decoder: 'Giải Mã & Quét QR 2FA',
+    vault_heading: 'Mã Xác Thực 2 Bước (TOTP)',
+    vault_subheading: 'Tự động làm mới theo chuẩn RFC 6238 HMAC-SHA1. Chạy hoàn toàn trên Web Crypto API cục bộ.',
+    add_new_code_btn: 'Thêm Mã Mới',
+    empty_totp_title: 'Chưa có mã 2FA nào trong Vault',
+    empty_totp_desc: 'Hãy bấm "Thêm Mã Mới" hoặc sang tab "Tạo Mới 2FA" / "Giải Mã & Quét QR" để lưu tài khoản 2FA an toàn.',
+    gen_heading: 'Tạo Khóa Bí Mật & Mã QR 2FA Mới',
+    gen_subheading: 'Sinh khóa Base32 bảo mật cao để kích hoạt xác thực 2 bước cho dịch vụ hoặc ứng dụng của bạn.',
+    gen_issuer: 'Tên Đơn Vị Phát Hành',
+    gen_account: 'Tài Khoản / Email',
+    gen_secret: 'Khóa Bí Mật (Base32)',
+    gen_random_btn: 'Sinh ngẫu nhiên mới',
+    gen_hash_algo: 'Thuật toán Hash',
+    gen_period_digits: 'Chu kỳ & Chữ số',
+    save_to_vault_btn: 'Lưu Trực Tiếp Vào Vault',
+    no_qr_placeholder: 'Chưa có mã QR.<br>Hãy sinh hoặc nhập Secret Key.',
+    download_qr_png: 'Tải QR PNG',
+    copy_otp_link: 'Copy OTP Link',
+    dec_heading: 'Giải Mã Mã QR & Khóa 2FA',
+    dec_subheading: 'Kéo thả ảnh QR Code, dán ảnh từ clipboard (Ctrl+V) hoặc dán link otpauth:// để trích xuất Secret Key & xem mã 6 số tức thì.',
+    drop_title: 'Kéo thả ảnh mã QR vào đây',
+    drop_subtitle: 'hoặc nhấp để duyệt tệp / dán ảnh từ Clipboard (Ctrl+V)',
+    paste_prompt: 'HOẶC DÁN CHUỖI OTPAUTH / SECRET KEY',
+    decode_now_btn: 'Giải Mã Ngay',
+    dec_result_title: 'Thông Tin Tài Khoản 2FA',
+    dec_live_label: 'MÃ 6 SỐ THỜI GIAN THỰC ĐƯỢC TẠO RA:',
+    save_dec_to_vault: 'Lưu Tài Khoản Này Vào Vault Của Bạn',
+    modal_add_title: 'Thêm Mã 2FA Mới',
+    cancel_btn: 'Hủy',
+    confirm_add_btn: 'Thêm vào Vault',
+    word_unit: 'từ',
+    char_unit: 'ký tự',
+    read_unit: 'phút đọc',
+    toast_created_note: 'Đã tạo ghi chú mới',
+    toast_deleted_note: 'Đã xóa ghi chú',
+    toast_copied_note: 'Đã sao chép nội dung ghi chú',
+    toast_secret_copied: 'Đã sao chép khóa bí mật',
+    toast_otp_copied: 'Đã sao chép đường dẫn OTP Auth',
+    toast_qr_downloaded: 'Đã tải xuống ảnh mã QR',
+    toast_code_copied: 'Đã sao chép mã 2FA:',
+    toast_totp_added: 'Đã thêm tài khoản vào Vault',
+    toast_qr_detected: 'Đã phát hiện và giải mã mã QR thành công!'
+  },
+  zh: {
+    name: '简体中文',
+    flag: '🇨🇳',
+    brand_badge: '2FA & 密码保险库',
+    tab_notepad: '智能记事本',
+    tab_totp: '2FA 工作室',
+    zero_knowledge: '零知识加密',
+    vault_unlocked: '保险库已解锁',
+    search_notes: '搜索笔记...',
+    storage_used: '已用存储',
+    storage_sub: 'AES-256 加密 • 本地存储',
+    note_title_placeholder: '笔记标题...',
+    saved_status: '已保存',
+    mode_edit: '编辑',
+    mode_split: '分屏',
+    mode_preview: '预览',
+    export_file: '导出文件',
+    copy_content: '复制内容',
+    note_content_placeholder: '开始输入笔记... 支持 Markdown、待办清单、助记词或私密密钥...',
+    empty_notes_title: '暂无笔记。',
+    empty_notes_btn: '+ 创建新笔记',
+    subtab_vault: '实时 TOTP 保险库',
+    subtab_gen: '生成新 2FA (密钥与二维码)',
+    subtab_decoder: '解码与扫描 2FA 二维码',
+    vault_heading: '双重身份验证 (TOTP)',
+    vault_subheading: '通过 RFC 6238 HMAC-SHA1 自动刷新。100% 本地 Web Crypto API 运行。',
+    add_new_code_btn: '添加新验证码',
+    empty_totp_title: '保险库中暂无 2FA 账户',
+    empty_totp_desc: '点击“添加新验证码”或切换至“生成新 2FA”/“解码与扫描”以安全保存 2FA 账户。',
+    gen_heading: '生成新密钥与 2FA 二维码',
+    gen_subheading: '生成高熵 Base32 密钥，为您的服务或应用启用双重身份验证。',
+    gen_issuer: '发布机构名称',
+    gen_account: '账户名称 / 邮箱',
+    gen_secret: '密钥 (Base32)',
+    gen_random_btn: '随机生成新密钥',
+    gen_hash_algo: '哈希算法',
+    gen_period_digits: '周期与位数',
+    save_to_vault_btn: '直接保存至保险库',
+    no_qr_placeholder: '暂无二维码。<br>请生成或输入密钥。',
+    download_qr_png: '下载二维码 PNG',
+    copy_otp_link: '复制 OTP 链接',
+    dec_heading: '解码二维码与 2FA 密钥',
+    dec_subheading: '拖放二维码图片、从剪贴板粘贴 (Ctrl+V) 或粘贴 otpauth:// 链接以提取密钥并查看实时 6 位代码。',
+    drop_title: '将二维码图片拖放到此处',
+    drop_subtitle: '或点击浏览文件 / 从剪贴板粘贴 (Ctrl+V)',
+    paste_prompt: '或粘贴 OTPAUTH 链接 / 密钥',
+    decode_now_btn: '立即解码',
+    dec_result_title: '2FA 账户信息',
+    dec_live_label: '实时生成的 6 位验证码：',
+    save_dec_to_vault: '将此账户保存至您的保险库',
+    modal_add_title: '添加新 2FA 账户',
+    cancel_btn: '取消',
+    confirm_add_btn: '添加至保险库',
+    word_unit: '字',
+    char_unit: '字符',
+    read_unit: '分钟阅读',
+    toast_created_note: '已创建新笔记',
+    toast_deleted_note: '已删除笔记',
+    toast_copied_note: '笔记内容已复制到剪贴板',
+    toast_secret_copied: '密钥已复制',
+    toast_otp_copied: 'OTP 链接已复制',
+    toast_qr_downloaded: '二维码已下载为 PNG',
+    toast_code_copied: '2FA 验证码已复制：',
+    toast_totp_added: '已添加 2FA 账户至保险库',
+    toast_qr_detected: '成功识别并解码二维码！'
+  },
+  ko: {
+    name: '한국어',
+    flag: '🇰🇷',
+    brand_badge: '2FA & 암호 금고',
+    tab_notepad: '스마트 메모장',
+    tab_totp: '2FA 스튜디오',
+    zero_knowledge: '영지식 암호화',
+    vault_unlocked: '금고 잠금해제됨',
+    search_notes: '메모 검색...',
+    storage_used: '사용된 용량',
+    storage_sub: 'AES-256 암호화 • 로컬 저장소',
+    note_title_placeholder: '메모 제목...',
+    saved_status: '저장됨',
+    mode_edit: '편집',
+    mode_split: '분할',
+    mode_preview: '미리보기',
+    export_file: '내보내기',
+    copy_content: '복사',
+    note_content_placeholder: '메모를 작성하세요... 마크다운, 체크리스트, 시드 구문 또는 보안 키 지원...',
+    empty_notes_title: '아직 메모가 없습니다.',
+    empty_notes_btn: '+ 새 메모 작성',
+    subtab_vault: '실시간 TOTP 금고',
+    subtab_gen: '2FA 새로 만들기 (비밀키 & QR)',
+    subtab_decoder: '2FA QR 디코드 & 스캔',
+    vault_heading: '2단계 인증 (TOTP)',
+    vault_subheading: 'RFC 6238 HMAC-SHA1 표준으로 자동 갱신됩니다. 로컬 Web Crypto API에서 100% 실행됩니다.',
+    add_new_code_btn: '새 코드 추가',
+    empty_totp_title: '금고에 2FA 계정이 없습니다',
+    empty_totp_desc: '"새 코드 추가"를 누르거나 "2FA 새로 만들기" / "QR 디코드" 탭에서 계정을 저장하세요.',
+    gen_heading: '새 비밀키 & 2FA QR 생성',
+    gen_subheading: '서비스 또는 앱에 2단계 인증을 사용하도록 보안성 높은 Base32 키를 생성합니다.',
+    gen_issuer: '발급자 이름',
+    gen_account: '계정 이름 / 이메일',
+    gen_secret: '비밀키 (Base32)',
+    gen_random_btn: '새로 무작위 생성',
+    gen_hash_algo: '해시 알고리즘',
+    gen_period_digits: '주기 & 자릿수',
+    save_to_vault_btn: '금고에 바로 저장',
+    no_qr_placeholder: 'QR 코드가 없습니다.<br>비밀키를 생성하거나 입력하세요.',
+    download_qr_png: 'QR PNG 다운로드',
+    copy_otp_link: 'OTP 링크 복사',
+    dec_heading: 'QR 코드 & 2FA 키 디코드',
+    dec_subheading: 'QR 코드 이미지를 드래그 앤 드롭하거나 클립보드에서 붙여넣어 비밀키를 추출하고 6자리 코드를 확인하세요.',
+    drop_title: 'QR 코드 이미지를 여기에 드래그 앤 드롭',
+    drop_subtitle: '또는 파일 찾아보기 / 클립보드에서 붙여넣기 (Ctrl+V)',
+    paste_prompt: '또는 OTPAUTH URI / 비밀키 붙여넣기',
+    decode_now_btn: '지금 디코드',
+    dec_result_title: '2FA 계정 정보',
+    dec_live_label: '실시간 생성된 6자리 코드:',
+    save_dec_to_vault: '이 계정을 금고에 저장',
+    modal_add_title: '새 2FA 계정 추가',
+    cancel_btn: '취소',
+    confirm_add_btn: '금고에 추가',
+    word_unit: '단어',
+    char_unit: '글자',
+    read_unit: '분 읽기',
+    toast_created_note: '새 메모가 생성되었습니다',
+    toast_deleted_note: '메모가 삭제되었습니다',
+    toast_copied_note: '메모 내용이 클립보드에 복사되었습니다',
+    toast_secret_copied: '비밀키가 복사되었습니다',
+    toast_otp_copied: 'OTP 링크가 복사되었습니다',
+    toast_qr_downloaded: 'QR 코드가 PNG로 다운로드되었습니다',
+    toast_code_copied: '2FA 코드가 복사되었습니다:',
+    toast_totp_added: '금고에 2FA 계정이 추가되었습니다',
+    toast_qr_detected: 'QR 코드가 감지되어 디코드되었습니다!'
+  },
+  ja: {
+    name: '日本語',
+    flag: '🇯🇵',
+    brand_badge: '2FA & 暗号ボールト',
+    tab_notepad: 'スマートノート',
+    tab_totp: '2FA スタジオ',
+    zero_knowledge: 'ゼロ知識暗号',
+    vault_unlocked: 'ボールト解除中',
+    search_notes: 'ノートを検索...',
+    storage_used: '使用済みストレージ',
+    storage_sub: 'AES-256 暗号化 • ローカル保存',
+    note_title_placeholder: 'ノートのタイトル...',
+    saved_status: '保存済み',
+    mode_edit: '編集',
+    mode_split: '分割',
+    mode_preview: 'プレビュー',
+    export_file: 'エクスポート',
+    copy_content: 'コピー',
+    note_content_placeholder: 'ノートを入力... Markdown、チェックリスト、シードフレーズ、秘密鍵に対応...',
+    empty_notes_title: 'ノートがありません。',
+    empty_notes_btn: '+ 新規ノート作成',
+    subtab_vault: 'ライブ TOTP ボールト',
+    subtab_gen: '新規 2FA (シークレット & QR)',
+    subtab_decoder: '2FA QR デコード & スキャン',
+    vault_heading: '2段階認証 (TOTP)',
+    vault_subheading: 'RFC 6238 HMAC-SHA1で自動更新。ローカルのWeb Crypto APIで100%実行。',
+    add_new_code_btn: '新規コード追加',
+    empty_totp_title: 'ボールトに2FAアカウントがありません',
+    empty_totp_desc: '「新規コード追加」をクリックするか「新規2FA作成」/「QRデコード」タブで安全に保存してください。',
+    gen_heading: '新規シークレットキー & 2FA QR生成',
+    gen_subheading: 'サービスやアプリで2要素認証を有効化するための安全なBase32キーを生成します。',
+    gen_issuer: '発行者名',
+    gen_account: 'アカウント名 / メール',
+    gen_secret: 'シークレットキー (Base32)',
+    gen_random_btn: 'ランダム新規生成',
+    gen_hash_algo: 'ハッシュアルゴリズム',
+    gen_period_digits: '周期 & 桁数',
+    save_to_vault_btn: 'ボールトに直接保存',
+    no_qr_placeholder: 'QRコードがありません。<br>キーを生成または入力してください。',
+    download_qr_png: 'QR PNGを保存',
+    copy_otp_link: 'OTPリンクをコピー',
+    dec_heading: 'QRコード & 2FAキーのデコード',
+    dec_subheading: 'QRコード画像をドラッグ＆ドロップするかクリップボードから貼り付けてキーを抽出します。',
+    drop_title: 'ここにQRコード画像をドラッグ＆ドロップ',
+    drop_subtitle: 'またはファイルを参照 / クリップボードから貼り付け (Ctrl+V)',
+    paste_prompt: 'または OTPAUTH URI / シークレットキーを貼り付け',
+    decode_now_btn: '今すぐデコード',
+    dec_result_title: '2FA アカウント情報',
+    dec_live_label: 'リアルタイム生成された6桁コード:',
+    save_dec_to_vault: 'このアカウントをボールトに保存',
+    modal_add_title: '新規 2FA アカウント追加',
+    cancel_btn: 'キャンセル',
+    confirm_add_btn: 'ボールトに追加',
+    word_unit: '単語',
+    char_unit: '文字',
+    read_unit: '分で読める',
+    toast_created_note: '新規ノートを作成しました',
+    toast_deleted_note: 'ノートを削除しました',
+    toast_copied_note: 'ノート内容をコピーしました',
+    toast_secret_copied: 'シークレットキーをコピーしました',
+    toast_otp_copied: 'OTPリンクをコピーしました',
+    toast_qr_downloaded: 'QRコードをPNGで保存しました',
+    toast_code_copied: '2FAコードをコピーしました:',
+    toast_totp_added: '2FAアカウントをボールトに追加しました',
+    toast_qr_detected: 'QRコードを検出してデコードしました！'
+  },
+  es: {
+    name: 'Español',
+    flag: '🇪🇸',
+    brand_badge: 'BÓVEDA 2FA & CIFRADO',
+    tab_notepad: 'Bloc de Notas',
+    tab_totp: 'Estudio 2FA',
+    zero_knowledge: 'Conocimiento Cero',
+    vault_unlocked: 'Bóveda Desbloqueada',
+    search_notes: 'Buscar notas...',
+    storage_used: 'Almacenamiento usado',
+    storage_sub: 'Cifrado AES-256 • Almacenamiento Local',
+    note_title_placeholder: 'Título de la nota...',
+    saved_status: 'Guardado',
+    mode_edit: 'Editar',
+    mode_split: 'Dividir',
+    mode_preview: 'Vista previa',
+    export_file: 'Exportar',
+    copy_content: 'Copiar',
+    note_content_placeholder: 'Escribe tu nota... Compatible con Markdown, listas de tareas, frases semilla o claves privadas...',
+    empty_notes_title: 'No hay notas aún.',
+    empty_notes_btn: '+ Crear Nueva Nota',
+    subtab_vault: 'Bóveda TOTP en Vivo',
+    subtab_gen: 'Generar 2FA (Secreto y QR)',
+    subtab_decoder: 'Decodificar y Escanear QR 2FA',
+    vault_heading: 'Autenticación de Dos Factores (TOTP)',
+    vault_subheading: 'Se actualiza automáticamente mediante RFC 6238 HMAC-SHA1. 100% local con Web Crypto API.',
+    add_new_code_btn: 'Agregar Código',
+    empty_totp_title: 'No hay cuentas 2FA en la Bóveda',
+    empty_totp_desc: 'Haz clic en "Agregar Código" o ve a "Generar 2FA" / "Decodificar QR" para guardar cuentas de forma segura.',
+    gen_heading: 'Generar Clave Secreta y QR 2FA',
+    gen_subheading: 'Genera claves secretas Base32 de alta entropía para habilitar 2FA en tus servicios o aplicaciones.',
+    gen_issuer: 'Nombre del emisor',
+    gen_account: 'Cuenta / Correo',
+    gen_secret: 'Clave Secreta (Base32)',
+    gen_random_btn: 'Generar nuevo aleatorio',
+    gen_hash_algo: 'Algoritmo Hash',
+    gen_period_digits: 'Período y Dígitos',
+    save_to_vault_btn: 'Guardar en la Bóveda',
+    no_qr_placeholder: 'No hay código QR aún.<br>Genera o introduce una clave.',
+    download_qr_png: 'Descargar QR PNG',
+    copy_otp_link: 'Copiar Enlace OTP',
+    dec_heading: 'Decodificar Código QR y Clave 2FA',
+    dec_subheading: 'Arrastra y suelta la imagen QR, pégala desde el portapapeles (Ctrl+V) o pega el enlace otpauth:// para ver el código en tiempo real.',
+    drop_title: 'Arrastra y suelta la imagen QR aquí',
+    drop_subtitle: 'o buscar archivo / pegar imagen del portapapeles (Ctrl+V)',
+    paste_prompt: 'O PEGAR URI OTPAUTH / CLAVE SECRETA',
+    decode_now_btn: 'Decodificar Ahora',
+    dec_result_title: 'Información de la Cuenta 2FA',
+    dec_live_label: 'CÓDIGO DE 6 DÍGITOS GENERADO EN TIEMPO REAL:',
+    save_dec_to_vault: 'Guardar esta cuenta en la Bóveda',
+    modal_add_title: 'Agregar Cuenta 2FA',
+    cancel_btn: 'Cancelar',
+    confirm_add_btn: 'Agregar a la Bóveda',
+    word_unit: 'palabras',
+    char_unit: 'caracteres',
+    read_unit: 'min de lectura',
+    toast_created_note: 'Nueva nota creada',
+    toast_deleted_note: 'Nota eliminada',
+    toast_copied_note: 'Contenido copiado al portapapeles',
+    toast_secret_copied: 'Clave secreta copiada',
+    toast_otp_copied: 'Enlace OTP copiado',
+    toast_qr_downloaded: 'Código QR descargado como PNG',
+    toast_code_copied: 'Código 2FA copiado:',
+    toast_totp_added: 'Cuenta 2FA agregada a la Bóveda',
+    toast_qr_detected: '¡Código QR detectado y decodificado!'
+  },
+  id: {
+    name: 'Bahasa Indonesia',
+    flag: '🇮🇩',
+    brand_badge: 'BRANKAS 2FA & CIPHER',
+    tab_notepad: 'Catatan Pintar',
+    tab_totp: 'Studio 2FA',
+    zero_knowledge: 'Nol-Pengetahuan',
+    vault_unlocked: 'Brankas Terbuka',
+    search_notes: 'Cari catatan...',
+    storage_used: 'Penyimpanan terpakai',
+    storage_sub: 'Terenkripsi AES-256 • Penyimpanan Lokal',
+    note_title_placeholder: 'Judul catatan...',
+    saved_status: 'Tersimpan',
+    mode_edit: 'Edit',
+    mode_split: 'Bagi',
+    mode_preview: 'Pratinjau',
+    export_file: 'Ekspor',
+    copy_content: 'Salin',
+    note_content_placeholder: 'Mulai mengetik catatan... Mendukung Markdown, daftar tugas, seed phrase, atau kunci keamanan privat...',
+    empty_notes_title: 'Belum ada catatan.',
+    empty_notes_btn: '+ Buat Catatan Baru',
+    subtab_vault: 'Brankas TOTP Langsung',
+    subtab_gen: 'Buat 2FA Baru (Rahasia & QR)',
+    subtab_decoder: 'Dekode & Pindai QR 2FA',
+    vault_heading: 'Autentikasi Dua Faktor (TOTP)',
+    vault_subheading: 'Diperbarui otomatis via RFC 6238 HMAC-SHA1. 100% berjalan lokal di Web Crypto API.',
+    add_new_code_btn: 'Tambah Kode Baru',
+    empty_totp_title: 'Belum ada akun 2FA di Brankas',
+    empty_totp_desc: 'Klik "Tambah Kode Baru" atau buka tab "Buat 2FA" / "Dekode QR" untuk menyimpan akun dengan aman.',
+    gen_heading: 'Buat Kunci Rahasia & QR 2FA Baru',
+    gen_subheading: 'Hasilkan kunci rahasia Base32 berkekuatan tinggi untuk mengaktifkan autentikasi dua faktor.',
+    gen_issuer: 'Nama Penerbit',
+    gen_account: 'Nama Akun / Email',
+    gen_secret: 'Kunci Rahasia (Base32)',
+    gen_random_btn: 'Acak Baru',
+    gen_hash_algo: 'Algoritma Hash',
+    gen_period_digits: 'Periode & Digit',
+    save_to_vault_btn: 'Simpan ke Brankas',
+    no_qr_placeholder: 'Belum ada Kode QR.<br>Hasilkan atau masukkan Kunci Rahasia.',
+    download_qr_png: 'Unduh QR PNG',
+    copy_otp_link: 'Salin Tautan OTP',
+    dec_heading: 'Dekode Kode QR & Kunci 2FA',
+    dec_subheading: 'Tarik & lepas gambar kode QR, tempel gambar dari papan klip (Ctrl+V) atau tempel tautan otpauth:// untuk melihat kode 6 digit real-time.',
+    drop_title: 'Tarik & lepas gambar QR di sini',
+    drop_subtitle: 'atau telusuri file / tempel gambar dari papan klip (Ctrl+V)',
+    paste_prompt: 'ATAU TEMPEL OTPAUTH URI / KUNCI RAHASIA',
+    decode_now_btn: 'Dekode Sekarang',
+    dec_result_title: 'Informasi Akun 2FA',
+    dec_live_label: 'KODE 6 DIGIT DIHASILKAN SECARA REAL-TIME:',
+    save_dec_to_vault: 'Simpan Akun Ini ke Brankas Anda',
+    modal_add_title: 'Tambah Akun 2FA Baru',
+    cancel_btn: 'Batal',
+    confirm_add_btn: 'Tambah ke Brankas',
+    word_unit: 'kata',
+    char_unit: 'karakter',
+    read_unit: 'mnt baca',
+    toast_created_note: 'Catatan baru dibuat',
+    toast_deleted_note: 'Catatan dihapus',
+    toast_copied_note: 'Konten catatan disalin ke papan klip',
+    toast_secret_copied: 'Kunci rahasia disalin',
+    toast_otp_copied: 'Tautan OTP disalin',
+    toast_qr_downloaded: 'Kode QR diunduh sebagai PNG',
+    toast_code_copied: 'Kode 2FA disalin:',
+    toast_totp_added: 'Akun 2FA ditambahkan ke Brankas',
+    toast_qr_detected: 'Kode QR terdeteksi dan berhasil didekode!'
+  }
+};
+
+// ==========================================
+// 3. STATE & STORAGE
 // ==========================================
 const DEFAULT_NOTES = [];
 const DEFAULT_VAULT_ACCOUNTS = [];
 
-// App State
 let appState = {
   notes: JSON.parse(localStorage.getItem('aeropad_notes')) || DEFAULT_NOTES,
   activeNoteId: null,
   totpAccounts: JSON.parse(localStorage.getItem('aeropad_totp')) || DEFAULT_VAULT_ACCOUNTS,
   theme: localStorage.getItem('aeropad_theme') || 'dark',
+  lang: localStorage.getItem('aeropad_lang') || 'en',
   currentTab: 'notepad',
   current2FASubtab: 'vault',
   editorMode: 'edit'
 };
 
+function t(key) {
+  const langDict = TRANSLATIONS[appState.lang] || TRANSLATIONS.en;
+  return langDict[key] || TRANSLATIONS.en[key] || key;
+}
+
 // ==========================================
-// 3. INITIALIZATION & ROUTING
+// 4. INITIALIZATION & ROUTING
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+  initLanguage();
   initTheme();
   initNavigation();
   initNotepad();
@@ -160,7 +634,76 @@ function showToast(message, type = 'info') {
 }
 
 // ==========================================
-// 4. THEME & NAVIGATION
+// 5. LANGUAGE MANAGER (i18n)
+// ==========================================
+function initLanguage() {
+  const wrap = document.getElementById('langDropdownWrap');
+  const btn = document.getElementById('langToggleBtn');
+  const menu = document.getElementById('langMenu');
+
+  btn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap?.classList.toggle('open');
+    menu?.classList.toggle('show');
+  });
+
+  document.addEventListener('click', () => {
+    wrap?.classList.remove('open');
+    menu?.classList.remove('show');
+  });
+
+  menu?.querySelectorAll('button[data-lang]').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const selectedLang = opt.dataset.lang;
+      applyLanguage(selectedLang);
+      wrap?.classList.remove('open');
+      menu?.classList.remove('show');
+    });
+  });
+
+  applyLanguage(appState.lang);
+}
+
+function applyLanguage(lang) {
+  if (!TRANSLATIONS[lang]) lang = 'en';
+  appState.lang = lang;
+  localStorage.setItem('aeropad_lang', lang);
+
+  // Update button label and active menu item
+  const currentLabel = document.getElementById('currentLangLabel');
+  if (currentLabel) {
+    currentLabel.textContent = TRANSLATIONS[lang].name;
+  }
+
+  document.querySelectorAll('#langMenu .lang-opt').forEach(opt => {
+    opt.classList.toggle('active', opt.dataset.lang === lang);
+  });
+
+  // Translate all [data-i18n] text elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (key && TRANSLATIONS[lang][key]) {
+      el.innerHTML = TRANSLATIONS[lang][key];
+    }
+  });
+
+  // Translate [data-i18n-placeholder] elements
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (key && TRANSLATIONS[lang][key]) {
+      el.setAttribute('placeholder', TRANSLATIONS[lang][key]);
+    }
+  });
+
+  // Re-render dynamic list empty states
+  renderNotesList();
+  renderTOTPCards();
+  updateWordCounts();
+  renderQRCode();
+}
+
+// ==========================================
+// 6. THEME & NAVIGATION
 // ==========================================
 function initTheme() {
   const root = document.documentElement;
@@ -223,12 +766,12 @@ function initNavigation() {
   // Master Lock Button
   const vaultBtn = document.getElementById('vaultLockBtn');
   vaultBtn?.addEventListener('click', () => {
-    showToast('Vault bảo mật đang ở trạng thái Hoạt Động (Unlocked)');
+    showToast(t('vault_unlocked') + ' • 100% Zero-Knowledge');
   });
 }
 
 // ==========================================
-// 5. SMART NOTEPAD LOGIC
+// 7. SMART NOTEPAD LOGIC
 // ==========================================
 function initNotepad() {
   if (appState.notes.length > 0) {
@@ -261,7 +804,7 @@ function initNotepad() {
     saveNotesToStorage();
     renderNotesList();
     loadActiveNote();
-    showToast('Đã xóa ghi chú');
+    showToast(t('toast_deleted_note'));
   });
 
   // Search Notes
@@ -309,9 +852,7 @@ function initNotepad() {
     const note = appState.notes.find(n => n.id === appState.activeNoteId);
     if (note) {
       navigator.clipboard.writeText(`${note.title}\n\n${note.content}`);
-      showToast('Đã sao chép nội dung ghi chú');
-    } else {
-      showToast('Chưa có ghi chú nào để sao chép', 'error');
+      showToast(t('toast_copied_note'));
     }
   });
 
@@ -335,7 +876,7 @@ function initNotepad() {
 function createNewNote() {
   const newNote = {
     id: 'note-' + Date.now(),
-    title: 'Ghi chú mới',
+    title: t('note_title_placeholder').replace('...', ''),
     content: '',
     updatedAt: Date.now()
   };
@@ -349,7 +890,7 @@ function createNewNote() {
     titleInput.focus();
     titleInput.select();
   }
-  showToast('Đã tạo ghi chú mới');
+  showToast(t('toast_created_note'));
 }
 
 function renderNotesList(filterQuery = '') {
@@ -366,8 +907,8 @@ function renderNotesList(filterQuery = '') {
     list.innerHTML = `
       <div class="empty-state-notes">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;opacity:0.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-        <p>Chưa có ghi chú nào.</p>
-        <button class="btn-primary-gradient btn-sm" id="emptyCreateNoteBtn" style="margin-top:4px">+ Tạo ghi chú mới</button>
+        <p>${t('empty_notes_title')}</p>
+        <button class="btn-primary-gradient btn-sm" id="emptyCreateNoteBtn" style="margin-top:4px">${t('empty_notes_btn')}</button>
       </div>
     `;
     document.getElementById('emptyCreateNoteBtn')?.addEventListener('click', createNewNote);
@@ -379,10 +920,10 @@ function renderNotesList(filterQuery = '') {
     item.className = `note-item ${note.id === appState.activeNoteId ? 'active' : ''}`;
     
     const timeAgo = formatTimeAgo(note.updatedAt);
-    const snippet = note.content.slice(0, 45).replace(/[#*`\n]/g, ' ') || 'Chưa có nội dung...';
+    const snippet = note.content.slice(0, 45).replace(/[#*`\n]/g, ' ') || '...';
 
     item.innerHTML = `
-      <div class="note-item-title">${escapeHTML(note.title || 'Không tiêu đề')}</div>
+      <div class="note-item-title">${escapeHTML(note.title || 'Untitled')}</div>
       <div class="note-item-snippet">${escapeHTML(snippet)}</div>
       <div class="note-item-time">${timeAgo}</div>
     `;
@@ -420,7 +961,7 @@ function autoSaveNote() {
   if (appState.notes.length === 0) {
     const newNote = {
       id: 'note-' + Date.now(),
-      title: document.getElementById('noteTitle').value || 'Ghi chú mới',
+      title: document.getElementById('noteTitle').value || 'Note',
       content: document.getElementById('noteContent').value || '',
       updatedAt: Date.now()
     };
@@ -457,9 +998,9 @@ function updateWordCounts() {
   const charEl = document.getElementById('charCount');
   const readEl = document.getElementById('readTime');
 
-  if (wordEl) wordEl.textContent = `${words} từ`;
-  if (charEl) charEl.textContent = `${chars} ký tự`;
-  if (readEl) readEl.textContent = `${readMinutes} phút đọc`;
+  if (wordEl) wordEl.textContent = `${words} ${t('word_unit')}`;
+  if (charEl) charEl.textContent = `${chars} ${t('char_unit')}`;
+  if (readEl) readEl.textContent = `${readMinutes} ${t('read_unit')}`;
 }
 
 function renderMarkdownPreview() {
@@ -481,7 +1022,7 @@ function renderMarkdownPreview() {
     .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
     .replace(/\n\n/gim, '<br><br>');
 
-  preview.innerHTML = html || '<p style="color:var(--text-muted)">Bản xem trước trống...</p>';
+  preview.innerHTML = html || `<p style="color:var(--text-muted)">${t('empty_notes_title')}</p>`;
 }
 
 function insertFormatting(type) {
@@ -493,13 +1034,13 @@ function insertFormatting(type) {
 
   let insert = '';
   switch (type) {
-    case 'bold': insert = `**${selText || 'văn bản in đậm'}**`; break;
-    case 'italic': insert = `*${selText || 'văn bản in nghiêng'}*`; break;
-    case 'heading': insert = `\n## ${selText || 'Tiêu đề'}\n`; break;
+    case 'bold': insert = `**${selText || 'bold text'}**`; break;
+    case 'italic': insert = `*${selText || 'italic text'}*`; break;
+    case 'heading': insert = `\n## ${selText || 'Heading'}\n`; break;
     case 'code': insert = `\`${selText || 'code'}\``; break;
-    case 'quote': insert = `\n> ${selText || 'Trích dẫn'}\n`; break;
-    case 'list': insert = `\n- ${selText || 'Mục danh sách'}`; break;
-    case 'check': insert = `\n- [ ] ${selText || 'Công việc cần làm'}`; break;
+    case 'quote': insert = `\n> ${selText || 'Quote'}\n`; break;
+    case 'list': insert = `\n- ${selText || 'List item'}`; break;
+    case 'check': insert = `\n- [ ] ${selText || 'To-do item'}`; break;
   }
 
   textarea.setRangeText(insert, start, end, 'end');
@@ -511,7 +1052,7 @@ function insertFormatting(type) {
 function exportNoteFile(type) {
   const note = appState.notes.find(n => n.id === appState.activeNoteId);
   if (!note) {
-    showToast('Chưa có ghi chú nào để xuất file', 'error');
+    showToast(t('empty_notes_title'), 'error');
     return;
   }
 
@@ -540,7 +1081,7 @@ function exportNoteFile(type) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
-  showToast(`Đã xuất file: ${filename}`);
+  showToast(`Exported: ${filename}`);
 }
 
 function updateStorageStat() {
@@ -552,7 +1093,7 @@ function updateStorageStat() {
 }
 
 // ==========================================
-// 6. 2FA STUDIO & LIVE TOTP VAULT
+// 8. 2FA STUDIO & LIVE TOTP VAULT
 // ==========================================
 function initTOTPStudio() {
   renderTOTPCards();
@@ -563,7 +1104,7 @@ function initTOTPStudio() {
     const secInput = document.getElementById('genSecret');
     if (secInput) secInput.value = newSecret;
     renderQRCode();
-    showToast('Đã sinh khóa Secret Key mới');
+    showToast(t('toast_secret_copied'));
   });
 
   // Generator inputs change
@@ -576,9 +1117,7 @@ function initTOTPStudio() {
     const sec = document.getElementById('genSecret').value;
     if (sec) {
       navigator.clipboard.writeText(sec);
-      showToast('Đã sao chép khóa bí mật');
-    } else {
-      showToast('Chưa có Secret Key để sao chép', 'error');
+      showToast(t('toast_secret_copied'));
     }
   });
 
@@ -587,9 +1126,7 @@ function initTOTPStudio() {
     const uri = getOtpAuthURI();
     if (uri) {
       navigator.clipboard.writeText(uri);
-      showToast('Đã sao chép đường dẫn OTP Auth');
-    } else {
-      showToast('Vui lòng nhập Secret Key trước', 'error');
+      showToast(t('toast_otp_copied'));
     }
   });
 
@@ -598,12 +1135,12 @@ function initTOTPStudio() {
 
   // Save Gen to Vault
   document.getElementById('saveToVaultBtn')?.addEventListener('click', () => {
-    const issuer = document.getElementById('genIssuer').value.trim() || 'Tài Khoản 2FA';
+    const issuer = document.getElementById('genIssuer').value.trim() || '2FA Service';
     const account = document.getElementById('genAccount').value.trim() || 'user';
     const secret = document.getElementById('genSecret').value.trim().toUpperCase();
 
     if (!secret) {
-      showToast('Vui lòng nhập hoặc sinh Secret Key', 'error');
+      showToast(t('gen_secret'), 'error');
       return;
     }
 
@@ -619,7 +1156,7 @@ function initTOTPStudio() {
     appState.totpAccounts.push(newItem);
     localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
     renderTOTPCards();
-    showToast('Đã lưu mã 2FA vào Vault');
+    showToast(t('toast_totp_added'));
 
     // Switch to Vault
     document.querySelector('.totp-subpill[data-subtab="vault"]')?.click();
@@ -636,12 +1173,12 @@ function initTOTPStudio() {
   document.getElementById('cancelModalBtn')?.addEventListener('click', () => modalBackdrop.classList.add('hidden'));
 
   document.getElementById('confirmAdd2FABtn')?.addEventListener('click', () => {
-    const issuer = document.getElementById('modalIssuer').value.trim() || 'Mã Xác Thực';
+    const issuer = document.getElementById('modalIssuer').value.trim() || '2FA Service';
     const account = document.getElementById('modalAccount').value.trim() || 'user';
     const secret = document.getElementById('modalSecret').value.trim().toUpperCase();
 
     if (!secret) {
-      showToast('Khóa Secret không được để trống', 'error');
+      showToast(t('gen_secret'), 'error');
       return;
     }
 
@@ -657,7 +1194,7 @@ function initTOTPStudio() {
     localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
     renderTOTPCards();
     modalBackdrop.classList.add('hidden');
-    showToast('Đã thêm tài khoản 2FA');
+    showToast(t('toast_totp_added'));
   });
 }
 
@@ -683,11 +1220,11 @@ function renderQRCode() {
   const prevIss = document.getElementById('previewIssuer');
   const prevAcc = document.getElementById('previewAccount');
   
-  if (prevIss) prevIss.textContent = issVal || 'Chưa đặt tên';
+  if (prevIss) prevIss.textContent = issVal || '---';
   if (prevAcc) prevAcc.textContent = accVal || 'user@account';
 
   if (!uri) {
-    container.innerHTML = `<span style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:10px;">Chưa có mã QR.<br>Hãy sinh hoặc nhập Secret Key.</span>`;
+    container.innerHTML = `<span style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:10px;">${t('no_qr_placeholder')}</span>`;
     return;
   }
 
@@ -705,10 +1242,7 @@ function renderQRCode() {
 
 function downloadQRPNG() {
   const img = document.querySelector('#qrContainer img');
-  if (!img) {
-    showToast('Chưa có hình ảnh mã QR để tải', 'error');
-    return;
-  }
+  if (!img) return;
 
   const canvas = document.createElement('canvas');
   canvas.width = 300;
@@ -723,7 +1257,7 @@ function downloadQRPNG() {
   a.download = `2FA-${document.getElementById('genIssuer').value || 'QR'}.png`;
   a.href = canvas.toDataURL('image/png');
   a.click();
-  showToast('Đã tải xuống ảnh mã QR');
+  showToast(t('toast_qr_downloaded'));
 }
 
 async function renderTOTPCards() {
@@ -737,8 +1271,8 @@ async function renderTOTPCards() {
         <div class="empty-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
         </div>
-        <h3>Chưa có mã 2FA nào trong Vault</h3>
-        <p>Hãy bấm 'Thêm Mã Mới' hoặc sang tab 'Tạo Mới 2FA' / 'Giải Mã & Quét QR' để lưu tài khoản 2FA an toàn.</p>
+        <h3>${t('empty_totp_title')}</h3>
+        <p>${t('empty_totp_desc')}</p>
       </div>
     `;
     return;
@@ -761,21 +1295,21 @@ async function renderTOTPCards() {
             <div class="totp-account-label">${escapeHTML(acc.account)}</div>
           </div>
         </div>
-        <button class="btn-danger-ghost delete-totp-btn" title="Xóa tài khoản này">
+        <button class="btn-danger-ghost delete-totp-btn" title="Delete account">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
         </button>
       </div>
 
       <div class="totp-code-box">
         <div class="totp-code-text" id="code-${acc.id}">${formattedCode}</div>
-        <button class="btn-copy-code" title="Sao chép 6 số">
+        <button class="btn-copy-code" title="Copy 6-digit code">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         </button>
       </div>
 
       <div class="totp-card-footer">
-        <span>Tự động cập nhật mỗi 30s</span>
-        <span class="font-mono text-cyan">RFC 6238</span>
+        <span>RFC 6238 HMAC-SHA1</span>
+        <span class="font-mono text-cyan">${acc.period}s</span>
       </div>
       <div class="totp-card-progress">
         <div class="totp-card-progress-bar" id="prog-${acc.id}"></div>
@@ -786,14 +1320,14 @@ async function renderTOTPCards() {
     card.querySelector('.btn-copy-code')?.addEventListener('click', (e) => {
       e.stopPropagation();
       navigator.clipboard.writeText(currentCode);
-      showToast(`Đã sao chép mã: ${currentCode}`);
+      showToast(`${t('toast_code_copied')} ${currentCode}`);
     });
 
     // Card click also copies
     card.addEventListener('click', (e) => {
       if (e.target.closest('.delete-totp-btn')) return;
       navigator.clipboard.writeText(currentCode);
-      showToast(`Đã sao chép mã: ${currentCode}`);
+      showToast(`${t('toast_code_copied')} ${currentCode}`);
     });
 
     // Delete
@@ -802,7 +1336,7 @@ async function renderTOTPCards() {
       appState.totpAccounts = appState.totpAccounts.filter(a => a.id !== acc.id);
       localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
       renderTOTPCards();
-      showToast('Đã xóa tài khoản khỏi Vault');
+      showToast(t('toast_deleted_note'));
     });
 
     grid.appendChild(card);
@@ -864,7 +1398,7 @@ async function updateAllTOTPValues() {
 }
 
 // ==========================================
-// 7. 2FA DECODER & QR SCANNER
+// 9. 2FA DECODER & QR SCANNER
 // ==========================================
 let currentDecodedSecret = null;
 let currentDecodedItem = null;
@@ -916,7 +1450,7 @@ function initDecoder() {
   decodeBtn?.addEventListener('click', () => {
     const text = rawInput.value.trim();
     if (!text) {
-      showToast('Vui lòng dán chuỗi otpauth:// hoặc Secret Key', 'error');
+      showToast(t('paste_prompt'), 'error');
       return;
     }
     parseAndDisplayOTPString(text);
@@ -926,7 +1460,7 @@ function initDecoder() {
   document.getElementById('copyDecSecret')?.addEventListener('click', () => {
     if (currentDecodedSecret) {
       navigator.clipboard.writeText(currentDecodedSecret);
-      showToast('Đã sao chép khóa bí mật giải mã');
+      showToast(t('toast_secret_copied'));
     }
   });
 
@@ -943,7 +1477,7 @@ function initDecoder() {
     });
     localStorage.setItem('aeropad_totp', JSON.stringify(appState.totpAccounts));
     renderTOTPCards();
-    showToast('Đã thêm vào Vault thành công!');
+    showToast(t('toast_totp_added'));
     document.querySelector('.totp-subpill[data-subtab="vault"]')?.click();
   });
 }
@@ -964,13 +1498,13 @@ function handleQRFile(file) {
       if (typeof jsQR !== 'undefined') {
         const code = jsQR(imageData.data, imageData.width, imageData.height);
         if (code) {
-          showToast('Đã phát hiện và giải mã mã QR!');
+          showToast(t('toast_qr_detected'));
           parseAndDisplayOTPString(code.data);
         } else {
-          showToast('Không thể đọc mã QR từ ảnh. Thử tải ảnh rõ nét hơn.', 'error');
+          showToast('Failed to decode QR code from image.', 'error');
         }
       } else {
-        showToast('jsQR library chưa được tải', 'error');
+        showToast('jsQR library not loaded', 'error');
       }
     };
     img.src = e.target.result;
@@ -979,7 +1513,7 @@ function handleQRFile(file) {
 }
 
 async function parseAndDisplayOTPString(input) {
-  let issuer = 'Bảo Mật Tùy Chỉnh';
+  let issuer = 'Security Service';
   let account = 'user@vault';
   let secret = '';
 
@@ -990,7 +1524,7 @@ async function parseAndDisplayOTPString(input) {
       if (label.includes(':')) {
         const parts = label.split(':');
         issuer = parts[0];
-        account = parts.slice(1).join(':');
+        account = parts[1];
       } else if (label) {
         account = label;
       }
@@ -1004,12 +1538,12 @@ async function parseAndDisplayOTPString(input) {
   } else {
     // Pure Base32 key
     secret = input.replace(/[\s-]/g, '').toUpperCase();
-    issuer = 'Khóa Trực Tiếp';
+    issuer = 'Direct Key';
     account = 'Account';
   }
 
   if (!secret) {
-    showToast('Không tìm thấy Secret Key hợp lệ trong chuỗi', 'error');
+    showToast('Invalid Secret Key', 'error');
     return;
   }
 
@@ -1035,7 +1569,7 @@ async function parseAndDisplayOTPString(input) {
 }
 
 // ==========================================
-// 8. HELPERS
+// 10. HELPERS
 // ==========================================
 function escapeHTML(str) {
   return (str || '').replace(/[&<>'"]/g, tag => ({
@@ -1050,9 +1584,9 @@ function escapeHTML(str) {
 function formatTimeAgo(timestamp) {
   const diff = Date.now() - timestamp;
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Vừa xong';
-  if (mins < 60) return `${mins} phút trước`;
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} giờ trước`;
-  return `${Math.floor(hours / 24)} ngày trước`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }

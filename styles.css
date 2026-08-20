@@ -379,6 +379,100 @@ html.light .moon-icon { display: block; }
   color: var(--accent-cyan);
 }
 
+/* Language Dropdown */
+.lang-dropdown-wrap {
+  position: relative;
+}
+
+.lang-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lang-pill:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-active);
+}
+
+.lang-icon {
+  width: 15px;
+  height: 15px;
+  color: var(--accent-cyan);
+}
+
+.chevron-mini {
+  width: 12px;
+  height: 12px;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.lang-dropdown-wrap.open .chevron-mini {
+  transform: rotate(180deg);
+}
+
+.lang-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  min-width: 180px;
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 100;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-float);
+  animation: fadeIn 0.2s ease;
+}
+
+.lang-menu.show {
+  display: flex;
+}
+
+.lang-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.lang-opt .flag {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.lang-opt:hover {
+  background: var(--bg-glass);
+  color: var(--accent-cyan);
+}
+
+.lang-opt.active {
+  background: var(--bg-surface-hover);
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
 /* Tab Panels Switching */
 .tab-pane {
   display: none;
