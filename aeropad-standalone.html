@@ -1556,7 +1556,7 @@ html.light .qr-card-apple {
   font-size: 0.775rem;
 }
 
-/* Decoder Section — Perfectly Balanced 50/50 Grid */
+/* Decoder Section — Perfectly Synchronized 50/50 Symmetrical Grid */
 .decoder-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1565,29 +1565,56 @@ html.light .qr-card-apple {
 }
 
 .decoder-input-card, .decoder-result-card {
-  padding: 32px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 540px;
+  box-sizing: border-box;
 }
 
-.decoder-card-body {
-  flex: 1;
+.decoder-card-header {
+  min-height: 86px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.decoder-card-header h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 4px 0;
+  color: var(--text-primary);
+}
+
+.decoder-card-header p {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+/* Top Synchronized Block (Drop Zone vs Decoded Details) */
+.decoder-block-top {
+  height: 175px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  margin: 12px 0;
 }
 
 .drop-zone {
+  height: 100%;
   border: 2px dashed var(--border-active);
   border-radius: var(--radius-lg);
-  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
   text-align: center;
   cursor: pointer;
   background: var(--bg-glass);
   transition: all 0.25s ease;
-  margin: 14px 0;
+  box-sizing: border-box;
 }
 
 .drop-zone:hover, .drop-zone.dragover {
@@ -1601,15 +1628,15 @@ html.light .qr-card-apple {
 }
 
 .drop-icon-circle {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(0, 242, 254, 0.1);
   color: var(--accent-cyan);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 10px;
+  margin-bottom: 8px;
   transition: transform 0.2s ease;
 }
 
@@ -1619,14 +1646,14 @@ html.light .qr-card-apple {
 }
 
 .drop-icon-circle svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 }
 
 .drop-content h4 {
-  font-size: 0.95rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .drop-content p {
@@ -1639,10 +1666,70 @@ html.light .qr-card-apple {
   text-decoration: underline;
 }
 
+.decoded-details {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.detail-row {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  box-sizing: border-box;
+}
+
+html.light .detail-row {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.detail-label {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.secret-clip-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-icon-sm {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.btn-icon-sm:hover {
+  color: var(--accent-cyan);
+}
+
+.btn-icon-sm svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Synchronized Divider */
 .divider-text {
   text-align: center;
   position: relative;
-  margin: 14px 0;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0;
 }
 
 .divider-text::before {
@@ -1663,12 +1750,106 @@ html.light .qr-card-apple {
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
-.paste-field-group {
+/* Middle Synchronized Block (Textarea vs Live Code Box) */
+.decoder-block-middle {
+  height: 135px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  margin: 8px 0;
+  box-sizing: border-box;
+}
+
+.decoder-textarea {
+  height: 100%;
+  width: 100%;
+  padding: 12px 14px;
+  resize: none;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+.decoder-live-box {
+  height: 100%;
+  width: 100%;
+  padding: 12px 16px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+}
+
+.test-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.725rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.live-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-emerald);
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 10px var(--accent-emerald); }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.live-code-display {
+  font-family: var(--font-mono);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  letter-spacing: 0.2em;
+  margin: 2px 0;
+  text-shadow: 0 0 20px rgba(0, 242, 254, 0.35);
+}
+
+.test-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.test-progress-fill {
+  height: 100%;
+  background: var(--grad-aurora);
+  width: 100%;
+}
+
+/* Bottom Synchronized Action Buttons */
+.decoder-block-bottom {
+  margin-top: 14px;
+}
+
+.btn-decoder-action {
+  height: 46px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
 }
 
 .badge-accent {
@@ -1695,111 +1876,6 @@ html.light .qr-card-apple {
   border-radius: var(--radius-full);
   display: inline-block;
   margin-bottom: 8px;
-}
-
-.decoded-details {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 16px 0;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-}
-
-html.light .detail-row {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-.detail-label {
-  color: var(--text-secondary);
-  font-size: 0.8125rem;
-}
-
-.secret-clip-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-icon-sm {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
-
-.btn-icon-sm:hover {
-  color: var(--accent-cyan);
-}
-
-.btn-icon-sm svg {
-  width: 15px;
-  height: 15px;
-}
-
-.live-test-box {
-  margin: 16px 0;
-  padding: 18px;
-  text-align: center;
-  border-radius: var(--radius-lg);
-}
-
-.test-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--text-secondary);
-}
-
-.live-pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent-emerald);
-  animation: pulse-dot 1.5s infinite;
-}
-
-@keyframes pulse-dot {
-  0% { transform: scale(0.9); opacity: 0.7; }
-  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 10px var(--accent-emerald); }
-  100% { transform: scale(0.9); opacity: 0.7; }
-}
-
-.live-code-display {
-  font-family: var(--font-mono);
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: var(--accent-cyan);
-  letter-spacing: 0.22em;
-  margin: 10px 0;
-  text-shadow: 0 0 20px rgba(0, 242, 254, 0.35);
-}
-
-.test-progress-bar {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.test-progress-fill {
-  height: 100%;
-  background: var(--grad-aurora);
-  width: 100%;
 }
 
 .full-width {
@@ -2275,29 +2351,37 @@ html.light .detail-row {
           <div class="decoder-layout">
             <!-- Left Card: Dropzone / Input Scanner -->
             <div class="decoder-input-card glass-panel">
-              <div class="panel-header">
+              <div class="decoder-card-header">
                 <span class="badge-accent">QR &amp; OTPAUTH SCANNER</span>
                 <h3 data-i18n="dec_heading">Decode QR Code &amp; 2FA Key</h3>
                 <p class="text-secondary" data-i18n="dec_subheading">Drag &amp; drop QR code image, paste image from clipboard (Ctrl+V) or paste otpauth:// link to extract Secret Key &amp; view real-time 6-digit code.</p>
               </div>
 
-              <!-- Drag & Drop Zone -->
-              <div class="drop-zone" id="qrDropZone">
-                <input type="file" id="qrFileInput" accept="image/*" class="file-hidden">
-                <div class="drop-content">
-                  <div class="drop-icon-circle">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <!-- Top Block: Drag & Drop Zone -->
+              <div class="decoder-block-top">
+                <div class="drop-zone" id="qrDropZone">
+                  <input type="file" id="qrFileInput" accept="image/*" class="file-hidden">
+                  <div class="drop-content">
+                    <div class="drop-icon-circle">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </div>
+                    <h4 data-i18n="drop_title">Drag &amp; drop QR code image here</h4>
+                    <p data-i18n="drop_subtitle">or browse file / paste image from clipboard (Ctrl+V)</p>
                   </div>
-                  <h4 data-i18n="drop_title">Drag &amp; drop QR code image here</h4>
-                  <p data-i18n="drop_subtitle">or browse file / paste image from clipboard (Ctrl+V)</p>
                 </div>
               </div>
 
-              <!-- Or Paste Text / URI -->
+              <!-- Divider -->
               <div class="divider-text"><span data-i18n="paste_prompt">OR PASTE OTPAUTH URI / SECRET KEY</span></div>
-              <div class="paste-field-group">
-                <textarea id="rawOtpInput" class="glass-textarea font-mono" rows="2" placeholder="e.g. otpauth://totp/Google:user@gmail.com?secret=JBSWY3DPEHPK3PXP&issuer=Google&#10;or enter raw Base32 Secret Key..."></textarea>
-                <button id="decodeBtn" class="btn-primary-gradient full-width">
+
+              <!-- Middle Block: Raw Input Textarea -->
+              <div class="decoder-block-middle">
+                <textarea id="rawOtpInput" class="glass-textarea font-mono decoder-textarea" placeholder="e.g. otpauth://totp/Google:user@gmail.com?secret=JBSWY3DPEHPK3PXP&issuer=Google&#10;or enter raw Base32 Secret Key..."></textarea>
+              </div>
+
+              <!-- Bottom Action Button -->
+              <div class="decoder-block-bottom">
+                <button id="decodeBtn" class="btn-primary-gradient btn-decoder-action full-width">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
                   <span data-i18n="decode_now_btn">Decode Now</span>
                 </button>
@@ -2306,48 +2390,59 @@ html.light .detail-row {
 
             <!-- Right Card: Decoded Result & Live OTP -->
             <div class="decoder-result-card glass-panel" id="decoderResultCard">
-              <div class="panel-header">
+              <div class="decoder-card-header">
                 <span class="badge-success">DECODED CREDENTIALS &amp; LIVE OTP</span>
                 <h3 data-i18n="dec_result_title">2FA Account Information</h3>
                 <p class="text-secondary">Extracted credentials and live 30-second token preview generated in real-time.</p>
               </div>
 
-              <div class="decoded-details">
-                <div class="detail-row">
-                  <span class="detail-label" data-i18n="gen_issuer">Issuer</span>
-                  <span class="detail-val font-semibold" id="decIssuer">---</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label" data-i18n="gen_account">Account</span>
-                  <span class="detail-val font-mono" id="decAccount">---</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label" data-i18n="gen_secret">Secret Key</span>
-                  <div class="secret-clip-wrap">
-                    <span class="detail-val font-mono text-cyan" id="decSecret">---</span>
-                    <button class="btn-icon-sm" id="copyDecSecret" title="Copy Secret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+              <!-- Top Block: Decoded Details -->
+              <div class="decoder-block-top">
+                <div class="decoded-details">
+                  <div class="detail-row">
+                    <span class="detail-label" data-i18n="gen_issuer">Issuer</span>
+                    <span class="detail-val font-semibold" id="decIssuer">---</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label" data-i18n="gen_account">Account</span>
+                    <span class="detail-val font-mono" id="decAccount">---</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label" data-i18n="gen_secret">Secret Key</span>
+                    <div class="secret-clip-wrap">
+                      <span class="detail-val font-mono text-cyan" id="decSecret">---</span>
+                      <button class="btn-icon-sm" id="copyDecSecret" title="Copy Secret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Live Verification Code Box -->
-              <div class="live-test-box glass-panel-nested">
-                <div class="test-header">
-                  <span data-i18n="dec_live_label">REAL-TIME GENERATED 6-DIGIT CODE:</span>
-                  <span class="live-pulse-dot"></span>
-                </div>
-                <div class="live-code-display" id="decLiveCode">
-                  <span>---</span> <span>---</span>
-                </div>
-                <div class="test-progress-bar">
-                  <div class="test-progress-fill" id="decProgressFill"></div>
+              <!-- Divider -->
+              <div class="divider-text"><span data-i18n="dec_live_label">REAL-TIME GENERATED 6-DIGIT CODE:</span></div>
+
+              <!-- Middle Block: Live Code Verification Box -->
+              <div class="decoder-block-middle">
+                <div class="live-test-box glass-panel-nested decoder-live-box">
+                  <div class="test-header">
+                    <span>LIVE TOKEN</span>
+                    <span class="live-pulse-dot"></span>
+                  </div>
+                  <div class="live-code-display" id="decLiveCode">
+                    <span>---</span> <span>---</span>
+                  </div>
+                  <div class="test-progress-bar">
+                    <div class="test-progress-fill" id="decProgressFill"></div>
+                  </div>
                 </div>
               </div>
 
-              <button id="addDecodedToVaultBtn" class="btn-primary-gradient full-width">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span data-i18n="save_dec_to_vault">Save This Account to Your Vault</span>
-              </button>
+              <!-- Bottom Action Button -->
+              <div class="decoder-block-bottom">
+                <button id="addDecodedToVaultBtn" class="btn-primary-gradient btn-decoder-action full-width">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  <span data-i18n="save_dec_to_vault">Save This Account to Your Vault</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

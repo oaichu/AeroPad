@@ -371,29 +371,37 @@
           <div class="decoder-layout">
             <!-- Left Card: Dropzone / Input Scanner -->
             <div class="decoder-input-card glass-panel">
-              <div class="panel-header">
+              <div class="decoder-card-header">
                 <span class="badge-accent">QR &amp; OTPAUTH SCANNER</span>
                 <h3 data-i18n="dec_heading">Decode QR Code &amp; 2FA Key</h3>
                 <p class="text-secondary" data-i18n="dec_subheading">Drag &amp; drop QR code image, paste image from clipboard (Ctrl+V) or paste otpauth:// link to extract Secret Key &amp; view real-time 6-digit code.</p>
               </div>
 
-              <!-- Drag & Drop Zone -->
-              <div class="drop-zone" id="qrDropZone">
-                <input type="file" id="qrFileInput" accept="image/*" class="file-hidden">
-                <div class="drop-content">
-                  <div class="drop-icon-circle">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <!-- Top Block: Drag & Drop Zone -->
+              <div class="decoder-block-top">
+                <div class="drop-zone" id="qrDropZone">
+                  <input type="file" id="qrFileInput" accept="image/*" class="file-hidden">
+                  <div class="drop-content">
+                    <div class="drop-icon-circle">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </div>
+                    <h4 data-i18n="drop_title">Drag &amp; drop QR code image here</h4>
+                    <p data-i18n="drop_subtitle">or browse file / paste image from clipboard (Ctrl+V)</p>
                   </div>
-                  <h4 data-i18n="drop_title">Drag &amp; drop QR code image here</h4>
-                  <p data-i18n="drop_subtitle">or browse file / paste image from clipboard (Ctrl+V)</p>
                 </div>
               </div>
 
-              <!-- Or Paste Text / URI -->
+              <!-- Divider -->
               <div class="divider-text"><span data-i18n="paste_prompt">OR PASTE OTPAUTH URI / SECRET KEY</span></div>
-              <div class="paste-field-group">
-                <textarea id="rawOtpInput" class="glass-textarea font-mono" rows="2" placeholder="e.g. otpauth://totp/Google:user@gmail.com?secret=JBSWY3DPEHPK3PXP&issuer=Google&#10;or enter raw Base32 Secret Key..."></textarea>
-                <button id="decodeBtn" class="btn-primary-gradient full-width">
+
+              <!-- Middle Block: Raw Input Textarea -->
+              <div class="decoder-block-middle">
+                <textarea id="rawOtpInput" class="glass-textarea font-mono decoder-textarea" placeholder="e.g. otpauth://totp/Google:user@gmail.com?secret=JBSWY3DPEHPK3PXP&issuer=Google&#10;or enter raw Base32 Secret Key..."></textarea>
+              </div>
+
+              <!-- Bottom Action Button -->
+              <div class="decoder-block-bottom">
+                <button id="decodeBtn" class="btn-primary-gradient btn-decoder-action full-width">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
                   <span data-i18n="decode_now_btn">Decode Now</span>
                 </button>
@@ -402,48 +410,59 @@
 
             <!-- Right Card: Decoded Result & Live OTP -->
             <div class="decoder-result-card glass-panel" id="decoderResultCard">
-              <div class="panel-header">
+              <div class="decoder-card-header">
                 <span class="badge-success">DECODED CREDENTIALS &amp; LIVE OTP</span>
                 <h3 data-i18n="dec_result_title">2FA Account Information</h3>
                 <p class="text-secondary">Extracted credentials and live 30-second token preview generated in real-time.</p>
               </div>
 
-              <div class="decoded-details">
-                <div class="detail-row">
-                  <span class="detail-label" data-i18n="gen_issuer">Issuer</span>
-                  <span class="detail-val font-semibold" id="decIssuer">---</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label" data-i18n="gen_account">Account</span>
-                  <span class="detail-val font-mono" id="decAccount">---</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label" data-i18n="gen_secret">Secret Key</span>
-                  <div class="secret-clip-wrap">
-                    <span class="detail-val font-mono text-cyan" id="decSecret">---</span>
-                    <button class="btn-icon-sm" id="copyDecSecret" title="Copy Secret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+              <!-- Top Block: Decoded Details -->
+              <div class="decoder-block-top">
+                <div class="decoded-details">
+                  <div class="detail-row">
+                    <span class="detail-label" data-i18n="gen_issuer">Issuer</span>
+                    <span class="detail-val font-semibold" id="decIssuer">---</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label" data-i18n="gen_account">Account</span>
+                    <span class="detail-val font-mono" id="decAccount">---</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label" data-i18n="gen_secret">Secret Key</span>
+                    <div class="secret-clip-wrap">
+                      <span class="detail-val font-mono text-cyan" id="decSecret">---</span>
+                      <button class="btn-icon-sm" id="copyDecSecret" title="Copy Secret"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Live Verification Code Box -->
-              <div class="live-test-box glass-panel-nested">
-                <div class="test-header">
-                  <span data-i18n="dec_live_label">REAL-TIME GENERATED 6-DIGIT CODE:</span>
-                  <span class="live-pulse-dot"></span>
-                </div>
-                <div class="live-code-display" id="decLiveCode">
-                  <span>---</span> <span>---</span>
-                </div>
-                <div class="test-progress-bar">
-                  <div class="test-progress-fill" id="decProgressFill"></div>
+              <!-- Divider -->
+              <div class="divider-text"><span data-i18n="dec_live_label">REAL-TIME GENERATED 6-DIGIT CODE:</span></div>
+
+              <!-- Middle Block: Live Code Verification Box -->
+              <div class="decoder-block-middle">
+                <div class="live-test-box glass-panel-nested decoder-live-box">
+                  <div class="test-header">
+                    <span>LIVE TOKEN</span>
+                    <span class="live-pulse-dot"></span>
+                  </div>
+                  <div class="live-code-display" id="decLiveCode">
+                    <span>---</span> <span>---</span>
+                  </div>
+                  <div class="test-progress-bar">
+                    <div class="test-progress-fill" id="decProgressFill"></div>
+                  </div>
                 </div>
               </div>
 
-              <button id="addDecodedToVaultBtn" class="btn-primary-gradient full-width">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span data-i18n="save_dec_to_vault">Save This Account to Your Vault</span>
-              </button>
+              <!-- Bottom Action Button -->
+              <div class="decoder-block-bottom">
+                <button id="addDecodedToVaultBtn" class="btn-primary-gradient btn-decoder-action full-width">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  <span data-i18n="save_dec_to_vault">Save This Account to Your Vault</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
