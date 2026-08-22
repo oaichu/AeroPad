@@ -8,6 +8,7 @@
 <p align="center">
   <a href="https://github.com/oaichu/aeropad/actions/workflows/verify.yml"><img src="https://img.shields.io/github/actions/workflow/status/oaichu/aeropad/verify.yml?label=checks&logo=github" alt="Checks status"></a>
   <img src="https://img.shields.io/badge/runtime-static%20%2B%20offline--friendly-0ea5e9" alt="Static offline-friendly runtime">
+  <a href="https://ko-fi.com/oaichu"><img src="https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-FF5E5B?logo=kofi&logoColor=white" alt="Support on Ko-fi"></a>
   <img src="https://img.shields.io/badge/license-MIT-10b981" alt="MIT license">
   <img src="https://img.shields.io/badge/telemetry-none-8b5cf6" alt="No telemetry">
 </p>
@@ -110,6 +111,22 @@ aeropad-standalone.html single-file build
 4. Run `npm run verify` before opening a pull request.
 
 Please report security issues privately rather than publishing an exploit in a public issue. See [docs/SECURITY-AND-PRIVACY.md](docs/SECURITY-AND-PRIVACY.md) for the current disclosure boundary.
+
+## 💖 Support & Buy Me a Coffee
+
+AeroPad is **100% free, local-first, and open-source**, with zero telemetry and zero server dependencies.
+
+If AeroPad helps you protect your 2FA credentials or simplifies your offline security workflows, please consider supporting ongoing maintenance and updates:
+
+<div align="center">
+  <a href="https://ko-fi.com/oaichu" target="_blank" rel="noopener noreferrer">
+    <img src="https://storage.ko-fi.com/cdn/kofi3.png?v=3" alt="Buy Me A Coffee at ko-fi.com" height="44" style="border: 0px; height: 44px; border-radius: 8px; box-shadow: 0 4px 14px rgba(255, 94, 91, 0.35);" />
+  </a>
+  <br/><br/>
+  <i>Every cup of coffee fuels continuous development, security maintenance, and open-source privacy tooling. Thank you! ☕✨</i>
+</div>
+
+---
 
 ## License
 
