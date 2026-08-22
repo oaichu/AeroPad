@@ -1,7 +1,7 @@
 # AeroPad Release Readiness
 
-**Evidence date:** 2026-08-22
-**Scope:** current working tree after AATP-001 through AATP-017
+**Evidence date:** 2026-08-23
+**Scope:** release candidate after AATP-001 through AATP-018
 
 ## Decision
 
@@ -84,10 +84,10 @@ richer local search, independent security review, and trademark clearance.
 - Browser storage remains best-effort. A forgotten master password is not
   recoverable; encrypted backups must be stored and periodically restored by
   the user.
-- The current evidence is from a dirty local working tree. Before any public
-  release, regenerate the packet from the exact release commit in a clean
-  checkout and repeat `npm run verify`, `npm audit --omit=dev`, and the claim
-  scan.
+- The packet is release-commit evidence, not a substitute for deployment
+  approval. Before each public release, regenerate it from the exact release
+  commit in a clean checkout and repeat `npm run verify`,
+  `npm audit --omit=dev`, and the claim scan.
 - Paid/security-critical positioning additionally requires independent
   security review, trademark clearance, operator privacy documentation, and
   final review of third-party notices.
