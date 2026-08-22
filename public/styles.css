@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AEROPAD & 2FA VAULT — APPLE + WEB3 LUXURY DESIGN SYSTEM
+   AEROPAD & 2FA VAULT — PREMIUM LOCAL-FIRST DESIGN SYSTEM
    ========================================================================== */
 
 :root {
@@ -27,7 +27,7 @@
   --accent-violet: #8B5CF6;
 
   --grad-aurora: linear-gradient(135deg, #00F2FE 0%, #4FACFE 50%, #6366F1 100%);
-  --grad-apple: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --grad-glass: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%);
   
   --font-sans: 'Inter var', 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
@@ -214,7 +214,7 @@ html.light .glass-panel-nested {
   width: 42px;
   height: 42px;
   border-radius: var(--radius-md);
-  background: var(--grad-apple);
+  background: var(--grad-glass);
   border: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -515,6 +515,19 @@ html.light .lang-menu {
   transform: translateX(3px);
 }
 
+html[dir="rtl"] .lang-menu {
+  right: auto;
+  left: 0;
+}
+
+html[dir="rtl"] .lang-opt {
+  text-align: right;
+}
+
+html[dir="rtl"] .lang-opt:hover {
+  transform: translateX(-3px);
+}
+
 .lang-opt.active {
   background: rgba(0, 242, 254, 0.18);
   color: var(--accent-cyan);
@@ -614,7 +627,7 @@ html.light .glass-input-group {
   transform: translateY(-1px);
 }
 
-/* Premium Apple + Web3 'Thêm Mã Mới' Action Button */
+/* Premium 'Thêm Mã Mới' action button */
 .btn-add-vault {
   position: relative;
   display: inline-flex;
@@ -1690,8 +1703,8 @@ html.light .glass-input, html.light .glass-select, html.light .glass-textarea {
   margin-top: 24px;
 }
 
-/* QR Apple Card */
-.qr-card-apple {
+/* Premium QR card */
+.qr-card-premium {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1703,7 +1716,7 @@ html.light .glass-input, html.light .glass-select, html.light .glass-textarea {
   position: relative;
 }
 
-html.light .qr-card-apple {
+html.light .qr-card-premium {
   background: #FFFFFF;
 }
 

@@ -227,6 +227,40 @@ console.log('=== TEST 1: REL-001 — corrupted legacy storage is preserved for r
 }
 
 // ============================================================
+console.log('\n=== TEST 1b: legacy recovery never masquerades as a password prompt ===');
+{
+  const { dom, document } = await boot({
+    preSeed: (w) => {
+      w.localStorage.setItem('aeropad_notes', JSON.stringify({ v: 1, enc: 'AES-GCM-256', ct: 'legacy-envelope' }));
+      w.localStorage.setItem('aeropad_totp', '[]');
+    },
+  });
+  const overlay = document.getElementById('lockOverlay');
+  check('mixed legacy storage explains recovery instead of asking for a password',
+    !!overlay && !overlay.classList.contains('hidden') && /Legacy storage needs recovery/i.test(document.getElementById('lockError')?.textContent || ''));
+  check('mixed legacy storage hides unlock controls',
+    document.getElementById('lockPasswordInput')?.classList.contains('hidden') && document.getElementById('unlockVaultBtn')?.classList.contains('hidden'));
+  dom.window.close();
+}
+
+// ============================================================
+console.log('\n=== TEST 1c: locale menu supports Spanish, Arabic, Hindi, and Portuguese ===');
+{
+  const { dom, document, window } = await boot();
+  const locales = [
+    ['es', 'Español', 'ltr'],
+    ['ar', 'العربية', 'rtl'],
+    ['hi', 'हिन्दी', 'ltr'],
+    ['pt', 'Português', 'ltr'],
+  ];
+  for (const [code, label, direction] of locales) {
+    window.eval(`applyLanguage('${code}')`);
+    check(`${code} locale is registered`, document.documentElement.lang === code && document.documentElement.dir === direction && document.getElementById('currentLangLabel')?.textContent === label);
+  }
+  dom.window.close();
+}
+
+// ============================================================
 console.log('\n=== TEST 2+3: SEC-002 — copy after crossing the 30s window returns the CURRENT code ===');
 {
   const T0 = Math.floor(fakeNowMs / 1000);

@@ -1,6 +1,6 @@
 /**
  * AEROPAD & 2FA VAULT — FULL CLIENT-SIDE APP LOGIC
- * RFC 6238 TOTP Engine + Client-Side Zero-Knowledge Notes & Multi-Language System
+ * RFC 6238 TOTP Engine + Local-First Encrypted Vault & Multi-Language System
  */
 
 import { Base32 } from './crypto/base32.js';
@@ -205,12 +205,8 @@ async function setMasterPassword(newPassword) {
   }
 }
 
-async function removeMasterPassword() {
-  throw new Error('AeroPad vaults remain encrypted by default');
-}
-
 // ==========================================
-// 2. INTERNATIONALIZATION (i18n — 7 Languages)
+// 2. INTERNATIONALIZATION (i18n — 10 Languages)
 // ==========================================
 const TRANSLATIONS = {
   en: {
@@ -219,11 +215,10 @@ const TRANSLATIONS = {
     brand_badge: '2FA & CIPHER VAULT',
     tab_notepad: 'Smart Notepad',
     tab_totp: '2FA Studio',
-    zero_knowledge: 'Zero-Knowledge',
+    local_encryption: 'Encrypted at Rest',
     vault_unlocked: 'Vault Unlocked',
     search_notes: 'Search notes...',
     storage_used: 'Storage used',
-    storage_sub: 'Plain Text • Browser Local Storage',
     note_title_placeholder: 'Note title...',
     saved_status: 'Saved',
     save_pending: 'Saving…',
@@ -248,14 +243,14 @@ const TRANSLATIONS = {
     mode_preview: 'Preview',
     export_file: 'Export',
     copy_content: 'Copy',
-    note_content_placeholder: 'Start typing your note... Markdown, to-do lists, seed phrases, or private security keys supported...',
+    note_content_placeholder: 'Start typing your note... Markdown, to-do lists, and private security notes supported...',
     empty_notes_title: 'No notes yet.',
     empty_notes_btn: '+ Create New Note',
     subtab_vault: 'Live TOTP Vault',
     subtab_gen: 'New 2FA (Secret & QR)',
     subtab_decoder: 'Decode & Scan QR 2FA',
     vault_heading: 'Two-Factor Authentication (TOTP)',
-    vault_subheading: 'Auto-refreshes via RFC 6238 TOTP. Runs 100% locally on Web Crypto API.',
+    vault_subheading: 'Auto-refreshes via RFC 6238 TOTP using the browser Web Crypto API.',
     add_new_code_btn: 'Add New Code',
     empty_totp_title: 'No 2FA accounts in Vault',
     empty_totp_desc: 'Click "Add New Code" or switch to "New 2FA" / "Decode & Scan QR" to store 2FA accounts securely.',
@@ -310,12 +305,15 @@ const TRANSLATIONS = {
     confirm_delete_note: 'Delete this note permanently?',
     confirm_delete_totp: 'Delete this 2FA account? The secret key will be lost forever!',
     lock_title: 'Vault Locked',
-    lock_subtitle: 'Enter your master password to decrypt your data (AES-256-GCM, 100% local).',
+    lock_subtitle: 'Enter your master password to decrypt your encrypted vault.',
     lock_password_ph: 'Master password',
     lock_unlock_btn: 'Unlock Vault',
     lock_wrong_pw: 'Wrong password — try again',
     lock_error_generic: 'Decryption failed — data may be corrupted',
     legacy_recovery_required: 'Legacy storage needs recovery before it can be unlocked safely.',
+    legacy_recovery_reset: 'Clear incomplete legacy data & start fresh',
+    legacy_recovery_help: 'This browser contains incomplete or corrupted legacy records. No password can safely unlock this state.',
+    legacy_recovery_confirm: 'Clear the incomplete legacy records and start a fresh vault? This cannot be undone.',
     lock_failed: 'Unable to lock safely because the latest save failed.',
     lock_no_recovery: 'No recovery: the master password is the only key. If you forget it, the data is lost forever.',
     sec_title: 'Vault Security',
@@ -345,11 +343,10 @@ const TRANSLATIONS = {
     brand_badge: '2FA & KHO MẬT MÃ',
     tab_notepad: 'Ghi Chú Thông Minh',
     tab_totp: 'Xác Thực 2FA',
-    zero_knowledge: 'Zero-Knowledge',
+    local_encryption: 'Mã hóa tại máy',
     vault_unlocked: 'Vault Đang Mở',
     search_notes: 'Tìm ghi chú...',
     storage_used: 'Dung lượng đã dùng',
-    storage_sub: 'Văn bản thuần • Lưu trữ cục bộ trên trình duyệt',
     note_title_placeholder: 'Tiêu đề ghi chú...',
     saved_status: 'Đã lưu',
     mode_edit: 'Soạn thảo',
@@ -357,14 +354,14 @@ const TRANSLATIONS = {
     mode_preview: 'Xem trước',
     export_file: 'Xuất file',
     copy_content: 'Sao chép',
-    note_content_placeholder: 'Bắt đầu gõ ghi chú của bạn... Hỗ trợ định dạng Markdown, danh sách to-do, seed phrases hoặc mã bảo mật bí mật...',
+    note_content_placeholder: 'Bắt đầu gõ ghi chú của bạn... Hỗ trợ Markdown, danh sách to-do và ghi chú bảo mật riêng tư...',
     empty_notes_title: 'Chưa có ghi chú nào.',
     empty_notes_btn: '+ Tạo ghi chú mới',
     subtab_vault: 'Kho Mã TOTP Trực Tiếp',
     subtab_gen: 'Tạo Mới 2FA (Secret & QR)',
     subtab_decoder: 'Giải Mã & Quét QR 2FA',
     vault_heading: 'Mã Xác Thực 2 Bước (TOTP)',
-    vault_subheading: 'Tự động làm mới theo chuẩn RFC 6238 TOTP. Chạy hoàn toàn trên Web Crypto API cục bộ.',
+    vault_subheading: 'Tự động làm mới theo chuẩn RFC 6238 TOTP bằng Web Crypto API của trình duyệt.',
     add_new_code_btn: 'Thêm Mã Mới',
     empty_totp_title: 'Chưa có mã 2FA nào trong Vault',
     empty_totp_desc: 'Hãy bấm "Thêm Mã Mới" hoặc sang tab "Tạo Mới 2FA" / "Giải Mã & Quét QR" để lưu tài khoản 2FA an toàn.',
@@ -419,7 +416,7 @@ const TRANSLATIONS = {
     confirm_delete_note: 'Xóa vĩnh viễn ghi chú này?',
     confirm_delete_totp: 'Xóa tài khoản 2FA này? Khóa bí mật sẽ mất vĩnh viễn!',
     lock_title: 'Kho Mật Đã Khóa',
-    lock_subtitle: 'Nhập mật khẩu chính để giải mã dữ liệu (AES-256-GCM, 100% tại máy).',
+    lock_subtitle: 'Nhập mật khẩu chính để giải mã kho đã được mã hóa.',
     lock_password_ph: 'Mật khẩu chính',
     lock_unlock_btn: 'Mở Khóa Kho',
     lock_wrong_pw: 'Sai mật khẩu — thử lại',
@@ -452,11 +449,10 @@ const TRANSLATIONS = {
     brand_badge: '2FA & 密码保险库',
     tab_notepad: '智能记事本',
     tab_totp: '2FA 工作室',
-    zero_knowledge: '零知识加密',
+    local_encryption: '静态加密',
     vault_unlocked: '保险库已解锁',
     search_notes: '搜索笔记...',
     storage_used: '已用存储',
-    storage_sub: '明文存储 • 浏览器本地存储',
     note_title_placeholder: '笔记标题...',
     saved_status: '已保存',
     mode_edit: '编辑',
@@ -464,14 +460,14 @@ const TRANSLATIONS = {
     mode_preview: '预览',
     export_file: '导出文件',
     copy_content: '复制内容',
-    note_content_placeholder: '开始输入笔记... 支持 Markdown、待办清单、助记词或私密密钥...',
+    note_content_placeholder: '开始输入笔记... 支持 Markdown、待办清单和私密安全记录...',
     empty_notes_title: '暂无笔记。',
     empty_notes_btn: '+ 创建新笔记',
     subtab_vault: '实时 TOTP 保险库',
     subtab_gen: '生成新 2FA (密钥与二维码)',
     subtab_decoder: '解码与扫描 2FA 二维码',
     vault_heading: '双重身份验证 (TOTP)',
-    vault_subheading: '通过 RFC 6238 TOTP 自动刷新。100% 本地 Web Crypto API 运行。',
+    vault_subheading: '通过 RFC 6238 TOTP 自动刷新，并使用浏览器 Web Crypto API。',
     add_new_code_btn: '添加新验证码',
     empty_totp_title: '保险库中暂无 2FA 账户',
     empty_totp_desc: '点击“添加新验证码”或切换至“生成新 2FA”/“解码与扫描”以安全保存 2FA 账户。',
@@ -526,7 +522,7 @@ const TRANSLATIONS = {
     confirm_delete_note: '永久删除此笔记？',
     confirm_delete_totp: '删除此 2FA 账户？密钥将永久丢失！',
     lock_title: '保险库已锁定',
-    lock_subtitle: '输入主密码解密数据（AES-256-GCM，100% 本地）。',
+    lock_subtitle: '输入主密码以解密已加密的保险库。',
     lock_password_ph: '主密码',
     lock_unlock_btn: '解锁保险库',
     lock_wrong_pw: '密码错误 — 请重试',
@@ -559,11 +555,10 @@ const TRANSLATIONS = {
     brand_badge: '2FA & 암호 금고',
     tab_notepad: '스마트 메모장',
     tab_totp: '2FA 스튜디오',
-    zero_knowledge: '영지식 암호화',
+    local_encryption: '저장 시 암호화',
     vault_unlocked: '금고 잠금해제됨',
     search_notes: '메모 검색...',
     storage_used: '사용된 용량',
-    storage_sub: '일반 텍스트 • 브라우저 로컬 저장',
     note_title_placeholder: '메모 제목...',
     saved_status: '저장됨',
     mode_edit: '편집',
@@ -571,14 +566,14 @@ const TRANSLATIONS = {
     mode_preview: '미리보기',
     export_file: '내보내기',
     copy_content: '복사',
-    note_content_placeholder: '메모를 작성하세요... 마크다운, 체크리스트, 시드 구문 또는 보안 키 지원...',
+    note_content_placeholder: '메모를 작성하세요... 마크다운, 체크리스트 및 개인 보안 메모를 지원합니다...',
     empty_notes_title: '아직 메모가 없습니다.',
     empty_notes_btn: '+ 새 메모 작성',
     subtab_vault: '실시간 TOTP 금고',
     subtab_gen: '2FA 새로 만들기 (비밀키 & QR)',
     subtab_decoder: '2FA QR 디코드 & 스캔',
     vault_heading: '2단계 인증 (TOTP)',
-    vault_subheading: 'RFC 6238 TOTP 표준으로 자동 갱신됩니다. 로컬 Web Crypto API에서 100% 실행됩니다.',
+    vault_subheading: 'RFC 6238 TOTP 표준으로 자동 갱신되며 브라우저 Web Crypto API를 사용합니다.',
     add_new_code_btn: '새 코드 추가',
     empty_totp_title: '금고에 2FA 계정이 없습니다',
     empty_totp_desc: '"새 코드 추가"를 누르거나 "2FA 새로 만들기" / "QR 디코드" 탭에서 계정을 저장하세요.',
@@ -633,7 +628,7 @@ const TRANSLATIONS = {
     confirm_delete_note: '이 메모를 영구 삭제할까요?',
     confirm_delete_totp: '이 2FA 계정을 삭제할까요? 비밀키가 영구 삭제됩니다!',
     lock_title: '금고 잠김',
-    lock_subtitle: '마스터 비밀번호를 입력하여 데이터를 복호화하세요 (AES-256-GCM, 100% 로컬).',
+    lock_subtitle: '마스터 비밀번호를 입력하여 암호화된 금고를 복호화하세요.',
     lock_password_ph: '마스터 비밀번호',
     lock_unlock_btn: '금고 열기',
     lock_wrong_pw: '비밀번호가 틀렸습니다 — 다시 시도하세요',
@@ -666,11 +661,10 @@ const TRANSLATIONS = {
     brand_badge: '2FA & 暗号ボールト',
     tab_notepad: 'スマートノート',
     tab_totp: '2FA スタジオ',
-    zero_knowledge: 'ゼロ知識暗号',
+    local_encryption: '保存時に暗号化',
     vault_unlocked: 'ボールト解除中',
     search_notes: 'ノートを検索...',
     storage_used: '使用済みストレージ',
-    storage_sub: '平文 • ブラウザローカル保存',
     note_title_placeholder: 'ノートのタイトル...',
     saved_status: '保存済み',
     mode_edit: '編集',
@@ -678,14 +672,14 @@ const TRANSLATIONS = {
     mode_preview: 'プレビュー',
     export_file: 'エクスポート',
     copy_content: 'コピー',
-    note_content_placeholder: 'ノートを入力... Markdown、チェックリスト、シードフレーズ、秘密鍵に対応...',
+    note_content_placeholder: 'ノートを入力... Markdown、チェックリスト、個人のセキュリティメモに対応...',
     empty_notes_title: 'ノートがありません。',
     empty_notes_btn: '+ 新規ノート作成',
     subtab_vault: 'ライブ TOTP ボールト',
     subtab_gen: '新規 2FA (シークレット & QR)',
     subtab_decoder: '2FA QR デコード & スキャン',
     vault_heading: '2段階認証 (TOTP)',
-    vault_subheading: 'RFC 6238 TOTPで自動更新。ローカルのWeb Crypto APIで100%実行。',
+    vault_subheading: 'RFC 6238 TOTPで自動更新し、ブラウザのWeb Crypto APIを使用します。',
     add_new_code_btn: '新規コード追加',
     empty_totp_title: 'ボールトに2FAアカウントがありません',
     empty_totp_desc: '「新規コード追加」をクリックするか「新規2FA作成」/「QRデコード」タブで安全に保存してください。',
@@ -740,7 +734,7 @@ const TRANSLATIONS = {
     confirm_delete_note: 'このノートを完全に削除しますか？',
     confirm_delete_totp: 'この2FAアカウントを削除しますか？シークレットキーは永久に失われます！',
     lock_title: 'ボールトはロック中',
-    lock_subtitle: 'マスターパスワードを入力してデータを復号します（AES-256-GCM、100%ローカル）。',
+    lock_subtitle: 'マスターパスワードを入力して暗号化されたボールトを復号します。',
     lock_password_ph: 'マスターパスワード',
     lock_unlock_btn: 'ボールトを解除',
     lock_wrong_pw: 'パスワードが違います — もう一度お試しください',
@@ -773,11 +767,10 @@ const TRANSLATIONS = {
     brand_badge: 'BÓVEDA 2FA & CIFRADO',
     tab_notepad: 'Bloc de Notas',
     tab_totp: 'Estudio 2FA',
-    zero_knowledge: 'Conocimiento Cero',
+    local_encryption: 'Cifrado en reposo',
     vault_unlocked: 'Bóveda Desbloqueada',
     search_notes: 'Buscar notas...',
     storage_used: 'Almacenamiento usado',
-    storage_sub: 'Texto sin cifrar • Almacenamiento local del navegador',
     note_title_placeholder: 'Título de la nota...',
     saved_status: 'Guardado',
     mode_edit: 'Editar',
@@ -785,14 +778,14 @@ const TRANSLATIONS = {
     mode_preview: 'Vista previa',
     export_file: 'Exportar',
     copy_content: 'Copiar',
-    note_content_placeholder: 'Escribe tu nota... Compatible con Markdown, listas de tareas, frases semilla o claves privadas...',
+    note_content_placeholder: 'Escribe tu nota... Compatible con Markdown, listas de tareas y notas privadas de seguridad...',
     empty_notes_title: 'No hay notas aún.',
     empty_notes_btn: '+ Crear Nueva Nota',
     subtab_vault: 'Bóveda TOTP en Vivo',
     subtab_gen: 'Generar 2FA (Secreto y QR)',
     subtab_decoder: 'Decodificar y Escanear QR 2FA',
     vault_heading: 'Autenticación de Dos Factores (TOTP)',
-    vault_subheading: 'Se actualiza automáticamente mediante RFC 6238 TOTP. 100% local con Web Crypto API.',
+    vault_subheading: 'Se actualiza automáticamente mediante RFC 6238 TOTP usando la Web Crypto API del navegador.',
     add_new_code_btn: 'Agregar Código',
     empty_totp_title: 'No hay cuentas 2FA en la Bóveda',
     empty_totp_desc: 'Haz clic en "Agregar Código" o ve a "Generar 2FA" / "Decodificar QR" para guardar cuentas de forma segura.',
@@ -847,7 +840,7 @@ const TRANSLATIONS = {
     confirm_delete_note: '¿Eliminar esta nota permanentemente?',
     confirm_delete_totp: '¿Eliminar esta cuenta 2FA? ¡La clave secreta se perderá para siempre!',
     lock_title: 'Bóveda Bloqueada',
-    lock_subtitle: 'Introduce tu contraseña maestra para descifrar tus datos (AES-256-GCM, 100% local).',
+    lock_subtitle: 'Introduce tu contraseña maestra para descifrar tu bóveda cifrada.',
     lock_password_ph: 'Contraseña maestra',
     lock_unlock_btn: 'Desbloquear Bóveda',
     lock_wrong_pw: 'Contraseña incorrecta — inténtalo de nuevo',
@@ -880,11 +873,10 @@ const TRANSLATIONS = {
     brand_badge: 'BRANKAS 2FA & CIPHER',
     tab_notepad: 'Catatan Pintar',
     tab_totp: 'Studio 2FA',
-    zero_knowledge: 'Nol-Pengetahuan',
+    local_encryption: 'Terenkripsi saat disimpan',
     vault_unlocked: 'Brankas Terbuka',
     search_notes: 'Cari catatan...',
     storage_used: 'Penyimpanan terpakai',
-    storage_sub: 'Teks polos • Penyimpanan lokal browser',
     note_title_placeholder: 'Judul catatan...',
     saved_status: 'Tersimpan',
     mode_edit: 'Edit',
@@ -892,14 +884,14 @@ const TRANSLATIONS = {
     mode_preview: 'Pratinjau',
     export_file: 'Ekspor',
     copy_content: 'Salin',
-    note_content_placeholder: 'Mulai mengetik catatan... Mendukung Markdown, daftar tugas, seed phrase, atau kunci keamanan privat...',
+    note_content_placeholder: 'Mulai mengetik catatan... Mendukung Markdown, daftar tugas, dan catatan keamanan privat...',
     empty_notes_title: 'Belum ada catatan.',
     empty_notes_btn: '+ Buat Catatan Baru',
     subtab_vault: 'Brankas TOTP Langsung',
     subtab_gen: 'Buat 2FA Baru (Rahasia & QR)',
     subtab_decoder: 'Dekode & Pindai QR 2FA',
     vault_heading: 'Autentikasi Dua Faktor (TOTP)',
-    vault_subheading: 'Diperbarui otomatis via RFC 6238 TOTP. 100% berjalan lokal di Web Crypto API.',
+    vault_subheading: 'Diperbarui otomatis via RFC 6238 TOTP menggunakan Web Crypto API browser.',
     add_new_code_btn: 'Tambah Kode Baru',
     empty_totp_title: 'Belum ada akun 2FA di Brankas',
     empty_totp_desc: 'Klik "Tambah Kode Baru" atau buka tab "Buat 2FA" / "Dekode QR" untuk menyimpan akun dengan aman.',
@@ -954,7 +946,7 @@ const TRANSLATIONS = {
     confirm_delete_note: 'Hapus catatan ini secara permanen?',
     confirm_delete_totp: 'Hapus akun 2FA ini? Kunci rahasia akan hilang selamanya!',
     lock_title: 'Brankas Terkunci',
-    lock_subtitle: 'Masukkan kata sandi utama untuk mendekripsi data Anda (AES-256-GCM, 100% lokal).',
+    lock_subtitle: 'Masukkan kata sandi utama untuk mendekripsi brankas terenkripsi.',
     lock_password_ph: 'Kata sandi utama',
     lock_unlock_btn: 'Buka Brankas',
     lock_wrong_pw: 'Kata sandi salah — coba lagi',
@@ -982,6 +974,108 @@ const TRANSLATIONS = {
     dec_secret_ph: 'Kunci rahasia (A–Z, 2–7)...'
   }
 };
+
+const ADDITIONAL_TRANSLATIONS = {
+  ar: {
+    name: 'العربية', flag: '🇸🇦', brand_badge: 'أداة 2FA وخزنة مشفّرة', tab_notepad: 'المفكرة الذكية', tab_totp: 'استوديو 2FA',
+    local_encryption: 'تشفير أثناء التخزين', vault_unlocked: 'الخزنة مفتوحة', search_notes: 'البحث في الملاحظات...', storage_used: 'المساحة المستخدمة',
+    saved_status: 'تم الحفظ', save_pending: 'جارٍ الحفظ…', save_saved: 'تم الحفظ', save_failed: 'فشل الحفظ',
+    save_requires_encryption: 'أنشئ كلمة مرور رئيسية قبل حفظ بيانات الخزنة.', backup_title: 'نسخة احتياطية مشفّرة',
+    backup_export_btn: 'تنزيل نسخة احتياطية مشفّرة', backup_choose_btn: 'اختيار ملف .aeropad', backup_restore_btn: 'استعادة نسخة احتياطية مشفّرة',
+    backup_password_label: 'كلمة مرور النسخة الاحتياطية', backup_password_ph: 'كلمة المرور المستخدمة لإنشاء النسخة', backup_status_default: 'لم تُسجّل نسخة احتياطية مشفّرة بعد.',
+    backup_last_export: 'آخر نسخة احتياطية:', backup_file_selected: 'النسخة المحددة:', backup_exported: 'تم تنزيل النسخة الاحتياطية المشفّرة.',
+    backup_restored: 'تمت استعادة النسخة — الخزنة مقفلة الآن.', backup_failed: 'فشلت عملية النسخ الاحتياطي — تم الاحتفاظ بالخزنة الحالية.',
+    mode_edit: 'تحرير', mode_split: 'تقسيم', mode_preview: 'معاينة', export_file: 'تصدير', copy_content: 'نسخ',
+    note_title_placeholder: 'عنوان الملاحظة...', note_content_placeholder: 'ابدأ كتابة ملاحظتك... يدعم Markdown وقوائم المهام والملاحظات الأمنية الخاصة...',
+    empty_notes_title: 'لا توجد ملاحظات بعد.', empty_notes_btn: '+ إنشاء ملاحظة جديدة', subtab_vault: 'خزنة TOTP المباشرة',
+    subtab_gen: 'إنشاء 2FA جديد (المفتاح وQR)', subtab_decoder: 'فك ومسح QR لـ 2FA', vault_heading: 'المصادقة الثنائية (TOTP)',
+    vault_subheading: 'تتحدث تلقائيًا وفق RFC 6238 TOTP وتعمل محليًا عبر Web Crypto API.', add_new_code_btn: 'إضافة رمز جديد',
+    empty_totp_title: 'لا توجد حسابات 2FA في الخزنة', empty_totp_desc: 'أضف رمزًا جديدًا أو أنشئ/فك رمز QR لحفظ حساب 2FA بأمان.',
+    gen_heading: 'إنشاء مفتاح سري وQR لـ 2FA', gen_subheading: 'أنشئ مفاتيح Base32 عالية العشوائية لتفعيل المصادقة الثنائية.',
+    gen_issuer: 'اسم الجهة', gen_account: 'الحساب / البريد الإلكتروني', gen_secret: 'المفتاح السري (Base32)', gen_random_btn: 'إنشاء عشوائي جديد',
+    gen_hash_algo: 'خوارزمية التجزئة', gen_period_digits: 'الفترة والأرقام', save_to_vault_btn: 'حفظ مباشرة في الخزنة',
+    no_qr_placeholder: 'لا يوجد QR بعد.<br>أنشئ مفتاحًا سريًا أو أدخله.', download_qr_png: 'تنزيل QR بصيغة PNG', copy_otp_link: 'نسخ رابط OTP',
+    dec_heading: 'فك رمز QR ومفتاح 2FA', dec_subheading: 'اسحب صورة QR أو ألصقها أو ألصق رابط otpauth:// لاستخراج المفتاح وعرض الرمز المباشر.',
+    drop_title: 'اسحب صورة QR إلى هنا', drop_subtitle: 'أو اختر ملفًا / ألصق صورة من الحافظة (Ctrl+V)', paste_prompt: 'أو ألصق URI OTPAUTH / المفتاح السري',
+    decode_now_btn: 'فك الآن', dec_result_title: 'معلومات حساب 2FA', dec_live_label: 'رمز من 6 أرقام يُنشأ لحظيًا:', save_dec_to_vault: 'حفظ هذا الحساب في الخزنة',
+    modal_add_title: 'إضافة حساب 2FA جديد', cancel_btn: 'إلغاء', confirm_add_btn: 'إضافة إلى الخزنة', modal_password_label: 'كلمة مرور الحساب (اختيارية)',
+    modal_password_placeholder: 'مثال: •••••••• (اتركه فارغًا عند عدم الحاجة)', gen_pass_quick: 'إنشاء', word_unit: 'كلمات', char_unit: 'أحرف', read_unit: 'دقيقة قراءة',
+    toast_created_note: 'تم إنشاء ملاحظة جديدة', toast_deleted_note: 'تم حذف الملاحظة', toast_deleted_totp: 'تم حذف حساب 2FA', toast_copied_note: 'تم نسخ محتوى الملاحظة',
+    toast_secret_copied: 'تم نسخ المفتاح السري', toast_otp_copied: 'تم نسخ رابط OTP', toast_qr_downloaded: 'تم تنزيل QR بصيغة PNG',
+    toast_code_copied: 'تم نسخ رمز 2FA:', toast_totp_added: 'تمت إضافة حساب 2FA إلى الخزنة', toast_qr_detected: 'تم اكتشاف QR وفك ترميزه بنجاح!',
+    toast_required_fields: 'يرجى ملء جميع الحقول المطلوبة (*)', toast_copy_failed: 'فشل النسخ — انسخ النص يدويًا', toast_invalid_code: 'لا يوجد رمز صالح الآن — انتظر التحديث التالي',
+    toast_invalid_secret: 'مفتاح غير صالح: استخدم A–Z والأرقام 2–7 فقط (8 أحرف على الأقل)', toast_not_an_image: 'الملف ليس صورة قابلة للقراءة',
+    toast_qr_read_failed: 'تعذرت قراءة الملف', toast_image_too_large: 'الصورة كبيرة جدًا (الحد 4096×4096)', confirm_delete_note: 'حذف هذه الملاحظة نهائيًا؟',
+    confirm_delete_totp: 'حذف حساب 2FA؟ سيُفقد المفتاح السري نهائيًا!', lock_title: 'الخزنة مقفلة', lock_subtitle: 'أدخل كلمة المرور الرئيسية لفك تشفير بياناتك.',
+    lock_password_ph: 'كلمة المرور الرئيسية', lock_unlock_btn: 'فتح الخزنة', lock_wrong_pw: 'كلمة المرور غير صحيحة — حاول مجددًا', lock_error_generic: 'فشل فك التشفير — قد تكون البيانات تالفة',
+    legacy_recovery_required: 'تحتاج بيانات التخزين القديمة إلى استعادة قبل فتحها بأمان.', legacy_recovery_reset: 'مسح البيانات القديمة غير المكتملة والبدء من جديد',
+    legacy_recovery_help: 'يحتوي هذا المتصفح على سجلات قديمة ناقصة أو تالفة. لا يمكن فتح هذه الحالة بأمان باستخدام كلمة مرور.',
+    legacy_recovery_confirm: 'مسح السجلات القديمة غير المكتملة وبدء خزنة جديدة؟ لا يمكن التراجع عن ذلك.', lock_no_recovery: 'لا توجد استعادة: كلمة المرور الرئيسية هي المفتاح الوحيد. نسيانها يعني فقدان البيانات.',
+    sec_title: 'أمان الخزنة', sec_status_encrypted: '🔒 مشفّرة بـ AES-256-GCM', sec_status_plain: '⚠️ غير مشفّرة — البيانات نص عادي', sec_current_pw: 'كلمة المرور الرئيسية الحالية',
+    sec_new_pw: 'كلمة المرور الرئيسية الجديدة', sec_confirm_pw: 'تأكيد كلمة المرور الجديدة', sec_set_btn: 'تعيين كلمة المرور والتشفير', sec_change_btn: 'تغيير كلمة المرور',
+    sec_remove_btn: 'إزالة التشفير', sec_lock_btn: 'قفل الآن', sec_pw_mismatch: 'كلمتا المرور غير متطابقتين', sec_pw_too_short: 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل',
+    sec_encrypted_ok: 'تم تشفير الخزنة — البيانات محمية أثناء التخزين', storage_encrypted: 'AES-256 مشفّرة • تخزين محلي', storage_plain: 'نص عادي • غير مشفّر',
+    dec_issuer_ph: 'اسم الجهة...', dec_account_ph: 'الحساب / البريد الإلكتروني...', dec_secret_ph: 'المفتاح السري (A–Z, 2–7)...'
+  },
+  hi: {
+    name: 'हिन्दी', flag: '🇮🇳', brand_badge: '2FA और एन्क्रिप्टेड वॉल्ट', tab_notepad: 'स्मार्ट नोटपैड', tab_totp: '2FA स्टूडियो',
+    local_encryption: 'स्टोरेज में एन्क्रिप्शन', vault_unlocked: 'वॉल्ट खुला है', search_notes: 'नोट खोजें...', storage_used: 'उपयोग किया गया स्टोरेज', saved_status: 'सहेजा गया',
+    save_pending: 'सहेजा जा रहा है…', save_saved: 'सहेजा गया', save_failed: 'सहेजना विफल', save_requires_encryption: 'वॉल्ट डेटा सहेजने से पहले मास्टर पासवर्ड बनाएं।',
+    backup_title: 'एन्क्रिप्टेड बैकअप', backup_export_btn: 'एन्क्रिप्टेड बैकअप डाउनलोड करें', backup_choose_btn: '.aeropad फ़ाइल चुनें', backup_restore_btn: 'एन्क्रिप्टेड बैकअप बहाल करें',
+    backup_password_label: 'बैकअप मास्टर पासवर्ड', backup_password_ph: 'बैकअप बनाते समय इस्तेमाल किया गया पासवर्ड', backup_status_default: 'अभी कोई एन्क्रिप्टेड बैकअप दर्ज नहीं है।',
+    backup_exported: 'एन्क्रिप्टेड बैकअप डाउनलोड हो गया।', backup_restored: 'बैकअप बहाल हुआ — वॉल्ट लॉक है।', backup_failed: 'बैकअप विफल — मौजूदा वॉल्ट सुरक्षित रखा गया।',
+    mode_edit: 'संपादन', mode_split: 'विभाजित', mode_preview: 'पूर्वावलोकन', export_file: 'निर्यात', copy_content: 'कॉपी', note_title_placeholder: 'नोट का शीर्षक...',
+    note_content_placeholder: 'नोट लिखना शुरू करें... Markdown, कार्य सूची और निजी सुरक्षा नोट्स समर्थित हैं...', empty_notes_title: 'अभी कोई नोट नहीं है।', empty_notes_btn: '+ नया नोट बनाएं',
+    subtab_vault: 'लाइव TOTP वॉल्ट', subtab_gen: 'नया 2FA बनाएं (सीक्रेट और QR)', subtab_decoder: '2FA QR डीकोड और स्कैन', vault_heading: 'दो-चरणीय प्रमाणीकरण (TOTP)',
+    vault_subheading: 'RFC 6238 TOTP के अनुसार अपने आप अपडेट होता है और Web Crypto API पर लोकल चलता है।', add_new_code_btn: 'नया कोड जोड़ें', empty_totp_title: 'वॉल्ट में कोई 2FA अकाउंट नहीं है',
+    empty_totp_desc: 'नया कोड जोड़ें या QR से 2FA अकाउंट सुरक्षित रूप से सहेजें।', gen_heading: 'नया सीक्रेट की और 2FA QR बनाएं', gen_subheading: 'आपकी सेवाओं के लिए उच्च-एंट्रॉपी Base32 सीक्रेट बनाएं।',
+    gen_issuer: 'जारीकर्ता का नाम', gen_account: 'अकाउंट / ईमेल', gen_secret: 'सीक्रेट की (Base32)', gen_random_btn: 'नया रैंडम बनाएं', gen_hash_algo: 'हैश एल्गोरिदम',
+    gen_period_digits: 'अवधि और अंक', save_to_vault_btn: 'वॉल्ट में सीधे सहेजें', no_qr_placeholder: 'अभी QR कोड नहीं है।<br>सीक्रेट की बनाएं या दर्ज करें।', download_qr_png: 'QR PNG डाउनलोड करें', copy_otp_link: 'OTP लिंक कॉपी करें',
+    dec_heading: 'QR कोड और 2FA की डीकोड करें', dec_subheading: 'QR इमेज डालें या otpauth:// लिंक पेस्ट करके सीक्रेट और लाइव कोड देखें।', drop_title: 'QR इमेज यहां ड्रैग और ड्रॉप करें',
+    drop_subtitle: 'या फ़ाइल चुनें / क्लिपबोर्ड से पेस्ट करें (Ctrl+V)', paste_prompt: 'या OTPAUTH URI / सीक्रेट की पेस्ट करें', decode_now_btn: 'अभी डीकोड करें', dec_result_title: '2FA अकाउंट जानकारी',
+    dec_live_label: 'रीयल-टाइम 6-अंकीय कोड:', save_dec_to_vault: 'यह अकाउंट वॉल्ट में सहेजें', modal_add_title: 'नया 2FA अकाउंट जोड़ें', cancel_btn: 'रद्द करें', confirm_add_btn: 'वॉल्ट में जोड़ें',
+    modal_password_label: 'अकाउंट पासवर्ड (वैकल्पिक)', modal_password_placeholder: 'उदाहरण: •••••••• (जरूरत न हो तो खाली छोड़ें)', gen_pass_quick: 'बनाएं', word_unit: 'शब्द', char_unit: 'अक्षर', read_unit: 'मिनट पढ़ने का समय',
+    toast_created_note: 'नया नोट बनाया गया', toast_deleted_note: 'नोट हटाया गया', toast_deleted_totp: '2FA अकाउंट हटाया गया', toast_copied_note: 'नोट की सामग्री कॉपी हुई', toast_secret_copied: 'सीक्रेट की कॉपी हुई',
+    toast_otp_copied: 'OTP लिंक कॉपी हुआ', toast_qr_downloaded: 'QR PNG डाउनलोड हुआ', toast_code_copied: '2FA कोड कॉपी हुआ:', toast_totp_added: '2FA अकाउंट वॉल्ट में जोड़ा गया',
+    toast_qr_detected: 'QR कोड सफलतापूर्वक डीकोड हुआ!', toast_required_fields: 'सभी आवश्यक फ़ील्ड भरें (*)', toast_copy_failed: 'कॉपी विफल — टेक्स्ट को मैन्युअल रूप से कॉपी करें',
+    toast_invalid_code: 'अभी कोई मान्य कोड नहीं — अगले रिफ्रेश की प्रतीक्षा करें', toast_invalid_secret: 'अमान्य सीक्रेट: केवल A–Z और 2–7 (कम से कम 8 अक्षर)', toast_not_an_image: 'यह पढ़ने योग्य इमेज नहीं है',
+    toast_qr_read_failed: 'फ़ाइल पढ़ी नहीं जा सकी', toast_image_too_large: 'इमेज बहुत बड़ी है (अधिकतम 4096×4096)', confirm_delete_note: 'यह नोट हमेशा के लिए हटाएं?', confirm_delete_totp: 'यह 2FA अकाउंट हटाएं? सीक्रेट हमेशा के लिए खो जाएगा!',
+    lock_title: 'वॉल्ट लॉक है', lock_subtitle: 'डेटा डिक्रिप्ट करने के लिए मास्टर पासवर्ड दर्ज करें।', lock_password_ph: 'मास्टर पासवर्ड', lock_unlock_btn: 'वॉल्ट खोलें', lock_wrong_pw: 'गलत पासवर्ड — फिर कोशिश करें', lock_error_generic: 'डिक्रिप्शन विफल — डेटा खराब हो सकता है',
+    legacy_recovery_required: 'सुरक्षित रूप से खोलने से पहले पुराने स्टोरेज को रिकवर करना होगा।', legacy_recovery_reset: 'अधूरा पुराना डेटा हटाकर नए सिरे से शुरू करें',
+    legacy_recovery_help: 'इस ब्राउज़र में अधूरे या खराब पुराने रिकॉर्ड हैं। इस स्थिति को पासवर्ड से सुरक्षित रूप से नहीं खोला जा सकता।', legacy_recovery_confirm: 'अधूरे पुराने रिकॉर्ड हटाकर नया वॉल्ट शुरू करें? इसे वापस नहीं किया जा सकता।',
+    lock_no_recovery: 'कोई रिकवरी नहीं: मास्टर पासवर्ड ही एकमात्र कुंजी है। भूलने पर डेटा खो जाएगा।', sec_title: 'वॉल्ट सुरक्षा', sec_status_encrypted: '🔒 AES-256-GCM से एन्क्रिप्टेड', sec_status_plain: '⚠️ एन्क्रिप्टेड नहीं — डेटा सादा टेक्स्ट है',
+    sec_current_pw: 'वर्तमान मास्टर पासवर्ड', sec_new_pw: 'नया मास्टर पासवर्ड', sec_confirm_pw: 'नए पासवर्ड की पुष्टि', sec_set_btn: 'पासवर्ड सेट करें और एन्क्रिप्ट करें', sec_change_btn: 'पासवर्ड बदलें', sec_remove_btn: 'एन्क्रिप्शन हटाएं',
+    sec_lock_btn: 'अभी लॉक करें', sec_pw_mismatch: 'पासवर्ड मेल नहीं खाते', sec_pw_too_short: 'मास्टर पासवर्ड कम से कम 8 अक्षरों का होना चाहिए', sec_encrypted_ok: 'वॉल्ट एन्क्रिप्टेड है', storage_encrypted: 'AES-256 एन्क्रिप्टेड • लोकल स्टोरेज', storage_plain: 'सादा टेक्स्ट • एन्क्रिप्टेड नहीं',
+    dec_issuer_ph: 'जारीकर्ता का नाम...', dec_account_ph: 'अकाउंट / ईमेल...', dec_secret_ph: 'सीक्रेट की (A–Z, 2–7)...'
+  },
+  pt: {
+    name: 'Português', flag: '🇵🇹', brand_badge: '2FA E COFRE CRIPTOGRAFADO', tab_notepad: 'Bloco de Notas', tab_totp: 'Estúdio 2FA',
+    local_encryption: 'Criptografia em repouso', vault_unlocked: 'Cofre desbloqueado', search_notes: 'Pesquisar notas...', storage_used: 'Armazenamento usado', saved_status: 'Salvo',
+    save_pending: 'Salvando…', save_saved: 'Salvo', save_failed: 'Falha ao salvar', save_requires_encryption: 'Defina uma senha mestra antes de salvar dados do cofre.', backup_title: 'Backup criptografado',
+    backup_export_btn: 'Baixar backup criptografado', backup_choose_btn: 'Escolher arquivo .aeropad', backup_restore_btn: 'Restaurar backup criptografado', backup_password_label: 'Senha mestra do backup',
+    backup_password_ph: 'Senha usada para criar este backup', backup_status_default: 'Nenhum backup criptografado registrado.', backup_exported: 'Backup criptografado baixado.', backup_restored: 'Backup restaurado — cofre bloqueado.', backup_failed: 'Falha no backup — o cofre atual foi mantido.',
+    mode_edit: 'Editar', mode_split: 'Dividir', mode_preview: 'Prévia', export_file: 'Exportar', copy_content: 'Copiar', note_title_placeholder: 'Título da nota...', note_content_placeholder: 'Comece a escrever... Markdown, tarefas e notas de segurança privadas são aceitos...',
+    empty_notes_title: 'Ainda não há notas.', empty_notes_btn: '+ Criar nova nota', subtab_vault: 'Cofre TOTP ao vivo', subtab_gen: 'Novo 2FA (segredo e QR)', subtab_decoder: 'Decodificar e escanear QR 2FA',
+    vault_heading: 'Autenticação de dois fatores (TOTP)', vault_subheading: 'Atualiza automaticamente conforme RFC 6238 TOTP e roda localmente com Web Crypto API.', add_new_code_btn: 'Adicionar código',
+    empty_totp_title: 'Nenhuma conta 2FA no cofre', empty_totp_desc: 'Adicione um código ou use o QR para salvar uma conta 2FA com segurança.', gen_heading: 'Gerar chave secreta e QR 2FA', gen_subheading: 'Gere chaves Base32 de alta entropia para ativar 2FA.',
+    gen_issuer: 'Nome do emissor', gen_account: 'Conta / e-mail', gen_secret: 'Chave secreta (Base32)', gen_random_btn: 'Gerar novo aleatório', gen_hash_algo: 'Algoritmo de hash', gen_period_digits: 'Período e dígitos', save_to_vault_btn: 'Salvar diretamente no cofre',
+    no_qr_placeholder: 'Ainda não há QR.<br>Gere ou informe uma chave secreta.', download_qr_png: 'Baixar QR PNG', copy_otp_link: 'Copiar link OTP', dec_heading: 'Decodificar QR e chave 2FA',
+    dec_subheading: 'Arraste uma imagem QR ou cole um link otpauth:// para extrair a chave e ver o código ao vivo.', drop_title: 'Arraste a imagem QR para cá', drop_subtitle: 'ou escolha um arquivo / cole da área de transferência (Ctrl+V)', paste_prompt: 'OU COLE URI OTPAUTH / CHAVE SECRETA', decode_now_btn: 'Decodificar agora',
+    dec_result_title: 'Informações da conta 2FA', dec_live_label: 'CÓDIGO DE 6 DÍGITOS EM TEMPO REAL:', save_dec_to_vault: 'Salvar esta conta no cofre', modal_add_title: 'Adicionar conta 2FA', cancel_btn: 'Cancelar', confirm_add_btn: 'Adicionar ao cofre',
+    modal_password_label: 'Senha da conta (opcional)', modal_password_placeholder: 'ex.: •••••••• (deixe vazio se não precisar)', gen_pass_quick: 'Gerar', word_unit: 'palavras', char_unit: 'caracteres', read_unit: 'min de leitura',
+    toast_created_note: 'Nova nota criada', toast_deleted_note: 'Nota excluída', toast_deleted_totp: 'Conta 2FA excluída', toast_copied_note: 'Conteúdo da nota copiado', toast_secret_copied: 'Chave secreta copiada', toast_otp_copied: 'Link OTP copiado', toast_qr_downloaded: 'QR baixado como PNG',
+    toast_code_copied: 'Código 2FA copiado:', toast_totp_added: 'Conta 2FA adicionada ao cofre', toast_qr_detected: 'QR detectado e decodificado!', toast_required_fields: 'Preencha todos os campos obrigatórios (*)', toast_copy_failed: 'Falha ao copiar — copie o texto manualmente',
+    toast_invalid_code: 'Nenhum código válido agora — aguarde a próxima atualização', toast_invalid_secret: 'Chave inválida: use apenas A–Z e 2–7 (mínimo de 8 caracteres)', toast_not_an_image: 'O arquivo não é uma imagem legível', toast_qr_read_failed: 'Não foi possível ler o arquivo', toast_image_too_large: 'Imagem muito grande (máximo 4096×4096)',
+    confirm_delete_note: 'Excluir esta nota permanentemente?', confirm_delete_totp: 'Excluir esta conta 2FA? A chave secreta será perdida para sempre!', lock_title: 'Cofre bloqueado', lock_subtitle: 'Digite sua senha mestra para descriptografar os dados.', lock_password_ph: 'Senha mestra', lock_unlock_btn: 'Desbloquear cofre', lock_wrong_pw: 'Senha incorreta — tente novamente', lock_error_generic: 'Falha ao descriptografar — os dados podem estar corrompidos',
+    legacy_recovery_required: 'O armazenamento antigo precisa ser recuperado antes do desbloqueio seguro.', legacy_recovery_reset: 'Limpar dados antigos incompletos e começar de novo', legacy_recovery_help: 'Este navegador contém registros antigos incompletos ou corrompidos. Não é seguro desbloquear este estado com uma senha.', legacy_recovery_confirm: 'Limpar os registros antigos incompletos e iniciar um cofre novo? Não é possível desfazer.',
+    lock_no_recovery: 'Não há recuperação: a senha mestra é a única chave. Se esquecê-la, os dados serão perdidos.', sec_title: 'Segurança do cofre', sec_status_encrypted: '🔒 Criptografado com AES-256-GCM', sec_status_plain: '⚠️ Não criptografado — dados em texto simples', sec_current_pw: 'Senha mestra atual', sec_new_pw: 'Nova senha mestra', sec_confirm_pw: 'Confirmar nova senha', sec_set_btn: 'Definir senha e criptografar', sec_change_btn: 'Alterar senha', sec_remove_btn: 'Remover criptografia', sec_lock_btn: 'Bloquear agora', sec_pw_mismatch: 'As senhas não coincidem', sec_pw_too_short: 'A senha mestra deve ter pelo menos 8 caracteres', sec_encrypted_ok: 'Cofre criptografado', storage_encrypted: 'AES-256 criptografado • Armazenamento local', storage_plain: 'Texto simples • Não criptografado',
+    dec_issuer_ph: 'Nome do emissor...', dec_account_ph: 'Conta / e-mail...', dec_secret_ph: 'Chave secreta (A–Z, 2–7)...'
+  }
+};
+
+for (const [code, dictionary] of Object.entries(ADDITIONAL_TRANSLATIONS)) {
+  TRANSLATIONS[code] = { ...TRANSLATIONS.en, ...dictionary };
+}
 
 // ==========================================
 // 3. STATE & STORAGE
@@ -1153,16 +1247,13 @@ async function bootVault() {
     const current = await vaultAdapter.getCurrent();
     if (current) {
       vaultStorageMode = 'v2';
+      legacyRecoveryState = null;
       showLockOverlay();
       return;
     }
   } catch (error) {
     vaultAdapter = null;
     console.warn('IndexedDB vault unavailable; checking legacy storage:', error);
-  }
-  if (vaultIsEncrypted()) {
-    showLockOverlay();
-    return;
   }
   const legacy = await readLegacyVault(localStorage);
   if (legacy.state === 'ready' || legacy.state === 'empty') {
@@ -1210,17 +1301,40 @@ function showLockOverlay() {
   const subtitle = document.getElementById('lockSubtitle');
   if (subtitle) subtitle.textContent = t('lock_subtitle');
   const btn = document.getElementById('unlockVaultBtn');
-  if (btn) btn.textContent = t('lock_unlock_btn');
+  const recoveryOnly = legacyRecoveryState && legacyRecoveryState.reason !== 'password-required';
+  if (btn) {
+    btn.textContent = t('lock_unlock_btn');
+    btn.classList.toggle('hidden', Boolean(recoveryOnly));
+  }
+  const resetBtn = document.getElementById('legacyRecoveryResetBtn');
+  if (resetBtn) {
+    resetBtn.textContent = t('legacy_recovery_reset');
+    resetBtn.classList.toggle('hidden', !recoveryOnly);
+  }
   const recovery = document.getElementById('lockNoRecovery');
-  if (recovery) recovery.textContent = t('lock_no_recovery');
+  if (recovery) recovery.textContent = recoveryOnly ? t('legacy_recovery_help') : t('lock_no_recovery');
   const errorEl = document.getElementById('lockError');
-  if (errorEl && legacyRecoveryState) errorEl.textContent = t('legacy_recovery_required');
+  if (errorEl) errorEl.textContent = recoveryOnly ? t('legacy_recovery_required') : '';
   const input = document.getElementById('lockPasswordInput');
   if (input) {
+    input.classList.toggle('hidden', Boolean(recoveryOnly));
+    input.disabled = Boolean(recoveryOnly);
     input.placeholder = t('lock_password_ph');
     input.value = '';
-    input.focus();
+    if (!recoveryOnly) input.focus();
   }
+}
+
+function resetLegacyRecovery() {
+  if (!legacyRecoveryState || legacyRecoveryState.reason === 'password-required') return;
+  if (!window.confirm(t('legacy_recovery_confirm'))) return;
+  const result = completeLegacyMigration(localStorage);
+  if (result.failed.length) {
+    const errorEl = document.getElementById('lockError');
+    if (errorEl) errorEl.textContent = t('legacy_recovery_required');
+    return;
+  }
+  window.location.reload();
 }
 
 async function attemptUnlock() {
@@ -1393,6 +1507,8 @@ function applyLanguage(lang) {
   if (!TRANSLATIONS[lang]) lang = 'en';
   appState.lang = lang;
   localStorage.setItem('aeropad_lang', lang);
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
 
   // Update button label and active menu item
   const currentLabel = document.getElementById('currentLangLabel');
@@ -1499,6 +1615,7 @@ function initNavigation() {
 // ==========================================
 function initLockOverlay() {
   document.getElementById('unlockVaultBtn')?.addEventListener('click', attemptUnlock);
+  document.getElementById('legacyRecoveryResetBtn')?.addEventListener('click', resetLegacyRecovery);
   document.getElementById('lockPasswordInput')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') attemptUnlock();
   });

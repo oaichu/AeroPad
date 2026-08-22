@@ -1,7 +1,7 @@
 # AeroPad Release Readiness
 
 **Evidence date:** 2026-08-23
-**Scope:** release candidate after AATP-001 through AATP-018
+**Scope:** release candidate after AATP-001 through AATP-023
 
 ## Decision
 
@@ -22,7 +22,7 @@ Fresh `npm run verify` completed with exit code 0 and reported:
 | Dependency declarations and lockfile | `PASS` |
 | Self-hosted runtime and CSP inputs | `PASS` |
 | Unit suite | 44 passed, 0 failed |
-| Browser E2E suite | 96/96 passed |
+| Browser E2E suite | 102/102 passed |
 | Generated artifacts and vendor hashes | 5 artifacts, `PASS` |
 | Standalone CSP hashes | `PASS` |
 | Deterministic build comparison | `PASS` |
@@ -38,14 +38,14 @@ The verifier generated identical output on both build passes. SHA-256 values:
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `index.html` | `6116ac8582a7a63939da4f517e36c978f5c2e6b7c2ba2ae4495640f14f6461d1` |
-| `styles.css` | `7817bd342ecd3cf09a6108a5e96f27bdc2627c8cd670fc3a058ccbb11c0fc49e` |
-| `app.js` | `13bc31de2dc0b3ac787970716681f4b8e4cfb8a432031c471e07b0e3986251b8` |
-| `aeropad-standalone.html` | `0bda8b6d3d8457c819ff4733d176ebca8e47e684642b6f0c8409597d304a4d36` |
-| `_headers` | `e3c55d3a66b56bed50845497ac0b6e4a4dade03883374f170e9da1144dbb387c` |
+| `index.html` | `f925a8305ed8c530d437d1a00ce5b0dba703836b424b59e50e38560d3b07e1d1` |
+| `styles.css` | `32ebfd95086b7619e68809147e4c4472b81d255da6b44f65591d63176cee18f9` |
+| `app.js` | `f4c2903bec9305bec64c868dc110850d7ec3fb1ed950eb973939157f17d22bfd` |
+| `aeropad-standalone.html` | `b63f0daae64fc3f877326d11fda98638594f78eb9f7c876fcd71f68f706429a5` |
+| `_headers` | `79e61b9c532967ffd21d01d7fc8ffd3e770603643957f6bf65517307a7939f50` |
 
 Standalone inline-script CSP hash:
-`aNCxmbGYqKNC25ZygG3emudZEGy8jR/7QgVqlZEhvLw=`.
+`K0UMBFDs/qEvBXC4GgYq+JNTLT1KlMil7C3XzHVURmQ=`.
 
 ## Data-safety and recovery evidence
 
@@ -63,6 +63,8 @@ Standalone inline-script CSP hash:
 - Security UX E2E covers text-only user-controlled toast rendering, masked
   secrets, reveal controls, dialog semantics, labels, focus traps, and focus
   return.
+- Locale E2E covers Spanish, Arabic RTL, Hindi, and Portuguese labels plus
+  synchronized `lang`/`dir` document metadata.
 
 ## Shipped versus deferred
 
