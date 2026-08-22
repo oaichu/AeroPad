@@ -19,52 +19,105 @@ export function buildOTPAuthURI(options = {}) {
   return `otpauth://totp/${encIssuer}:${encAccount}?secret=${cleanSecret}&issuer=${encIssuer}&algorithm=${algo}&digits=${digits}&period=${period}`;
 }
 
+const MIN_PERIOD = 1;
+const MAX_PERIOD = 3600;
+
+function invalid(errorCode, error) {
+  return { isValid: false, errorCode, error };
+}
+
+function normalizeSecret(value) {
+  const cleaned = String(value).replace(/[\s-]/g, '').toUpperCase();
+  if (!/^[A-Z2-7]+={0,6}$/.test(cleaned)) {
+    return null;
+  }
+
+  const unpadded = cleaned.replace(/=+$/, '');
+  return /^[A-Z2-7]{8,128}$/.test(unpadded) ? unpadded : null;
+}
+
+function normalizeAlgorithm(value) {
+  const normalized = String(value).toUpperCase().replace(/-/g, '');
+  if (normalized === 'SHA1' || normalized === 'SHA256' || normalized === 'SHA512') {
+    return normalized;
+  }
+  return null;
+}
+
+function parseIntegerParam(url, name, defaultValue, min, max, errorCode) {
+  const raw = url.searchParams.get(name);
+  if (raw === null) {
+    return { value: defaultValue };
+  }
+
+  if (!/^\d+$/.test(raw)) {
+    return { error: invalid(errorCode, `Invalid ${name} parameter`) };
+  }
+
+  const value = Number(raw);
+  if (!Number.isSafeInteger(value) || value < min || value > max) {
+    return { error: invalid(errorCode, `Invalid ${name} parameter`) };
+  }
+
+  return { value };
+}
+
 export function parseOTPAuthURI(input) {
   if (!input || typeof input !== 'string') {
-    return { isValid: false, error: 'Empty input' };
+    return invalid('empty_input', 'Empty input');
   }
 
   const trimmed = input.trim();
 
   // If input is a standard URI
-  if (trimmed.startsWith('otpauth://')) {
+  if (trimmed.toLowerCase().startsWith('otpauth://')) {
     try {
       const url = new URL(trimmed);
-      if (url.protocol !== 'otpauth:') {
-        return { isValid: false, error: 'Invalid protocol' };
+      if (url.protocol.toLowerCase() !== 'otpauth:') {
+        return invalid('invalid_protocol', 'Invalid protocol');
       }
 
-      // url.host might be 'totp' and url.pathname might be '/Google:user@gmail.com'
-      let label = decodeURIComponent(url.pathname.replace(/^\/+/, ''));
-      if (!label && url.host && url.host !== 'totp') {
-        label = decodeURIComponent(url.host);
-      }
-      // If label starts with totp/ strip it
-      label = label.replace(/^totp\//i, '');
-
-      let issuer = url.searchParams.get('issuer') || '';
-      let account = 'User';
-
-      if (label.includes(':')) {
-        const parts = label.split(':');
-        issuer = issuer || parts[0];
-        account = parts.slice(1).join(':');
-      } else if (label) {
-        account = label;
+      if (url.hostname.toLowerCase() !== 'totp' || url.port) {
+        return invalid('unsupported_type', 'Only otpauth://totp/... URIs are supported');
       }
 
-      if (!issuer) {
-        issuer = 'Custom 2FA';
+      const label = decodeURIComponent(url.pathname.replace(/^\/+/, ''));
+      const separator = label.indexOf(':');
+      const labelIssuer = separator === -1 ? '' : label.slice(0, separator);
+      const labelAccount = separator === -1 ? label : label.slice(separator + 1);
+
+      const issuer = url.searchParams.get('issuer')?.trim() || labelIssuer || 'Custom 2FA';
+      const account = labelAccount || 'User';
+
+      const secretParam = url.searchParams.get('secret');
+      if (secretParam === null || secretParam.trim() === '') {
+        return invalid('missing_secret', 'Missing secret parameter');
       }
 
-      const secret = (url.searchParams.get('secret') || '').replace(/[\s-]/g, '').toUpperCase();
+      const secret = normalizeSecret(secretParam);
       if (!secret) {
-        return { isValid: false, error: 'Missing secret parameter' };
+        return invalid('invalid_secret', 'Invalid Base32 secret');
       }
 
-      const digits = parseInt(url.searchParams.get('digits') || '6', 10);
-      const period = parseInt(url.searchParams.get('period') || '30', 10);
-      const algo = url.searchParams.get('algorithm') || 'SHA-1';
+      const algorithmParam = url.searchParams.get('algorithm');
+      const algo = normalizeAlgorithm(algorithmParam === null ? 'SHA1' : algorithmParam);
+      if (!algo) {
+        return invalid('unsupported_algorithm', 'Unsupported algorithm');
+      }
+
+      const digitsResult = parseIntegerParam(url, 'digits', 6, 6, 8, 'invalid_digits');
+      if (digitsResult.error) {
+        return digitsResult.error;
+      }
+
+      if (digitsResult.value !== 6 && digitsResult.value !== 8) {
+        return invalid('invalid_digits', 'Digits must be 6 or 8');
+      }
+
+      const periodResult = parseIntegerParam(url, 'period', 30, MIN_PERIOD, MAX_PERIOD, 'invalid_period');
+      if (periodResult.error) {
+        return periodResult.error;
+      }
 
       return {
         isValid: true,
@@ -72,18 +125,18 @@ export function parseOTPAuthURI(input) {
         issuer,
         account,
         secret,
-        digits,
-        period,
+        digits: digitsResult.value,
+        period: periodResult.value,
         algo
       };
-    } catch (err) {
-      return { isValid: false, error: err.message };
+    } catch {
+      return invalid('invalid_uri', 'Invalid URI');
     }
   }
 
   // Check if raw input is a Base32 string
-  const cleanBase32 = trimmed.replace(/[\s-]/g, '').toUpperCase();
-  if (/^[A-Z2-7]{16,64}$/.test(cleanBase32)) {
+  const cleanBase32 = normalizeSecret(trimmed);
+  if (cleanBase32) {
     return {
       isValid: true,
       type: 'totp',
@@ -92,9 +145,9 @@ export function parseOTPAuthURI(input) {
       secret: cleanBase32,
       digits: 6,
       period: 30,
-      algo: 'SHA-1'
+      algo: 'SHA1'
     };
   }
 
-  return { isValid: false, error: 'Unrecognized format' };
+  return invalid('unrecognized_format', 'Unrecognized format');
 }

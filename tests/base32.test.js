@@ -41,6 +41,10 @@ test('Base32 - Encodes buffer back to Base32 string', () => {
 });
 
 test('Base32 - Generates cryptographically secure random secrets', () => {
+  const secretDefault = Base32.randomSecret();
+  assert.equal(secretDefault.length, 32);
+  assert.match(secretDefault, /^[A-Z2-7]{32}$/);
+
   const secret16 = Base32.randomSecret(16);
   assert.equal(secret16.length, 16);
   assert.match(secret16, /^[A-Z2-7]{16}$/);

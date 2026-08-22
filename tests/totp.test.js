@@ -54,6 +54,30 @@ test('TOTP - RFC 6238 vectors pass for SHA-256 accounts too', async () => {
   assert.equal(otp, '46119246');
 });
 
+test('TOTP - Supports SHA-512 and non-default account periods', async () => {
+  const secret = 'JBSWY3DPEHPK3PXP';
+
+  for (const period of [15, 45, 60]) {
+    const code = await generateTOTP(secret, {
+      timestamp: 1234567890,
+      period,
+      digits: 8,
+      algo: 'SHA-512'
+    });
+    assert.match(code, /^\d{8}$/, `period=${period}`);
+  }
+});
+
+test('TOTP - Rejects unsupported algorithms, digits and periods', async () => {
+  const secret = 'JBSWY3DPEHPK3PXP';
+
+  assert.equal(await generateTOTP(secret, { algo: 'MD5' }), null);
+  assert.equal(await generateTOTP(secret, { digits: 7 }), null);
+  assert.equal(await generateTOTP(secret, { period: 0 }), null);
+  assert.equal(await generateTOTP(secret, { period: 3601 }), null);
+  assert.throws(() => calculateRemainingTime(0, 0), /period/i);
+});
+
 test('TOTP - calculateRemainingTime never reports 0 remaining seconds', () => {
   // At the exact boundary a NEW window starts, so remaining is a full period
   for (let ts = 0; ts < 130; ts++) {

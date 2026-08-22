@@ -58,7 +58,7 @@ export const Base32 = {
     return output;
   },
 
-  randomSecret(length = 16) {
+  randomSecret(length = 32) {
     let result = '';
     const bytes = new Uint8Array(length);
     if (typeof globalThis.crypto !== 'undefined' && globalThis.crypto.getRandomValues) {

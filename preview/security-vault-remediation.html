@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AeroPad — Security UX remediation demo</title>
+  <style>
+    :root {
+      --canvas: #07090E;
+      --surface: rgba(16, 22, 34, 0.72);
+      --elevated: rgba(22, 30, 46, 0.92);
+      --border: rgba(255, 255, 255, 0.08);
+      --active: rgba(255, 255, 255, 0.16);
+      --focus: rgba(0, 242, 254, 0.4);
+      --primary: #F8FAFC;
+      --secondary: #94A3B8;
+      --muted: #64748B;
+      --cyan: #00F2FE;
+      --mint: #10B981;
+      --amber: #F59E0B;
+      --coral: #F43F5E;
+      --sans: 'Inter var', 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      --mono: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+      --glass-blur: blur(28px) saturate(180%);
+      --card-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      --float-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.75);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--primary);
+      background: var(--canvas);
+      font-family: var(--sans);
+      font-feature-settings: 'cv02' 1, 'cv03' 1, 'cv04' 1, 'cv11' 1;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+    .ambient { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 14% 0%, rgba(0,242,254,.16), transparent 32%), radial-gradient(circle at 90% 100%, rgba(99,102,241,.16), transparent 34%); }
+    .shell { position: relative; width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 48px; }
+    .glass { background: var(--surface); backdrop-filter: var(--glass-blur); border: 1px solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--card-shadow); }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--focus); border-radius: var(--radius-md); color: var(--cyan); background: rgba(0,242,254,.06); font-weight: 800; }
+    .eyebrow { margin: 0 0 5px; color: var(--cyan); font: 700 .7rem var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 1.05rem; }
+    .subtle { color: var(--secondary); font-size: .82rem; }
+    .actions, .inline { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .pill, .btn { border-radius: 9999px; border: 1px solid var(--border); }
+    .pill { display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; color: var(--secondary); background: rgba(255,255,255,.035); font-size: .78rem; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 8px var(--mint); }
+    .btn { padding: 10px 14px; color: var(--primary); background: rgba(255,255,255,.035); }
+    .btn.primary { border-color: transparent; color: #07090E; background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 50%, #6366F1 100%); font-weight: 700; }
+    .btn.danger { color: #fff; border-color: rgba(244,63,94,.35); background: rgba(244,63,94,.12); }
+    .hero { display: grid; grid-template-columns: 1.35fr .65fr; gap: 20px; margin-top: 20px; }
+    .hero-card { padding: 24px; }
+    .hero-card h2 { max-width: 620px; margin: 10px 0 10px; font-size: clamp(1.6rem, 3vw, 2.5rem); line-height: 1.08; }
+    .hero-card p { max-width: 680px; color: var(--secondary); line-height: 1.6; }
+    .state-card { padding: 20px; }
+    .state-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .state-title { margin-top: 24px; font-size: 1.35rem; }
+    .state-detail { margin-top: 7px; color: var(--secondary); font-size: .84rem; line-height: 1.5; }
+    .state-line { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); color: var(--secondary); font-size: .78rem; }
+    .state-line strong { color: var(--mint); }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 20px; }
+    .section { padding: 20px; }
+    .section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .section h3 { font-size: 1rem; }
+    .section .caption { margin-top: 5px; color: var(--muted); font-size: .78rem; }
+    .notice { display: flex; align-items: flex-start; gap: 10px; padding: 13px; border: 1px solid rgba(245,158,11,.35); border-radius: var(--radius-md); background: rgba(245,158,11,.08); color: var(--secondary); font-size: .8rem; line-height: 1.45; }
+    .notice strong { color: var(--amber); }
+    .backup { display: grid; gap: 12px; }
+    .backup-row { display: flex; justify-content: space-between; gap: 12px; color: var(--secondary); font-size: .8rem; }
+    .backup-row strong { color: var(--primary); font-weight: 600; text-align: right; }
+    .progress { height: 6px; overflow: hidden; border-radius: 9999px; background: rgba(255,255,255,.08); }
+    .progress > span { display: block; height: 100%; width: 68%; border-radius: inherit; background: var(--mint); transition: width .25s ease; }
+    .search { width: 100%; padding: 10px 12px; color: var(--primary); border: 1px solid var(--border); border-radius: var(--radius-md); outline: none; background: rgba(0,0,0,.18); }
+    .totp-list { grid-column: 1 / -1; }
+    .totp-list .section-head { align-items: center; }
+    .totp-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .totp-card { padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: rgba(255,255,255,.025); }
+    .account { display: flex; align-items: center; gap: 10px; }
+    .avatar { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-md); color: var(--cyan); border: 1px solid var(--border); background: rgba(0,242,254,.06); font-weight: 800; }
+    .account strong { display: block; font-size: .9rem; }
+    .account span { display: block; margin-top: 3px; color: var(--muted); font-size: .74rem; }
+    .code { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(0,0,0,.22); }
+    .code strong { color: var(--cyan); font: 700 1.55rem var(--mono); letter-spacing: .14em; font-variant-numeric: tabular-nums; }
+    .code button { border: 0; color: var(--secondary); background: transparent; }
+    .meta { display: flex; justify-content: space-between; margin-top: 12px; color: var(--muted); font: .72rem var(--mono); }
+    .meta strong { color: var(--secondary); }
+    .card-progress { margin-top: 10px; height: 4px; overflow: hidden; border-radius: 9999px; background: rgba(255,255,255,.08); }
+    .card-progress span { display: block; height: 100%; width: 100%; background: var(--cyan); transition: width .2s linear; }
+    .footer-note { margin-top: 20px; color: var(--muted); font-size: .76rem; text-align: center; }
+    dialog { width: min(420px, calc(100% - 32px)); padding: 0; color: var(--primary); border: 1px solid var(--active); border-radius: var(--radius-xl); background: var(--elevated); box-shadow: var(--float-shadow); }
+    dialog::backdrop { background: rgba(0,0,0,.68); backdrop-filter: blur(8px); }
+    .dialog-body { padding: 24px; }
+    .dialog-body h2 { font-size: 1.2rem; }
+    .dialog-body p { margin-top: 8px; color: var(--secondary); font-size: .82rem; line-height: 1.5; }
+    .dialog-body label { display: block; margin-top: 18px; color: var(--secondary); font-size: .78rem; }
+    .dialog-body input { width: 100%; margin-top: 7px; padding: 11px 12px; color: var(--primary); border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(0,0,0,.22); }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 3; display: none; max-width: min(380px, calc(100% - 48px)); padding: 12px 16px; border: 1px solid var(--coral); border-radius: var(--radius-md); color: var(--primary); background: var(--elevated); box-shadow: var(--float-shadow); font-size: .82rem; }
+    .toast.show { display: block; }
+    .locked .protected { filter: blur(8px); user-select: none; pointer-events: none; }
+    @media (max-width: 900px) { .hero, .grid, .totp-cards { grid-template-columns: 1fr; } .totp-list { grid-column: auto; } }
+    @media (max-width: 600px) { .shell { width: min(100% - 24px, 560px); padding-top: 12px; } .topbar { align-items: flex-start; flex-direction: column; } .actions { width: 100%; } .actions .btn { flex: 1; } .hero-card, .state-card, .section { padding: 16px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+  <main class="shell" id="appShell">
+    <header class="topbar glass">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">A</div>
+        <div>
+          <p class="eyebrow">Local-first security workbench</p>
+          <h1>AeroPad remediation preview</h1>
+        </div>
+      </div>
+      <div class="actions">
+        <span class="pill"><span class="dot"></span><span id="vaultPill">Encrypted by default</span></span>
+        <button class="btn" id="lockButton" type="button">Lock now</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <article class="hero-card glass">
+        <p class="eyebrow">Gate A design surface</p>
+        <h2>One transactional vault, visible security state, and no silent data loss.</h2>
+        <p>This demo makes the remediation UX concrete: the user can see the last committed backup, distinguish saving from failed persistence, and understand that TOTP countdowns are per account.</p>
+        <div class="actions" style="margin-top:20px">
+          <button class="btn primary" id="backupButton" type="button">Create encrypted backup</button>
+          <button class="btn danger" id="failureButton" type="button">Simulate save failure</button>
+        </div>
+      </article>
+      <aside class="state-card glass" aria-live="polite">
+        <div class="state-head"><span class="eyebrow">Vault state</span><span class="pill" id="statePill">Ready</span></div>
+        <h2 class="state-title" id="stateTitle">Protected &amp; committed</h2>
+        <p class="state-detail" id="stateDetail">Generation 14 is the active manifest. Notes and TOTP records share one encrypted commit.</p>
+        <div class="state-line"><span>Last commit</span><strong id="lastCommit">12:42:09</strong></div>
+      </aside>
+    </section>
+
+    <section class="grid protected" aria-label="Vault status and accounts">
+      <article class="section glass">
+        <div class="section-head"><div><h3>Durability</h3><p class="caption">Commit before the UI says saved.</p></div><span class="pill">IndexedDB</span></div>
+        <div class="backup">
+          <div class="backup-row"><span>Manifest</span><strong>generation 14</strong></div>
+          <div class="backup-row"><span>Encrypted backup</span><strong id="backupStatus">Not created</strong></div>
+          <div class="backup-row"><span>Persistence request</span><strong>Granted</strong></div>
+          <div class="progress"><span id="backupProgress"></span></div>
+        </div>
+      </article>
+      <article class="section glass">
+        <div class="section-head"><div><h3>Security posture</h3><p class="caption">Plaintext is never the default.</p></div><span class="pill">AES-GCM</span></div>
+        <div class="notice"><span aria-hidden="true">◆</span><span><strong>Secrets stay local.</strong><br>Only encrypted vault bytes are persisted; unlock clears the password field immediately.</span></div>
+      </article>
+      <article class="section glass">
+        <div class="section-head"><div><h3>Recovery</h3><p class="caption">A backup is a product feature.</p></div><span class="pill">Portable</span></div>
+        <div class="backup">
+          <div class="backup-row"><span>Format</span><strong>.aeropad encrypted</strong></div>
+          <div class="backup-row"><span>Reminder</span><strong>After 7 days</strong></div>
+          <div class="backup-row"><span>Restore test</span><strong style="color:var(--mint)">Ready</strong></div>
+        </div>
+      </article>
+
+      <article class="section glass totp-list">
+        <div class="section-head">
+          <div><h3>Authenticator accounts</h3><p class="caption">Each card owns its period, algorithm, and countdown.</p></div>
+          <div class="inline"><span class="pill">No global 30s assumption</span><input class="search" id="search" aria-label="Search accounts" placeholder="Search accounts" style="width:170px"></div>
+        </div>
+        <div class="totp-cards" id="totpCards">
+          <article class="totp-card" data-account="Cloudflare admin" data-period="30">
+            <div class="account"><div class="avatar">C</div><div><strong>Cloudflare</strong><span>admin@example.com</span></div></div>
+            <div class="code"><strong>447 306</strong><button type="button" aria-label="Copy current Cloudflare code">Copy</button></div>
+            <div class="meta"><span>SHA-1 · 6 digits</span><strong><span class="time-left">30</span>s</strong></div>
+            <div class="card-progress"><span></span></div>
+          </article>
+          <article class="totp-card" data-account="GitHub security" data-period="60">
+            <div class="account"><div class="avatar">G</div><div><strong>GitHub</strong><span>security@example.com</span></div></div>
+            <div class="code"><strong>97 795 671</strong><button type="button" aria-label="Copy current GitHub code">Copy</button></div>
+            <div class="meta"><span>SHA-256 · 8 digits</span><strong><span class="time-left">60</span>s</strong></div>
+            <div class="card-progress"><span></span></div>
+          </article>
+          <article class="totp-card" data-account="Offline recovery" data-period="15">
+            <div class="account"><div class="avatar">O</div><div><strong>Offline recovery</strong><span>workstation</span></div></div>
+            <div class="code"><strong>12 345 678</strong><button type="button" aria-label="Copy current offline recovery code">Copy</button></div>
+            <div class="meta"><span>SHA-512 · 8 digits</span><strong><span class="time-left">15</span>s</strong></div>
+            <div class="card-progress"><span></span></div>
+          </article>
+        </div>
+      </article>
+    </section>
+    <p class="footer-note">Design-only artifact. It does not read or write the real AeroPad vault.</p>
+  </main>
+
+  <dialog id="lockDialog" aria-labelledby="lockTitle">
+    <form method="dialog" class="dialog-body">
+      <p class="eyebrow">Protected workspace</p>
+      <h2 id="lockTitle">Vault locked</h2>
+      <p>Unlocking derives a session key; the password itself is not retained after success.</p>
+      <label for="password">Master password</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="Enter password">
+      <div class="dialog-actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary" id="unlockButton" value="default">Unlock vault</button></div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const shell = document.getElementById('appShell');
+    const dialog = document.getElementById('lockDialog');
+    const toast = document.getElementById('toast');
+    const statePill = document.getElementById('statePill');
+    const stateTitle = document.getElementById('stateTitle');
+    const stateDetail = document.getElementById('stateDetail');
+    const vaultPill = document.getElementById('vaultPill');
+    let toastTimer;
+
+    // The fallback values in the stylesheet keep the demo usable from file://;
+    // when served, the preview consumes the draft token file directly.
+    fetch('../design/tokens-v1.json').then((response) => response.json()).then((tokens) => {
+      const root = document.documentElement.style;
+      root.setProperty('--canvas', tokens.colors.canvasDark);
+      root.setProperty('--surface', tokens.colors.surfaceDark);
+      root.setProperty('--elevated', tokens.colors.elevatedDark);
+      root.setProperty('--border', tokens.colors.borderDark);
+      root.setProperty('--active', tokens.colors.borderActiveDark);
+      root.setProperty('--focus', tokens.colors.focusDark);
+      root.setProperty('--primary', tokens.colors.textPrimaryDark);
+      root.setProperty('--secondary', tokens.colors.textSecondaryDark);
+      root.setProperty('--muted', tokens.colors.textMutedDark);
+      root.setProperty('--cyan', tokens.colors.cyan);
+      root.setProperty('--mint', tokens.colors.mint);
+      root.setProperty('--amber', tokens.colors.amber);
+      root.setProperty('--coral', tokens.colors.coral);
+      root.setProperty('--sans', tokens.typography.sans);
+      root.setProperty('--mono', tokens.typography.mono);
+      root.setProperty('--glass-blur', tokens.effects.glassBlur);
+      root.setProperty('--card-shadow', tokens.effects.cardShadow);
+      root.setProperty('--float-shadow', tokens.effects.floatingShadow);
+    }).catch(() => {});
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    function setState(kind, title, detail) {
+      statePill.textContent = kind;
+      stateTitle.textContent = title;
+      stateDetail.textContent = detail;
+    }
+
+    document.getElementById('lockButton').addEventListener('click', () => dialog.showModal());
+    document.getElementById('unlockButton').addEventListener('click', (event) => {
+      event.preventDefault();
+      document.getElementById('password').value = '';
+      dialog.close();
+      shell.classList.remove('locked');
+      vaultPill.textContent = 'Encrypted by default';
+      setState('Ready', 'Protected & committed', 'Generation 14 is the active manifest. Notes and TOTP records share one encrypted commit.');
+      showToast('Vault unlocked — session key is active');
+    });
+    document.getElementById('backupButton').addEventListener('click', () => {
+      document.getElementById('backupStatus').textContent = 'Created just now';
+      document.getElementById('backupProgress').style.width = '100%';
+      setState('Backed up', 'Encrypted backup ready', 'The portable .aeropad file can be restored in a fresh profile.');
+      showToast('Encrypted backup created');
+    });
+    document.getElementById('failureButton').addEventListener('click', () => {
+      statePill.textContent = 'Action required';
+      statePill.style.color = 'var(--coral)';
+      stateTitle.textContent = 'Save failed';
+      stateDetail.textContent = 'The previous committed generation is still intact. Retry or export an encrypted backup before locking.';
+      showToast('Save failed — your last committed vault is safe');
+    });
+    document.getElementById('search').addEventListener('input', (event) => {
+      const query = event.target.value.toLowerCase().trim();
+      document.querySelectorAll('.totp-card').forEach((card) => {
+        card.hidden = query && !card.dataset.account.toLowerCase().includes(query);
+      });
+    });
+
+    function updateTimers() {
+      const now = Math.floor(Date.now() / 1000);
+      document.querySelectorAll('.totp-card').forEach((card) => {
+        const period = Number(card.dataset.period);
+        const remain = period - (now % period);
+        card.querySelector('.time-left').textContent = remain;
+        card.querySelector('.card-progress span').style.width = `${(remain / period) * 100}%`;
+      });
+    }
+    updateTimers();
+    setInterval(updateTimers, 1000);
+  </script>
+</body>
+</html>

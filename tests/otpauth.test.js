@@ -62,3 +62,66 @@ test('OTPAuth - Build includes algorithm parameter so QR imports match the gener
   const uri = buildOTPAuthURI({ issuer: 'A', account: 'b@c.io', secret: 'JBSWY3DPEHPK3PXP', algo: 'SHA256' });
   assert.ok(uri.includes('algorithm=SHA256'));
 });
+
+test('OTPAuth - Rejects HOTP and non-TOTP hosts without reinterpretation', () => {
+  const hotp = parseOTPAuthURI(
+    'otpauth://hotp/Service:user@example.com?secret=JBSWY3DPEHPK3PXP&counter=10'
+  );
+  const otherType = parseOTPAuthURI(
+    'otpauth://steam/Service:user@example.com?secret=JBSWY3DPEHPK3PXP'
+  );
+
+  assert.equal(hotp.isValid, false);
+  assert.equal(hotp.errorCode, 'unsupported_type');
+  assert.equal(otherType.isValid, false);
+  assert.equal(otherType.errorCode, 'unsupported_type');
+});
+
+test('OTPAuth - Rejects unsupported algorithms instead of falling back', () => {
+  const parsed = parseOTPAuthURI(
+    'otpauth://totp/Service:user@example.com?secret=JBSWY3DPEHPK3PXP&algorithm=MD5'
+  );
+
+  assert.equal(parsed.isValid, false);
+  assert.equal(parsed.errorCode, 'unsupported_algorithm');
+});
+
+test('OTPAuth - Rejects digits outside the interoperable 6 or 8 policy', () => {
+  const parsed = parseOTPAuthURI(
+    'otpauth://totp/Service:user@example.com?secret=JBSWY3DPEHPK3PXP&digits=7'
+  );
+
+  assert.equal(parsed.isValid, false);
+  assert.equal(parsed.errorCode, 'invalid_digits');
+});
+
+test('OTPAuth - Rejects periods outside the supported range', () => {
+  const invalidValues = ['0', '3601'];
+
+  for (const period of invalidValues) {
+    const parsed = parseOTPAuthURI(
+      `otpauth://totp/Service:user@example.com?secret=JBSWY3DPEHPK3PXP&period=${period}`
+    );
+    assert.equal(parsed.isValid, false, `period=${period}`);
+    assert.equal(parsed.errorCode, 'invalid_period', `period=${period}`);
+  }
+});
+
+test('OTPAuth - Canonicalizes supported algorithm spellings', () => {
+  const parsed = parseOTPAuthURI(
+    'otpauth://totp/Service:user@example.com?secret=JBSWY3DPEHPK3PXP&algorithm=sHa-256'
+  );
+
+  assert.equal(parsed.isValid, true);
+  assert.equal(parsed.algo, 'SHA256');
+});
+
+test('OTPAuth - Accepts compatible direct Base32 secret lengths from 8 to 128', () => {
+  const short = parseOTPAuthURI('JBSWY3DP');
+  const long = parseOTPAuthURI('A'.repeat(128));
+
+  assert.equal(short.isValid, true);
+  assert.equal(short.secret, 'JBSWY3DP');
+  assert.equal(long.isValid, true);
+  assert.equal(long.secret, 'A'.repeat(128));
+});

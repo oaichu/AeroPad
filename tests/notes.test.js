@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { NotesManager, calculateMetrics, formatExportPayload } from '../src/notes/notes-manager.js';
+import { NotesManager, NOTE_SEARCH_DEBOUNCE_MS, calculateMetrics, formatExportPayload } from '../src/notes/notes-manager.js';
 
 test('NotesManager - Performs CRUD operations correctly', () => {
   const manager = new NotesManager();
@@ -28,6 +28,26 @@ test('NotesManager - Performs CRUD operations correctly', () => {
   const deleted = manager.deleteNote(note1.id);
   assert.equal(deleted, true);
   assert.equal(manager.getAllNotes().length, 0);
+});
+
+test('NotesManager - Normalizes local search, ranks title matches, and never calls remote services', () => {
+  const notes = [
+    { id: 'content-match', title: 'Weekly review', content: 'Café and security notes' },
+    { id: 'title-late', title: 'Guide to Café', content: 'Operations' },
+    { id: 'title-prefix', title: 'Café security', content: 'Recovery checklist' }
+  ];
+  const manager = new NotesManager(notes);
+  const originalFetch = globalThis.fetch;
+  let remoteCalls = 0;
+  globalThis.fetch = () => { remoteCalls += 1; throw new Error('remote search is forbidden'); };
+  try {
+    assert.equal(NOTE_SEARCH_DEBOUNCE_MS, 125);
+    const results = manager.searchNotes('CAFE');
+    assert.deepEqual(results.map(note => note.id), ['title-prefix', 'title-late', 'content-match']);
+    assert.equal(remoteCalls, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
 
 test('calculateMetrics - Computes word count, character count and estimated reading time', () => {

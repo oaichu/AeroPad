@@ -1,0 +1,80 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "version": "1.0.0",
+  "status": "locked",
+  "product": "AeroPad — Local-First 2FA & Security Workbench",
+  "colors": {
+    "canvasDark": "#07090E",
+    "canvasLight": "#F4F6FB",
+    "surfaceDark": "rgba(16, 22, 34, 0.72)",
+    "surfaceLight": "rgba(255, 255, 255, 0.82)",
+    "elevatedDark": "rgba(22, 30, 46, 0.92)",
+    "elevatedLight": "#FFFFFF",
+    "borderDark": "rgba(255, 255, 255, 0.08)",
+    "borderLight": "rgba(0, 0, 0, 0.08)",
+    "borderActiveDark": "rgba(255, 255, 255, 0.16)",
+    "borderActiveLight": "rgba(0, 0, 0, 0.16)",
+    "focusDark": "rgba(0, 242, 254, 0.4)",
+    "focusLight": "rgba(0, 242, 254, 0.6)",
+    "textPrimaryDark": "#F8FAFC",
+    "textPrimaryLight": "#0F172A",
+    "textSecondaryDark": "#94A3B8",
+    "textSecondaryLight": "#475569",
+    "textMutedDark": "#64748B",
+    "textMutedLight": "#94A3B8",
+    "cyan": "#00F2FE",
+    "indigo": "#6366F1",
+    "mint": "#10B981",
+    "amber": "#F59E0B",
+    "coral": "#F43F5E",
+    "violet": "#8B5CF6"
+  },
+  "typography": {
+    "sans": "'Inter var', 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif",
+    "mono": "'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, Monaco, Consolas, monospace",
+    "numeric": "tabular-nums"
+  },
+  "radii": {
+    "sm": "8px",
+    "md": "12px",
+    "lg": "18px",
+    "xl": "24px",
+    "full": "9999px"
+  },
+  "effects": {
+    "glassBlur": "blur(28px) saturate(180%)",
+    "cardShadow": "0 16px 36px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08)",
+    "floatingShadow": "0 24px 48px -12px rgba(0, 0, 0, 0.75)"
+  },
+  "spacing": {
+    "xs": "8px",
+    "sm": "12px",
+    "md": "14px",
+    "lg": "20px",
+    "xl": "24px"
+  },
+  "securityStates": {
+    "encrypted": {
+      "color": "#10B981",
+      "label": "Encrypted by default"
+    },
+    "pending": {
+      "color": "#F59E0B",
+      "label": "Saving securely"
+    },
+    "error": {
+      "color": "#F43F5E",
+      "label": "Save failed — action required"
+    },
+    "locked": {
+      "color": "#94A3B8",
+      "label": "Vault locked"
+    }
+  },
+  "interaction": {
+    "totpPeriods": [15, 30, 45, 60],
+    "defaultTotpPeriod": 30,
+    "defaultGeneratedSecretChars": 32,
+    "reducedMotion": "prefers-reduced-motion"
+  }
+}

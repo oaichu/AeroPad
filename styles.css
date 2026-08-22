@@ -854,6 +854,9 @@ html.light .glass-input-group {
   height: 14px;
 }
 
+.save-indicator[data-state="pending"] { color: var(--accent-cyan); }
+.save-indicator[data-state="save-failed"] { color: var(--accent-rose); }
+
 .editor-mode-toggle button {
   background: transparent;
   border: none;
@@ -1648,7 +1651,11 @@ html.light .glass-input, html.light .glass-select, html.light .glass-textarea {
 
 .secret-input-wrap input {
   width: 100%;
-  padding-right: 42px;
+  padding-right: 78px;
+}
+
+.secret-input-wrap .btn-toggle-eye {
+  right: 40px;
 }
 
 .btn-inner-copy {

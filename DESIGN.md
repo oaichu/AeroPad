@@ -1,31 +1,42 @@
-# DESIGN SPECIFICATION — AETHERPAD & 2FA VAULT
+# DESIGN SPECIFICATION — AeroPad Local-First Security Workbench
 
-## 1. Visual Contract & Design Tokens
-All UI and rendering must strictly consume tokens defined in `design/tokens-v1.json`.
+## 1. Product direction
 
-* **Base Surface (Dark Mode - Default)**:
-  - Canvas: `#07090E` (Deep Space Obsidian)
-  - Surface Glass: `rgba(16, 22, 34, 0.75)` with `backdrop-filter: blur(28px) saturate(180%)`
-  - Elevated Cards: `rgba(22, 30, 46, 0.90)`
-* **Light Mode Surface**:
-  - Canvas: `#F4F6FB` (Frost Titanium)
-  - Surface Glass: `rgba(255, 255, 255, 0.82)`
-* **Borders & Outlines**:
-  - Hairline: `1px solid rgba(255, 255, 255, 0.08)` (Dark) / `rgba(0, 0, 0, 0.08)` (Light)
-  - Active Glow: `rgba(0, 242, 254, 0.4)`
-* **Accents & Semantics**:
-  - `Electric Cyan`: `#00F2FE` (Primary branding, TOTP live digit highlight)
-  - `Web3 Indigo`: `#6366F1` (Secondary badges, aura glow)
-  - `Security Mint`: `#10B981` (Safe encryption state, passed checks)
-  - `Expiry Amber`: `#F59E0B` (TOTP countdown < 5 seconds warning)
-  - `Destructive Coral`: `#F43F5E` (Delete / Reset actions)
+AeroPad is a local-first 2FA and security workbench: no account, no backend, no telemetry, and encrypted vault content persisted in the browser. The commercial product language is:
 
-## 2. Typography
-* **Prose, Navigation & Controls**: `-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif`
-* **Digits, Secret Keys & Monospace Codes**: `'SF Mono', 'JetBrains Mono', 'Fira Code', monospace` with `font-variant-numeric: tabular-nums` to ensure stable rendering during countdowns.
+> **AeroPad — Local-First 2FA & Security Workbench**
+> Secrets stay in your browser. Encrypted by default. No account. No tracking.
 
-## 3. Architecture & Interaction Model
-* **Client-Side Principle**: Pure client-side execution; all cryptographic operations (TOTP RFC 6238 HMAC calculation, AES-256-GCM vault encryption, QR generation & decoding, secure random generation) take place strictly within the browser using Web Crypto API. No data ever leaves the device.
-* **Encryption at Rest (optional, user-enabled)**: With a master password set, `aeropad_notes` and `aeropad_totp` are stored as `{"v":1,"enc":"AES-GCM-256","kdf":"PBKDF2-SHA256","iter":310000,"salt","iv","ct"}` envelopes. Key derivation: PBKDF2-SHA256, 310,000 iterations, 16-byte random salt (fresh per password set). The derived AES key is a non-extractable `CryptoKey` held only in memory and re-derived from the password at every boot (lock screen). Random 12-byte IV per write. **No recovery path** — a forgotten master password means the data is unrecoverable by design. Without a master password, data is stored in plain text.
-* **Storage Keys**: LocalStorage key-value pairs (`aeropad_notes`, `aeropad_totp`, `aeropad_theme`, `aeropad_lang`; `*_corrupt_backup` after recovery from corrupted data).
-* **Supply Chain**: CDN scripts (qrcode-generator, jsQR) are version-pinned with SRI hashes; a strict CSP (including the standalone's inline-script sha256) is shipped via `_headers` / `vercel.json`.
+The product must not claim “zero-knowledge”, “no data ever leaves the device”, “Apple-grade”, “Apple + Web3”, or “decentralized” as general security guarantees. The precise claim is that AeroPad does not upload vault content and that vault content is encrypted at rest by the client before persistence.
+
+## 2. Visual contract
+
+`design/tokens-v1.json` is the locked token source. `styles.css`, the security UX, and future preview/demo artifacts must consume those values rather than inventing new colors, fonts, radii, or spacing.
+
+- Dark mode is the default; light mode remains supported.
+- Prose and controls use the locked sans family; codes and secrets use the locked monospace family with tabular numerals.
+- Cyan is the primary focus/live-code accent; mint means committed/encrypted; amber means pending/expiring; coral means destructive or failed.
+- Motion must honor `prefers-reduced-motion`.
+
+## 3. Security UX contract
+
+- New vault data is encrypted by default. Plaintext mode is a legacy migration state, not a recommended product state.
+- The UI must distinguish `locked`, `saving`, `committed`, `backup-ready`, and `save-failed` states. “Saved” is shown only after the durable commit succeeds.
+- Secret inputs are masked by default and have explicit reveal controls. Passwords and TOTP seeds are cleared from transient DOM fields after use where practical.
+- Locking awaits the storage queue flush before clearing the session key or reloading. A failed flush is visible and leaves the last committed generation intact.
+- Security modals use dialog semantics, labelled controls, keyboard escape, focus return, and a focus trap while open.
+- TOTP cards show their own period and algorithm. No global 30-second label may contradict an account’s configuration.
+
+## 4. Technical references
+
+- Vault storage and encrypted backup: [`specs/vault-schema.md`](specs/vault-schema.md)
+- TOTP/otpauth behavior: [`specs/totp-otpauth.md`](specs/totp-otpauth.md)
+- Remediation scope and release gates: [`specs/security-remediation.md`](specs/security-remediation.md)
+- Runtime ownership and build flow: [`docs/architecture.md`](docs/architecture.md)
+
+## 5. Privacy and distribution
+
+- Runtime dependencies, fonts, and QR libraries are self-hosted and pinned in the build output.
+- Production CSP uses `script-src 'self'` after vendor removal; `Referrer-Policy: no-referrer` and a restrictive `Permissions-Policy` are required.
+- Static hosting remains the deployment model. No server API, user account, remote search, or telemetry is part of the vault runtime.
+- `public/`, `dist/`, and the standalone HTML are generated artifacts. Source changes happen in the canonical source tree and are verified before artifacts are published.

@@ -1,5 +1,29 @@
 import { Base32 } from './base32.js';
 
+const MIN_PERIOD = 1;
+const MAX_PERIOD = 3600;
+const SUPPORTED_DIGITS = new Set([6, 8]);
+
+/**
+ * Normalize OTPAuth/Web Crypto algorithm spellings without silently falling
+ * back to SHA-1 for an unsupported algorithm.
+ */
+export function normalizeAlgorithm(algo = 'SHA-1') {
+  const clean = String(algo).toUpperCase().replace(/-/g, '');
+  if (clean === 'SHA1') return 'SHA-1';
+  if (clean === 'SHA256') return 'SHA-256';
+  if (clean === 'SHA512') return 'SHA-512';
+  return null;
+}
+
+function isValidPeriod(period) {
+  return Number.isInteger(period) && period >= MIN_PERIOD && period <= MAX_PERIOD;
+}
+
+function isValidTimestamp(timestamp) {
+  return Number.isInteger(timestamp) && timestamp >= 0;
+}
+
 /**
  * RFC 6238 Time-Based One-Time Password (TOTP) Generator
  */
@@ -12,7 +36,10 @@ export async function generateTOTP(secretBase32, options = {}) {
   } = options;
 
   try {
-    if (!secretBase32 || typeof secretBase32 !== 'string') {
+    const normalizedAlgo = normalizeAlgorithm(algo);
+    if (!secretBase32 || typeof secretBase32 !== 'string' ||
+        !isValidPeriod(period) || !SUPPORTED_DIGITS.has(digits) ||
+        !normalizedAlgo || !isValidTimestamp(timestamp)) {
       return null;
     }
 
@@ -35,7 +62,7 @@ export async function generateTOTP(secretBase32, options = {}) {
     const cryptoKey = await subtleCrypto.importKey(
       'raw',
       keyBytes,
-      { name: 'HMAC', hash: { name: algo } },
+      { name: 'HMAC', hash: { name: normalizedAlgo } },
       false,
       ['sign']
     );
@@ -62,6 +89,9 @@ export async function generateTOTP(secretBase32, options = {}) {
  * Calculates countdown seconds and progress percentage
  */
 export function calculateRemainingTime(epochSeconds = Math.floor(Date.now() / 1000), period = 30) {
+  if (!isValidPeriod(period) || !isValidTimestamp(epochSeconds)) {
+    throw new RangeError('period and epochSeconds must be non-negative integers within the supported range');
+  }
   const remain = period - (epochSeconds % period);
   const percent = (remain / period) * 100;
   return {

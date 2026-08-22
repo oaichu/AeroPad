@@ -2,6 +2,55 @@
  * Smart Notepad Manager & Data Operations
  */
 
+export const NOTE_SEARCH_DEBOUNCE_MS = 125;
+
+export function normalizeSearchText(value = '') {
+  return String(value ?? '')
+    .normalize('NFKD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const normalizedNoteCache = new WeakMap();
+
+function getNormalizedNote(note) {
+  if (!note || typeof note !== 'object') return { title: '', content: '' };
+  const rawTitle = String(note.title ?? '');
+  const rawContent = String(note.content ?? '');
+  const cached = normalizedNoteCache.get(note);
+  if (cached?.rawTitle === rawTitle && cached.rawContent === rawContent) return cached;
+  const normalized = {
+    rawTitle,
+    rawContent,
+    title: normalizeSearchText(rawTitle),
+    content: normalizeSearchText(rawContent)
+  };
+  normalizedNoteCache.set(note, normalized);
+  return normalized;
+}
+
+export function searchNotes(notes = [], query = '') {
+  const source = Array.isArray(notes) ? notes : [];
+  const normalizedQuery = normalizeSearchText(query);
+  if (!normalizedQuery) return [...source];
+
+  return source
+    .map((note, index) => {
+      const normalized = getNormalizedNote(note);
+      const titleIndex = normalized.title.indexOf(normalizedQuery);
+      const contentIndex = normalized.content.indexOf(normalizedQuery);
+      if (titleIndex < 0 && contentIndex < 0) return null;
+      const titleScore = titleIndex >= 0 ? 1000 + (titleIndex === 0 ? 100 : 0) - titleIndex : 0;
+      const contentScore = contentIndex >= 0 ? 100 - contentIndex : 0;
+      return { note, index, score: titleScore + contentScore };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map(result => result.note);
+}
+
 export class NotesManager {
   constructor(initialNotes = []) {
     this.notes = Array.isArray(initialNotes) ? [...initialNotes] : [];
@@ -46,12 +95,7 @@ export class NotesManager {
   }
 
   searchNotes(query = '') {
-    if (!query) return this.notes;
-    const lower = query.toLowerCase();
-    return this.notes.filter(n =>
-      n.title.toLowerCase().includes(lower) ||
-      n.content.toLowerCase().includes(lower)
-    );
+    return searchNotes(this.notes, query);
   }
 }
 
