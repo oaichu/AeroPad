@@ -429,7 +429,10 @@ const TRANSLATIONS = {
     sec_encrypted_ok: 'Vault encrypted — data is now AES-256-GCM at rest',
     sec_decrypted_ok: 'Encryption removed — data is plain text again',
     storage_encrypted: 'AES-256 Encrypted • Local Storage',
-    storage_plain: 'Plain Text • Not Encrypted'
+    storage_plain: 'Plain Text • Not Encrypted',
+    dec_issuer_ph: 'Issuer name...',
+    dec_account_ph: 'Account / email...',
+    dec_secret_ph: 'Secret key (A–Z, 2–7)...'
   },
   vi: {
     name: 'Tiếng Việt',
@@ -532,7 +535,10 @@ const TRANSLATIONS = {
     sec_encrypted_ok: 'Đã mã hóa kho — dữ liệu giờ được mã hóa AES-256-GCM',
     sec_decrypted_ok: 'Đã gỡ mã hóa — dữ liệu trở lại văn bản thuần',
     storage_encrypted: 'Mã hóa AES-256 • Lưu trữ cục bộ',
-    storage_plain: 'Văn bản thuần • Chưa mã hóa'
+    storage_plain: 'Văn bản thuần • Chưa mã hóa',
+    dec_issuer_ph: 'Tên đơn vị phát hành...',
+    dec_account_ph: 'Tài khoản / email...',
+    dec_secret_ph: 'Khóa bí mật (A–Z, 2–7)...'
   },
   zh: {
     name: '简体中文',
@@ -635,7 +641,10 @@ const TRANSLATIONS = {
     sec_encrypted_ok: '保险库已加密 — 数据现已 AES-256-GCM 加密存储',
     sec_decrypted_ok: '已移除加密 — 数据恢复为明文',
     storage_encrypted: 'AES-256 加密 • 本地存储',
-    storage_plain: '明文 • 未加密'
+    storage_plain: '明文 • 未加密',
+    dec_issuer_ph: '发行方名称...',
+    dec_account_ph: '账户 / 邮箱...',
+    dec_secret_ph: '密钥 (A–Z, 2–7)...'
   },
   ko: {
     name: '한국어',
@@ -738,7 +747,10 @@ const TRANSLATIONS = {
     sec_encrypted_ok: '금고 암호화 완료 — 데이터가 AES-256-GCM으로 저장됩니다',
     sec_decrypted_ok: '암호화 제거됨 — 데이터가 일반 텍스트로 저장됩니다',
     storage_encrypted: 'AES-256 암호화 • 로컬 저장',
-    storage_plain: '일반 텍스트 • 암호화 안 됨'
+    storage_plain: '일반 텍스트 • 암호화 안 됨',
+    dec_issuer_ph: '발급자 이름...',
+    dec_account_ph: '계정 / 이메일...',
+    dec_secret_ph: '비밀키 (A–Z, 2–7)...'
   },
   ja: {
     name: '日本語',
@@ -841,7 +853,10 @@ const TRANSLATIONS = {
     sec_encrypted_ok: 'ボールトを暗号化しました — データはAES-256-GCMで保存されます',
     sec_decrypted_ok: '暗号化を解除しました — データは平文に戻ります',
     storage_encrypted: 'AES-256 暗号化 • ローカル保存',
-    storage_plain: '平文 • 未暗号化'
+    storage_plain: '平文 • 未暗号化',
+    dec_issuer_ph: '発行者名...',
+    dec_account_ph: 'アカウント / メール...',
+    dec_secret_ph: 'シークレットキー (A–Z, 2–7)...'
   },
   es: {
     name: 'Español',
@@ -944,7 +959,10 @@ const TRANSLATIONS = {
     sec_encrypted_ok: 'Bóveda cifrada — los datos ahora se guardan con AES-256-GCM',
     sec_decrypted_ok: 'Cifrado eliminado — los datos vuelven a texto plano',
     storage_encrypted: 'Cifrado AES-256 • Almacenamiento Local',
-    storage_plain: 'Texto plano • Sin cifrar'
+    storage_plain: 'Texto plano • Sin cifrar',
+    dec_issuer_ph: 'Nombre del emisor...',
+    dec_account_ph: 'Cuenta / correo...',
+    dec_secret_ph: 'Clave secreta (A–Z, 2–7)...'
   },
   id: {
     name: 'Bahasa Indonesia',
@@ -1047,7 +1065,10 @@ const TRANSLATIONS = {
     sec_encrypted_ok: 'Brankas terenkripsi — data kini disimpan dengan AES-256-GCM',
     sec_decrypted_ok: 'Enkripsi dihapus — data kembali menjadi teks polos',
     storage_encrypted: 'Terenkripsi AES-256 • Penyimpanan Lokal',
-    storage_plain: 'Teks polos • Tidak dienkripsi'
+    storage_plain: 'Teks polos • Tidak dienkripsi',
+    dec_issuer_ph: 'Nama penerbit...',
+    dec_account_ph: 'Akun / email...',
+    dec_secret_ph: 'Kunci rahasia (A–Z, 2–7)...'
   }
 };
 
@@ -2430,6 +2451,17 @@ function initDecoder() {
     parseAndDisplayOTPString(text);
   });
 
+  // The "2FA Account Information" fields are fully editable: decoded values
+  // are only a starting point — typing here updates the live code and what
+  // "Save" persists. Debounced so HMAC runs after typing pauses.
+  let decoderEditTimer = null;
+  ['decIssuer', 'decAccount', 'decSecret'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', () => {
+      clearTimeout(decoderEditTimer);
+      decoderEditTimer = setTimeout(syncDecoderItemFromFields, 250);
+    });
+  });
+
   // Copy Decoded Secret
   document.getElementById('copyDecSecret')?.addEventListener('click', async () => {
     if (currentDecodedSecret) {
@@ -2456,9 +2488,13 @@ function initDecoder() {
     }
   });
 
-  // Add Decoded to Vault — preserve the decoded account's real digits/period/algo
+  // Add Decoded to Vault — reads the CURRENT field values (user may have edited them)
   document.getElementById('addDecodedToVaultBtn')?.addEventListener('click', () => {
-    if (!currentDecodedItem) return;
+    syncDecoderItemFromFields();
+    if (!currentDecodedItem) {
+      showToast(t('toast_invalid_secret'), 'error');
+      return;
+    }
     const password = document.getElementById('decPasswordInput')?.value.trim() || '';
     appState.totpAccounts.push({
       id: generateId('totp'),
@@ -2519,6 +2555,49 @@ function handleQRFile(file) {
   reader.readAsDataURL(file);
 }
 
+// Rebuild currentDecodedItem from whatever is currently typed in the decoder
+// fields. Keeps the decoded digits/period/algo when the user only edits
+// issuer/account; falls back to defaults for pure manual entry.
+function syncDecoderItemFromFields() {
+  const issEl = document.getElementById('decIssuer');
+  const accEl = document.getElementById('decAccount');
+  const secEl = document.getElementById('decSecret');
+  const secret = ((secEl && secEl.value) || '').replace(/[\s-]/g, '').toUpperCase();
+  const prev = currentDecodedItem;
+
+  if (!isValidBase32Secret(secret)) {
+    currentDecodedSecret = null;
+    currentDecodedItem = null;
+    const live = document.getElementById('decLiveCode');
+    if (live) live.textContent = '------';
+    return;
+  }
+  currentDecodedSecret = secret;
+  currentDecodedItem = {
+    issuer: (issEl && issEl.value.trim()) || 'Direct Key',
+    account: (accEl && accEl.value.trim()) || 'Account',
+    secret,
+    digits: prev ? prev.digits : 6,
+    period: prev ? prev.period : 30,
+    algo: prev ? prev.algo : 'SHA1'
+  };
+  refreshDecoderLiveCode();
+}
+
+async function refreshDecoderLiveCode() {
+  if (!currentDecodedItem) return;
+  const { secret, digits, period, algo } = currentDecodedItem;
+  const code = await generateTOTP(secret, period, digits, normalizeAlgo(algo));
+  const display = document.getElementById('decLiveCode');
+  if (!display) return;
+  if (code) {
+    const parts = formatOTPCode(code).split(' ');
+    display.innerHTML = `<span>${parts[0]}</span> <span>${parts[1] || ''}</span>`;
+  } else {
+    display.textContent = '------';
+  }
+}
+
 async function parseAndDisplayOTPString(input) {
   let issuer = 'Security Service';
   let account = 'user@vault';
@@ -2572,9 +2651,9 @@ async function parseAndDisplayOTPString(input) {
   const decAcc = document.getElementById('decAccount');
   const decSec = document.getElementById('decSecret');
 
-  if (decIss) decIss.textContent = issuer;
-  if (decAcc) decAcc.textContent = account;
-  if (decSec) decSec.textContent = secret;
+  if (decIss) decIss.value = issuer;
+  if (decAcc) decAcc.value = account;
+  if (decSec) decSec.value = secret;
 
   // Generate live code with the account's real parameters
   const liveCode = await generateTOTP(secret, period, digits, normalizeAlgo(algo));

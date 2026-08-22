@@ -12,7 +12,7 @@
 - 📝 **Smart Notepad**: Soạn thảo văn bản & Markdown mượt mà, bộ đếm số từ, ký tự và thời gian đọc, tự động lưu cục bộ (LocalStorage), xuất file `.md`, `.txt`, `.json`.
 - 🔑 **Live 2FA Vault**: Mã TOTP 6/8 chữ số thời gian thực chuẩn RFC 6238 (HMAC-SHA1/SHA-256/SHA-512) chạy trực tiếp trên Web Crypto API. Copy mã luôn lấy mã **đang hiển thị** (không bao giờ copy mã đã hết hạn).
 - ⚡ **2FA Generator & QR Studio**: Sinh khóa Base32 ngẫu nhiên (Web Crypto), mã QR động có nhúng đủ `algorithm`/`digits`/`period`, tải PNG, copy link `otpauth://`.
-- 🔍 **2FA Decoder & Scanner**: Kéo thả / dán ảnh QR (Ctrl+V), dán link `otpauth://` hoặc secret thô. Giữ nguyên `digits`/`period`/`algorithm` của tài khoản khi lưu vào Vault.
+- 🔍 **2FA Decoder & Scanner**: Kéo thả / dán ảnh QR (Ctrl+V), dán link `otpauth://` hoặc **nhập tay trực tiếp** vào mục 2FA Account Information (các trường Issuer/Account/Secret đều chỉnh sửa được — giá trị decode chỉ là điểm khởi đầu). Giữ nguyên `digits`/`period`/`algorithm` của tài khoản khi lưu vào Vault.
 - 🛡️ **Privacy + Encryption**: Không backend — toàn bộ xử lý nằm 100% tại máy. Đặt Master Password để mã hóa vault bằng AES-256-GCM (Web Crypto, key không rời RAM). CDN scripts được pin version + SRI, CSP strict qua `_headers`/`vercel.json`.
 
 ---

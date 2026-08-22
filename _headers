@@ -6,4 +6,4 @@
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'sha256-ldylXl5tyfxMUxX2gGTWp2c+I2niWMI4j5VfpWBrEdM='; style-src 'self' 'unsafe-inline' https://rsms.me https://fonts.googleapis.com; font-src 'self' https://rsms.me https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'sha256-H/sn4TzagIxHTj4RbaNwv+tiGm6CcdDQOmVmDCTMUtk='; style-src 'self' 'unsafe-inline' https://rsms.me https://fonts.googleapis.com; font-src 'self' https://rsms.me https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'

@@ -2555,3 +2555,10 @@ html.light .detail-row {
   color: #F59E0B;
   background: rgba(245, 158, 11, 0.08);
 }
+
+/* Editable fields inside the decoder's "2FA Account Information" card */
+.decoded-details .glass-input-inline {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
