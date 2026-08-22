@@ -13,12 +13,12 @@ export async function generateTOTP(secretBase32, options = {}) {
 
   try {
     if (!secretBase32 || typeof secretBase32 !== 'string') {
-      return '0'.repeat(digits);
+      return null;
     }
 
     const keyBytes = Base32.decode(secretBase32);
     if (keyBytes.byteLength === 0) {
-      return '0'.repeat(digits);
+      return null;
     }
 
     const counter = Math.floor(timestamp / period);
@@ -54,7 +54,7 @@ export async function generateTOTP(secretBase32, options = {}) {
     return otp.toString().padStart(digits, '0');
   } catch (err) {
     console.error('TOTP Generation Error:', err);
-    return '0'.repeat(digits);
+    return null;
   }
 }
 

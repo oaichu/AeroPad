@@ -11,9 +11,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
-  <!-- QRCode.js & jsQR CDN for real QR generating and scanning -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <!-- QRCode.js & jsQR CDN (version-pinned + SRI-verified) for QR generating and scanning -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" integrity="sha384-hStSInNIZ8ljtOVrmrgf7zdHMapaLBWoSnPTtF0nzsybp4+LuhDz6sHuEVpWIX8o" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-canvas text-primary antialiased">
@@ -149,7 +149,7 @@
                   <span id="storageUsage">0 KB</span>
                 </div>
                 <div class="progress-track"><div class="progress-bar" id="storageProgressBar" style="width: 2%"></div></div>
-                <div class="stat-sub" data-i18n="storage_sub">AES-256 Encrypted • Local Storage</div>
+                <div class="stat-sub" id="storageModeLabel">Plain Text • Not Encrypted</div>
               </div>
             </div>
           </aside>
@@ -176,7 +176,7 @@
                   <div class="dropdown-menu glass-panel" id="exportMenu">
                     <button data-export="md">Markdown (.md)</button>
                     <button data-export="txt">Plain Text (.txt)</button>
-                    <button data-export="json">Encrypted Backup (.json)</button>
+                    <button data-export="json">JSON Backup (.json)</button>
                   </div>
                 </div>
                 <button id="deleteNoteBtn" class="btn-danger-ghost" title="Delete Note">
@@ -493,7 +493,68 @@
   </div>
 
   <!-- Toast Notification Overlay -->
-  <div id="toastContainer" class="toast-container"></div>
+  <div id="toastContainer" class="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- Vault Lock Overlay (shown at boot when encryption is enabled) -->
+  <div id="lockOverlay" class="lock-overlay hidden">
+    <div class="lock-box glass-panel">
+      <div class="lock-glyph">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
+      <h3 id="lockTitle">Vault Locked</h3>
+      <p class="text-secondary" id="lockSubtitle">Enter your master password to decrypt your data (AES-256-GCM, 100% local).</p>
+      <input type="password" id="lockPasswordInput" class="glass-input" placeholder="Master password" autocomplete="current-password">
+      <div class="lock-error" id="lockError" role="alert"></div>
+      <button id="unlockVaultBtn" class="btn-primary-gradient full-width">Unlock Vault</button>
+      <p class="lock-recovery" id="lockNoRecovery">No recovery: the master password is the only key. If you forget it, the data is lost forever.</p>
+    </div>
+  </div>
+
+  <!-- Vault Security Modal (set / change / remove master password) -->
+  <div id="securityModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal-box glass-panel">
+      <div class="modal-header">
+        <h3 data-i18n="sec_title">Vault Security</h3>
+        <button id="closeSecurityModalBtn" class="btn-icon-sm">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="sec-status ok hidden" id="secStatusEncrypted" data-i18n="sec_status_encrypted">🔒 Encrypted with AES-256-GCM (master password set)</p>
+        <p class="sec-status warn" id="secStatusPlain" data-i18n="sec_status_plain">⚠️ Not encrypted — data is stored in plain text</p>
+
+        <div id="secSetupSection">
+          <div class="input-field-group">
+            <label data-i18n="sec_new_pw">New master password</label>
+            <input type="password" id="secNewPassword" class="glass-input font-mono" placeholder="Min 8 characters" autocomplete="new-password">
+          </div>
+          <div class="input-field-group">
+            <label data-i18n="sec_confirm_pw">Confirm new password</label>
+            <input type="password" id="secConfirmPassword" class="glass-input font-mono" placeholder="Repeat password" autocomplete="new-password">
+          </div>
+          <button id="secSetPasswordBtn" class="btn-primary-gradient full-width" data-i18n="sec_set_btn">Set Master Password &amp; Encrypt</button>
+        </div>
+
+        <div id="secManageSection" class="hidden">
+          <div class="input-field-group">
+            <label data-i18n="sec_current_pw">Current master password</label>
+            <input type="password" id="secCurrentPassword" class="glass-input font-mono" placeholder="Current password" autocomplete="current-password">
+          </div>
+          <div class="input-field-group">
+            <label data-i18n="sec_new_pw">New master password</label>
+            <input type="password" id="secNewPassword2" class="glass-input font-mono" placeholder="Min 8 characters" autocomplete="new-password">
+          </div>
+          <div class="input-field-group">
+            <label data-i18n="sec_confirm_pw">Confirm new password</label>
+            <input type="password" id="secConfirmPassword2" class="glass-input font-mono" placeholder="Repeat password" autocomplete="new-password">
+          </div>
+          <div class="two-col-inputs">
+            <button id="secChangePasswordBtn" class="btn-primary-gradient" data-i18n="sec_change_btn">Change Password</button>
+            <button id="secRemovePasswordBtn" class="btn-danger-ghost" data-i18n="sec_remove_btn">Remove Encryption</button>
+          </div>
+          <button id="secLockNowBtn" class="btn-glass full-width" style="margin-top:10px" data-i18n="sec_lock_btn">Lock Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Quick Add 2FA Modal -->
   <div id="modalBackdrop" class="modal-backdrop hidden">

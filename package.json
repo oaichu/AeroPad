@@ -4,9 +4,11 @@
   "description": "Decentralized Apple-Grade Notepad & RFC 6238 2FA TOTP Vault",
   "type": "module",
   "scripts": {
-    "build": "mkdir -p dist && cp index.html styles.css app.js aeropad-standalone.html dist/",
+    "build:standalone": "node scripts/build-standalone.mjs",
+    "build": "npm run build:standalone && mkdir -p dist && cp index.html styles.css app.js aeropad-standalone.html _headers dist/",
+    "sync:public": "cp index.html styles.css app.js aeropad-standalone.html public/",
     "test": "node --test tests/*.test.js",
-    "deploy": "npx wrangler deploy"
+    "deploy": "npm run build && npx wrangler deploy"
   },
   "keywords": [
     "2fa",

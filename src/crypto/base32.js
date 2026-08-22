@@ -18,7 +18,11 @@ export const Base32 = {
     for (let i = 0; i < length; i++) {
       const char = cleanInput[i];
       const val = this.alphabet.indexOf(char);
-      if (val === -1) continue;
+      if (val === -1) {
+        // Invalid character: reject the whole input. Silently skipping would
+        // produce a different key than the user intended (wrong codes forever).
+        return new Uint8Array(0).buffer;
+      }
 
       value = (value << 5) | val;
       bits += 5;
@@ -60,11 +64,8 @@ export const Base32 = {
     if (typeof globalThis.crypto !== 'undefined' && globalThis.crypto.getRandomValues) {
       globalThis.crypto.getRandomValues(bytes);
     } else {
-      // Node.js crypto fallback
-      import('node:crypto').then(c => c.randomFillSync(bytes));
-      for (let i = 0; i < length; i++) {
-        bytes[i] = Math.floor(Math.random() * 256);
-      }
+      // TOTP secrets must never come from Math.random — fail loudly instead.
+      throw new Error('No cryptographically secure RNG available in this environment');
     }
     for (let i = 0; i < length; i++) {
       result += this.alphabet[bytes[i] % this.alphabet.length];

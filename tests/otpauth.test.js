@@ -45,3 +45,20 @@ test('OTPAuth - Flags invalid or empty input as invalid', () => {
   const parsed2 = parseOTPAuthURI('http://invalid-url.com');
   assert.equal(parsed2.isValid, false);
 });
+
+test('OTPAuth - Preserves non-default digits, period and algorithm from URI', () => {
+  // Regression: a decoded account must keep its real parameters — the vault
+  // computes codes from them, defaults produce permanently wrong codes.
+  const input = 'otpauth://totp/Vault:user@web3.io?secret=JBSWY3DPEHPK3PXP&issuer=Vault&digits=8&period=60&algorithm=SHA256';
+  const parsed = parseOTPAuthURI(input);
+
+  assert.equal(parsed.isValid, true);
+  assert.equal(parsed.digits, 8);
+  assert.equal(parsed.period, 60);
+  assert.equal(parsed.algo, 'SHA256');
+});
+
+test('OTPAuth - Build includes algorithm parameter so QR imports match the generator selection', () => {
+  const uri = buildOTPAuthURI({ issuer: 'A', account: 'b@c.io', secret: 'JBSWY3DPEHPK3PXP', algo: 'SHA256' });
+  assert.ok(uri.includes('algorithm=SHA256'));
+});

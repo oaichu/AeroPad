@@ -38,57 +38,26 @@ test('TOTP - Calculates remaining epoch countdown correctly', () => {
   assert.equal(res2.percent, 100);
 });
 
-test('TOTP - Gracefully handles malformed secret or empty input', async () => {
-  const otp = await generateTOTP('', { digits: 6 });
-  assert.equal(otp, '000000');
+test('TOTP - Returns null on malformed secret instead of a fake "000000" code', async () => {
+  // A fake all-zeros code looks valid to users and gets typed into real services.
+  const empty = await generateTOTP('', { digits: 6 });
+  assert.equal(empty, null);
+
+  const garbage = await generateTOTP('0000000000000000', { digits: 6 });
+  assert.equal(garbage, null);
 });
 
-test('2FA Account - Preserves optional password field correctly', () => {
-  const accountWithPass = {
-    id: 'totp-12345',
-    issuer: 'ChatGPT OpenAI',
-    account: 'user@openai.com',
-    secret: 'JBSWY3DPEHPK3PXP',
-    password: 'MySecretPassword123!@#',
-    digits: 6,
-    period: 30
-  };
-
-  const accountWithoutPass = {
-    id: 'totp-67890',
-    issuer: 'Google',
-    account: 'user@gmail.com',
-    secret: 'JBSWY3DPEHPK3PXP',
-    password: '',
-    digits: 6,
-    period: 30
-  };
-
-  assert.equal(accountWithPass.password, 'MySecretPassword123!@#');
-  assert.equal(accountWithoutPass.password, '');
-  assert.equal(Boolean(accountWithPass.password && accountWithPass.password.length > 0), true);
-  assert.equal(Boolean(accountWithoutPass.password && accountWithoutPass.password.length > 0), false);
+test('TOTP - RFC 6238 vectors pass for SHA-256 accounts too', async () => {
+  // Secret "12345678901234567890123456789012" Base32, official SHA-256 vector at t=59
+  const secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQGEZA';
+  const otp = await generateTOTP(secret, { timestamp: 59, period: 30, digits: 8, algo: 'SHA-256' });
+  assert.equal(otp, '46119246');
 });
 
-test('2FA Account - Validates required fields (issuer, account, secret)', () => {
-  function validate2FAAccount(fields) {
-    const issuer = (fields.issuer || '').trim();
-    const account = (fields.account || '').trim();
-    const secret = (fields.secret || '').trim().toUpperCase().replace(/\s+/g, '');
-    if (!issuer || !account || !secret) {
-      return { valid: false, error: 'MISSING_REQUIRED_FIELDS' };
-    }
-    return { valid: true, item: { issuer, account, secret, password: (fields.password || '').trim() } };
+test('TOTP - calculateRemainingTime never reports 0 remaining seconds', () => {
+  // At the exact boundary a NEW window starts, so remaining is a full period
+  for (let ts = 0; ts < 130; ts++) {
+    const { remainingSeconds } = calculateRemainingTime(ts, 30);
+    assert.ok(remainingSeconds >= 1 && remainingSeconds <= 30, `t=${ts} -> ${remainingSeconds}`);
   }
-
-  // Missing secret
-  assert.equal(validate2FAAccount({ issuer: 'Google', account: 'test@gmail.com', secret: '' }).valid, false);
-  // Missing issuer
-  assert.equal(validate2FAAccount({ issuer: '', account: 'test@gmail.com', secret: 'JBSWY3DPEHPK3PXP' }).valid, false);
-  // Missing account
-  assert.equal(validate2FAAccount({ issuer: 'Google', account: '', secret: 'JBSWY3DPEHPK3PXP' }).valid, false);
-  // Valid mandatory with optional password
-  const validRes = validate2FAAccount({ issuer: 'Google', account: 'test@gmail.com', secret: 'JBSWY3DPEHPK3PXP', password: 'optional-pass' });
-  assert.equal(validRes.valid, true);
-  assert.equal(validRes.item.password, 'optional-pass');
 });
