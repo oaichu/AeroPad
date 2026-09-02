@@ -14,6 +14,6 @@
     { "matches": ["<all_urls>"], "js": ["src/content/detector.ts"], "run_at": "document_idle" }
   ],
   "options_page": "src/options/options.html",
-  "commands": { "fill-current": { "suggested_key": { "default": "Ctrl+Shift+F" } } },
+  "commands": { "fill-current": { "description": "Fill 2FA code on the current page", "suggested_key": { "default": "Ctrl+Shift+F" } } },
   "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'self'" }
 }
