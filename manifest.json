@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "AeroPad",
+  "version": "0.1.0",
+  "description": "Local-first 2FA & encrypted notes for every website.",
+  "permissions": ["storage", "scripting", "activeTab", "commands", "offscreen"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "src/background/service-worker.ts", "type": "module" },
+  "action": {
+    "default_popup": "src/popup/index.html",
+    "default_title": "AeroPad"
+  },
+  "content_scripts": [
+    { "matches": ["<all_urls>"], "js": ["src/content/detector.ts"], "run_at": "document_idle" }
+  ],
+  "options_page": "src/options/options.html",
+  "commands": { "fill-current": { "suggested_key": { "default": "Ctrl+Shift+F" } } },
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'self'" }
+}
