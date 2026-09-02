@@ -15,6 +15,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'happy-dom',
+    // Playwright owns the e2e directory; vitest must skip it.
+    exclude: ['node_modules', 'dist', 'test/e2e/**'],
     coverage: { reporter: ['text', 'html'], thresholds: { lines: 80, branches: 80, functions: 80 } },
   },
 });

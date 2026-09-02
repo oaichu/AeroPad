@@ -5,3 +5,6 @@ coverage/
 *.log
 .DS_Store
 .superpowers/
+.tmp-userdata/
+test-results/
+playwright-report/
