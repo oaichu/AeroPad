@@ -1,0 +1,17 @@
+{
+  "app.unlock": "Unlock AeroPad",
+  "app.create": "Create vault",
+  "app.lock": "Lock now",
+  "unlock.placeholder": "Master password",
+  "unlock.wrong": "Wrong password",
+  "codes.empty": "No accounts yet. Click + to add one.",
+  "codes.add": "Add account",
+  "notes.empty": "No notes yet.",
+  "notes.add": "New note",
+  "settings.title": "Settings",
+  "settings.language": "Language",
+  "settings.export": "Export .aeropad",
+  "settings.import": "Import .aeropad",
+  "settings.changePassword": "Change master password",
+  "settings.openOptions": "Open full settings"
+}
