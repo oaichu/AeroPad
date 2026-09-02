@@ -7,6 +7,7 @@ import { KDF_ITERATIONS, deriveKey, encrypt, decrypt, randomBytes, bytesToBase64
 import { getVaultBlob, setVaultBlob, getVaultMeta, setVaultMeta, getDeviceList, setDeviceList, getSessionLock, setSessionLock } from '../lib/storage.js';
 import { currentCode } from '../lib/totp.js';
 import { matchEntryForDomain } from '../lib/domain-match.js';
+import { exportVault, importVault } from '../lib/aeropad-format.js';
 
 interface State {
   key: CryptoKey | null;
@@ -31,9 +32,13 @@ async function loadAndDecrypt(password: string): Promise<Vault> {
   return JSON.parse(new TextDecoder().decode(plaintext));
 }
 
-async function encryptAndPersist(): Promise<void> {
+async function encryptAndPersist(opts: { salt?: Uint8Array } = {}): Promise<void> {
   if (!state.key || !state.vault) throw new Error('Locked');
-  const salt = randomBytes(16);
+  // Reuse the existing salt so the in-memory key remains consistent with
+  // the stored blob. The caller may pass `salt` to rotate it (used by
+  // changeMasterPassword so the new key + new salt stay in sync).
+  const existing = await getVaultBlob();
+  const salt = opts.salt ?? (existing ? base64UrlToBytes(existing.salt) : randomBytes(16));
   const { iv, ciphertext } = await encrypt(new TextEncoder().encode(JSON.stringify(state.vault)), state.key);
   await setVaultBlob({ v: 1, salt: bytesToBase64Url(salt), iv: bytesToBase64Url(iv), ciphertext: bytesToBase64Url(ciphertext) });
   const meta = await getVaultMeta();
@@ -161,6 +166,62 @@ export async function handleMessage(msg: Request): Promise<Response> {
         if (!state.vault) return { ok: false, error: 'locked' };
         state.vault.notes = state.vault.notes.filter((n: Note) => n.id !== msg.id);
         await encryptAndPersist();
+        return { ok: true };
+      }
+      case 'exportAeropad': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        return { ok: true, data: await exportVault(state.vault, msg.password ?? 'export') };
+      }
+      case 'importAeropad': {
+        let incoming: Vault;
+        try {
+          incoming = await importVault(msg.json, msg.password);
+        } catch (e) {
+          return { ok: false, error: e instanceof Error ? e.message : 'import_failed' };
+        }
+        if (msg.strategy === 'replace') {
+          // 'replace' is valid even when locked: treat as a fresh vault
+          // initialized from the imported data. Re-derive the in-memory
+          // key from the import password + a brand new salt.
+          const newSalt = randomBytes(16);
+          state.key = await deriveKey(msg.password, newSalt, KDF_ITERATIONS);
+          state.vault = incoming;
+          await encryptAndPersist({ salt: newSalt });
+        } else {
+          if (!state.vault) return { ok: false, error: 'locked' };
+          const ids = new Set(state.vault.codes.map((c) => c.id));
+          state.vault.codes.push(...incoming.codes.filter((c) => !ids.has(c.id)));
+          const nIds = new Set(state.vault.notes.map((n) => n.id));
+          state.vault.notes.push(...incoming.notes.filter((n) => !nIds.has(n.id)));
+          await encryptAndPersist();
+        }
+        scheduleAutoLock();
+        return { ok: true };
+      }
+      case 'changeMasterPassword': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        // Ruling 2: verify the old password by attempting to decrypt the
+        // vault with a key re-derived from the old password + current salt.
+        const blob = await getVaultBlob();
+        if (!blob) return { ok: false, error: 'no_vault' };
+        try {
+          const oldKey = await deriveKey(msg.oldPassword, base64UrlToBytes(blob.salt));
+          await decrypt(base64UrlToBytes(blob.ciphertext), base64UrlToBytes(blob.iv), oldKey);
+        } catch {
+          return { ok: false, error: 'wrong_password' };
+        }
+        // Verified; re-derive with new password and rotate the salt together.
+        const newSalt = randomBytes(16);
+        state.key = await deriveKey(msg.newPassword, newSalt, KDF_ITERATIONS);
+        await encryptAndPersist({ salt: newSalt });
+        return { ok: true };
+      }
+      case 'fillOnTab': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        const c = state.vault.codes.find((x) => x.id === msg.entryId);
+        if (!c) return { ok: false, error: 'not_found' };
+        const code = await currentCode(c);
+        await chrome.tabs.sendMessage(msg.tabId, { kind: 'fill_command', code });
         return { ok: true };
       }
       default:
