@@ -1,5 +1,7 @@
 // src/background/service-worker.ts
 import type { Vault } from '../types/index.js';
+import { isCodeEntry } from '../types/index.js';
+import type { CodeEntry, Note } from '../types/index.js';
 import type { Request, Response, FillRequestFromContent } from '../lib/messages.js';
 import { KDF_ITERATIONS, deriveKey, encrypt, decrypt, randomBytes, bytesToBase64Url, base64UrlToBytes } from '../lib/crypto.js';
 import { getVaultBlob, setVaultBlob, getVaultMeta, setVaultMeta, getDeviceList, setDeviceList, getSessionLock, setSessionLock } from '../lib/storage.js';
@@ -101,6 +103,66 @@ export async function handleMessage(msg: Request): Promise<Response> {
         return { ok: true };
       case 'isUnlocked':
         return { ok: true, data: state.vault !== null };
+      case 'addEntry': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        const entry: CodeEntry = { ...msg.entry, id: crypto.randomUUID(), createdAt: Date.now() };
+        if (!isCodeEntry(entry)) return { ok: false, error: 'invalid_entry' };
+        state.vault.codes.push(entry);
+        await encryptAndPersist();
+        return { ok: true, data: entry };
+      }
+      case 'updateEntry': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        const i = state.vault.codes.findIndex((c) => c.id === msg.id);
+        if (i < 0) return { ok: false, error: 'not_found' };
+        const merged: CodeEntry = { ...state.vault.codes[i]!, ...msg.patch };
+        state.vault.codes[i] = merged;
+        await encryptAndPersist();
+        return { ok: true };
+      }
+      case 'deleteEntry': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        state.vault.codes = state.vault.codes.filter((c) => c.id !== msg.id);
+        await encryptAndPersist();
+        return { ok: true };
+      }
+      case 'reorderEntries': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        const map = new Map(state.vault.codes.map((c) => [c.id, c] as const));
+        state.vault.codes = msg.orderedIds
+          .map((id) => map.get(id))
+          .filter((c): c is CodeEntry => c !== undefined);
+        await encryptAndPersist();
+        return { ok: true };
+      }
+      case 'getCodes': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        return { ok: true, data: state.vault.codes };
+      }
+      case 'getCode': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        const c = state.vault.codes.find((x) => x.id === msg.id);
+        if (!c) return { ok: false, error: 'not_found' };
+        return { ok: true, data: { entry: c, code: await currentCode(c) } };
+      }
+      case 'getNotes': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        return { ok: true, data: state.vault.notes };
+      }
+      case 'saveNote': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        const i = state.vault.notes.findIndex((n) => n.id === msg.note.id);
+        if (i >= 0) state.vault.notes[i] = msg.note;
+        else state.vault.notes.push(msg.note);
+        await encryptAndPersist();
+        return { ok: true };
+      }
+      case 'deleteNote': {
+        if (!state.vault) return { ok: false, error: 'locked' };
+        state.vault.notes = state.vault.notes.filter((n: Note) => n.id !== msg.id);
+        await encryptAndPersist();
+        return { ok: true };
+      }
       default:
         return { ok: false, error: 'not_implemented_in_this_task' };
     }
