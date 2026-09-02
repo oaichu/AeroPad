@@ -15,9 +15,9 @@ function counter(t: number, period: number): Uint8Array {
   return new Uint8Array(b);
 }
 
-function hotp(secret: Uint8Array, counter: Uint8Array, algorithm: string, digits: number): string {
-  return crypto.subtle.importKey('raw', secret, { name: 'HMAC', hash: algorithm }, false, ['sign'])
-    .then((key) => crypto.subtle.sign('HMAC', key, counter))
+function hotp(secret: Uint8Array, counter: Uint8Array, algorithm: string, digits: number): Promise<string> {
+  return crypto.subtle.importKey('raw', secret as BufferSource, { name: 'HMAC', hash: algorithm }, false, ['sign'])
+    .then((key) => crypto.subtle.sign('HMAC', key, counter as BufferSource))
     .then((sig) => {
       const bytes = new Uint8Array(sig);
       const offset = bytes[bytes.length - 1]! & 0x0f;
