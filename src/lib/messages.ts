@@ -36,7 +36,22 @@ export type FillCommandToContent = {
   code: string;
 };
 
-export type Message = Request | FillRequestFromContent | FillCommandToContent;
+export type FillRequestMultipleToContent = {
+  kind: 'fill_request_multiple';
+  entries: Array<{ id: string; issuer: string; account: string }>;
+};
+
+export type FillRequestNoneToContent = {
+  kind: 'fill_request_none';
+  domain: string;
+};
+
+export type Message =
+  | Request
+  | FillRequestFromContent
+  | FillCommandToContent
+  | FillRequestMultipleToContent
+  | FillRequestNoneToContent;
 
 const VALID_KINDS: ReadonlySet<string> = new Set<string>([
   'createVault', 'unlock', 'lock', 'isUnlocked', 'getCodes', 'getCode',
@@ -44,6 +59,7 @@ const VALID_KINDS: ReadonlySet<string> = new Set<string>([
   'getNotes', 'saveNote', 'deleteNote',
   'exportAeropad', 'importAeropad', 'changeMasterPassword', 'fillOnTab',
   'fill_request', 'fill_command',
+  'fill_request_multiple', 'fill_request_none',
 ]);
 
 export function isMessage(x: unknown): x is Message {
