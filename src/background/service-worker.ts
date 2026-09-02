@@ -106,8 +106,12 @@ export async function handleMessage(msg: Request): Promise<Response> {
         state.key = null; state.vault = null;
         if (state.autoLockTimer) { clearTimeout(state.autoLockTimer); state.autoLockTimer = null; }
         return { ok: true };
-      case 'isUnlocked':
-        return { ok: true, data: state.vault !== null };
+      case 'isUnlocked': {
+        const blob = await getVaultBlob();
+        if (!blob) return { ok: true, data: 'no-vault' as const };
+        if (state.vault === null) return { ok: true, data: 'locked' as const };
+        return { ok: true, data: 'unlocked' as const };
+      }
       case 'addEntry': {
         if (!state.vault) return { ok: false, error: 'locked' };
         const entry: CodeEntry = { ...msg.entry, id: crypto.randomUUID(), createdAt: Date.now() };
