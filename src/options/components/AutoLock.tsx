@@ -7,24 +7,27 @@ export function AutoLock() {
   return (
     <section>
       <h2>Auto-lock</h2>
-      <input
-        type="number"
-        min={1}
-        max={1440}
-        value={m}
-        onInput={(e) => setM(Number((e.target as HTMLInputElement).value))}
-      />
-      minutes
-      <button
-        style="margin-left:8px"
-        onClick={async () => {
-          await setSessionLock({ lastUnlockedAt: Date.now(), autoLockMinutes: m });
-          setMsg('Saved.');
-        }}
-      >
-        Save
-      </button>
-      {msg && <p>{msg}</p>}
+      <p class="muted">Lock the vault automatically after this many minutes of inactivity.</p>
+      <div class="row">
+        <input
+          type="number"
+          min={1}
+          max={1440}
+          value={m}
+          onInput={(e) => setM(Number((e.target as HTMLInputElement).value))}
+        />
+        <span class="muted">minutes</span>
+      </div>
+      <div class="actions-row">
+        <button
+          onClick={async () => {
+            await setSessionLock({ lastUnlockedAt: Date.now(), autoLockMinutes: m });
+            setMsg('Saved.');
+            setTimeout(() => setMsg(''), 2000);
+          }}
+        >Save</button>
+        {msg && <span class="muted" style="align-self:center">{msg}</span>}
+      </div>
     </section>
   );
 }

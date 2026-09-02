@@ -1,7 +1,18 @@
 import { useEffect, useState } from 'preact/hooks';
 import { loadLocale, t, type LocaleName } from '../../lib/i18n.js';
 
-const LANGS: LocaleName[] = ['en', 'vi', 'zh', 'ko', 'ja', 'es', 'id', 'ar', 'hi', 'pt'];
+const LANGS: { code: LocaleName; name: string }[] = [
+  { code: 'en', name: 'English' },
+  { code: 'vi', name: 'Tiếng Việt' },
+  { code: 'zh', name: '中文' },
+  { code: 'ko', name: '한국어' },
+  { code: 'ja', name: '日本語' },
+  { code: 'es', name: 'Español' },
+  { code: 'id', name: 'Bahasa Indonesia' },
+  { code: 'ar', name: 'العربية' },
+  { code: 'hi', name: 'हिन्दी' },
+  { code: 'pt', name: 'Português' },
+];
 
 export function Language() {
   const [dict, setDict] = useState<Record<string, string>>({});
@@ -14,15 +25,22 @@ export function Language() {
   return (
     <section>
       <h2>Language</h2>
-      <select
-        value={cur}
-        onChange={(e) => setCur((e.target as HTMLSelectElement).value as LocaleName)}
-      >
-        {LANGS.map((l) => (
-          <option key={l} value={l}>{l}</option>
-        ))}
-      </select>
-      <p style="margin-top:8px">{t(dict, 'app.unlock')}</p>
+      <div class="row">
+        <select
+          value={cur}
+          onChange={(e) => {
+            const v = (e.target as HTMLSelectElement).value as LocaleName;
+            setCur(v);
+            if (v === 'ar') document.documentElement.setAttribute('dir', 'rtl');
+            else document.documentElement.setAttribute('dir', 'ltr');
+          }}
+        >
+          {LANGS.map((l) => (
+            <option key={l.code} value={l.code}>{l.name}</option>
+          ))}
+        </select>
+      </div>
+      <p class="muted" style="margin-top:8px">Preview: {t(dict, 'app.unlock')}</p>
     </section>
   );
 }

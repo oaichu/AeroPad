@@ -5,7 +5,7 @@ import { currentCode, remainingSeconds } from '../../lib/totp.js';
 interface Props { entry: CodeEntry; onCopy?: (code: string) => void; }
 
 export function CodeItem({ entry, onCopy }: Props) {
-  const [code, setCode] = useState('······');
+  const [code, setCode] = useState('••••••');
   const [remain, setRemain] = useState(entry.period);
 
   useEffect(() => {
@@ -20,13 +20,23 @@ export function CodeItem({ entry, onCopy }: Props) {
     return () => { cancelled = true; clearInterval(id); };
   }, [entry]);
 
+  const pct = remain / entry.period;
+  const expired = remain <= 1;
+
   return (
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--muted)">
-      <div><strong>{entry.issuer}</strong> <span class="muted">{entry.account}</span></div>
-      <div style="text-align:right">
-        <div style="font-family:monospace;font-size:18px" onClick={() => onCopy?.(code)}>{code}</div>
-        <div class="muted" style="font-size:11px">{remain}s</div>
+    <div
+      class={`code-row${expired ? ' expired' : ''}`}
+      onClick={() => onCopy?.(code)}
+      title="Click to copy"
+    >
+      <div class="who">
+        <strong>{entry.issuer || '(unnamed)'}</strong>
+        {entry.account && <span class="acct">{entry.account}</span>}
       </div>
+      <div class="ring" style={`--pct:${pct}`}>
+        <span class="secs">{remain}</span>
+      </div>
+      <div class="code">{code}</div>
     </div>
   );
 }

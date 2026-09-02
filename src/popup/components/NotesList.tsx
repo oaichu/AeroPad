@@ -3,18 +3,26 @@ import type { Note } from '../../types/index.js';
 interface Props { notes: Note[]; onSelect: (id: string) => void; selectedId: string | null; }
 
 export function NotesList({ notes, onSelect, selectedId }: Props) {
-  if (notes.length === 0) return <p class="muted">No notes yet.</p>;
+  if (notes.length === 0) {
+    return (
+      <div class="empty">
+        <div class="ico">📝</div>
+        <strong>No notes yet</strong>
+        <span>Click <b>+ New</b> to add one.</span>
+      </div>
+    );
+  }
   return (
-    <ul style="list-style:none;padding:0;margin:0">
+    <div class="notes-list">
       {notes.map((n) => (
-        <li
+        <div
           key={n.id}
+          class={`notes-list-item${selectedId === n.id ? ' active' : ''}`}
           onClick={() => onSelect(n.id)}
-          style={`padding:6px 8px;cursor:pointer;${selectedId === n.id ? 'background:var(--accent);color:white' : ''}`}
         >
           {n.title || '(untitled)'}
-        </li>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }
