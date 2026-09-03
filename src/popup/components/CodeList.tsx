@@ -1,25 +1,49 @@
 import type { CodeEntry } from '../../types/index.js';
 import { CodeItem } from './CodeItem.js';
+import { ShieldIcon, SearchIcon } from './Icons.js';
 
-interface Props { entries: CodeEntry[]; }
+interface Props {
+  entries: CodeEntry[];
+  searchQuery?: string | undefined;
+  onEdit?: ((entry: CodeEntry) => void) | undefined;
+  onDelete?: ((id: string) => void) | undefined;
+  onCopy?: ((code: string) => void) | undefined;
+}
 
-export function CodeList({ entries }: Props) {
+export function CodeList({ entries, searchQuery = '', onEdit, onDelete, onCopy }: Props) {
   if (entries.length === 0) {
+    if (searchQuery.trim()) {
+      return (
+        <div class="empty-box">
+          <div class="empty-icon">
+            <SearchIcon size={20} />
+          </div>
+          <strong style="color:var(--fg)">No matching accounts</strong>
+          <span class="muted">No accounts matched "{searchQuery}"</span>
+        </div>
+      );
+    }
+
     return (
-      <div class="empty">
-        <div class="ico">🔐</div>
-        <strong>No accounts yet</strong>
-        <span>Click <b>+ Add</b> to add your first TOTP account.</span>
+      <div class="empty-box">
+        <div class="empty-icon">
+          <ShieldIcon size={22} />
+        </div>
+        <strong style="color:var(--fg)">No accounts yet</strong>
+        <span class="muted">Click <b>+ Add account</b> to protect your logins with 2FA.</span>
       </div>
     );
   }
+
   return (
-    <div>
+    <div class="code-list-container">
       {entries.map((e) => (
         <CodeItem
           key={e.id}
           entry={e}
-          onCopy={(c) => navigator.clipboard.writeText(c).catch(() => { /* clipboard may be denied */ })}
+          onCopy={onCopy}
+          onEdit={onEdit}
+          onDelete={onDelete}
         />
       ))}
     </div>

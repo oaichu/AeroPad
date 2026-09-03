@@ -8,3 +8,7 @@ coverage/
 .tmp-userdata/
 test-results/
 playwright-report/
+.shots-edge/
+.tmp-*
+.shots/
+*.zip

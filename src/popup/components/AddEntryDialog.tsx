@@ -1,7 +1,16 @@
 import { useState } from 'preact/hooks';
 import type { Response } from '../../lib/messages.js';
+import { parseOtpauthUri } from '../../lib/totp.js';
+import { CloseIcon, KeyIcon } from './Icons.js';
 
-type Entry = { issuer: string; account: string; secret: string; algorithm: 'SHA1' | 'SHA256' | 'SHA512'; digits: 6 | 8; period: number; };
+type Entry = {
+  issuer: string;
+  account: string;
+  secret: string;
+  algorithm: 'SHA1' | 'SHA256' | 'SHA512';
+  digits: 6 | 8;
+  period: number;
+};
 
 interface Props {
   onAdd: (entry: Entry) => Promise<Response>;
@@ -9,70 +18,138 @@ interface Props {
 }
 
 export function AddEntryDialog({ onAdd, onClose }: Props) {
+  const [uriInput, setUriInput] = useState('');
   const [issuer, setIssuer] = useState('');
   const [account, setAccount] = useState('');
   const [secret, setSecret] = useState('');
   const [digits, setDigits] = useState<6 | 8>(6);
   const [period, setPeriod] = useState(30);
+  const [algo, setAlgo] = useState<'SHA1' | 'SHA256' | 'SHA512'>('SHA1');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const canSubmit = issuer.trim().length > 0 && /^[A-Z2-7]+=*$/.test(secret.replace(/\s/g, '').toUpperCase());
+  const cleanSecret = secret.replace(/\s/g, '').toUpperCase();
+  const isValidSecret = /^[A-Z2-7]+=*$/.test(cleanSecret);
+  const canSubmit = issuer.trim().length > 0 && isValidSecret;
+
+  const handleUriChange = (val: string) => {
+    setUriInput(val);
+    const parsed = parseOtpauthUri(val);
+    if (parsed) {
+      setIssuer(parsed.issuer);
+      setAccount(parsed.account);
+      setSecret(parsed.secret);
+      setDigits(parsed.digits);
+      setPeriod(parsed.period);
+      setAlgo(parsed.algorithm);
+      setErr(null);
+    }
+  };
 
   return (
-    <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10;padding:12px">
-      <div style="background:var(--bg);color:var(--fg);padding:16px;border-radius:8px;width:320px;max-width:100%;box-shadow:0 4px 12px rgba(0,0,0,0.15)">
-        <h3 style="margin-top:0">Add account</h3>
-        <label>Issuer (e.g. GitHub)</label>
+    <div class="modal-overlay" onClick={onClose}>
+      <div class="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div class="modal-header">
+          <h3 style="display:flex;align-items:center;gap:6px">
+            <KeyIcon size={16} />
+            Add 2FA Account
+          </h3>
+          <button class="ghost icon-btn" onClick={onClose} aria-label="Close">
+            <CloseIcon size={16} />
+          </button>
+        </div>
+
+        <label>
+          Paste otpauth:// URL (Optional)
+        </label>
         <input
-          autoFocus
+          value={uriInput}
+          onInput={(e) => handleUriChange((e.target as HTMLInputElement).value)}
+          placeholder="otpauth://totp/Service:user?secret=..."
+          style="font-size:11px"
+        />
+
+        <label>Issuer *</label>
+        <input
+          autoFocus={!uriInput}
           value={issuer}
           onInput={(e) => setIssuer((e.target as HTMLInputElement).value)}
-          placeholder="GitHub"
+          placeholder="GitHub, Google, AWS..."
         />
-        <label>Account (optional)</label>
+
+        <label>Account username or email</label>
         <input
           value={account}
           onInput={(e) => setAccount((e.target as HTMLInputElement).value)}
           placeholder="me@example.com"
         />
-        <label>Base32 secret</label>
+
+        <label>
+          Base32 Secret Key *
+          {secret.length > 0 && !isValidSecret && (
+            <span class="error" style="font-size:10px">Invalid Base32</span>
+          )}
+        </label>
         <input
           value={secret}
-          onInput={(e) => setSecret((e.target as HTMLInputElement).value.toUpperCase())}
+          onInput={(e) => {
+            const v = (e.target as HTMLInputElement).value;
+            if (v.trim().startsWith('otpauth://')) {
+              handleUriChange(v);
+            } else {
+              setSecret(v.toUpperCase());
+            }
+          }}
           placeholder="JBSWY3DPEHPK3PXP"
+          style="font-family:var(--font-mono);font-size:12px;letter-spacing:0.04em"
         />
-        <div class="row" style="margin-top:8px">
-          <label style="display:flex;align-items:center;gap:4px;margin:0">
-            <input type="radio" name="d" checked={digits === 6} onChange={() => setDigits(6)} style="width:auto" />6 digits
-          </label>
-          <label style="display:flex;align-items:center;gap:4px;margin:0">
-            <input type="radio" name="d" checked={digits === 8} onChange={() => setDigits(8)} style="width:auto" />8 digits
-          </label>
-          <span class="muted" style="margin-left:auto">Period</span>
-          <input
-            type="number"
-            min={15} max={120} step={5}
-            value={period}
-            onInput={(e) => setPeriod(Number((e.target as HTMLInputElement).value) || 30)}
-            style="width:64px"
-          />
-          <span class="muted">s</span>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <label style="display:flex;align-items:center;gap:5px;margin:0;cursor:pointer">
+              <input type="radio" name="d" checked={digits === 6} onChange={() => setDigits(6)} style="width:auto;margin:0" />
+              6 digits
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;margin:0;cursor:pointer">
+              <input type="radio" name="d" checked={digits === 8} onChange={() => setDigits(8)} style="width:auto;margin:0" />
+              8 digits
+            </label>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <span class="muted" style="font-size:11px">Period</span>
+            <input
+              type="number"
+              min={15} max={120} step={5}
+              value={period}
+              onInput={(e) => setPeriod(Number((e.target as HTMLInputElement).value) || 30)}
+              style="width:54px;padding:4px 6px;text-align:center"
+            />
+            <span class="muted" style="font-size:11px">s</span>
+          </div>
         </div>
+
         {err && <p class="error">{err}</p>}
-        <div class="actions-row" style="justify-content:flex-end">
+
+        <div class="modal-footer">
           <button class="secondary" onClick={onClose}>Cancel</button>
           <button
             disabled={!canSubmit || busy}
             onClick={async () => {
               setBusy(true); setErr(null);
-              const r = await onAdd({ issuer, account, secret: secret.replace(/\s/g, '').toUpperCase(), algorithm: 'SHA1', digits, period });
+              const r = await onAdd({
+                issuer: issuer.trim(),
+                account: account.trim(),
+                secret: cleanSecret,
+                algorithm: algo,
+                digits,
+                period,
+              });
               setBusy(false);
               if (!r.ok) setErr(r.error);
               else onClose();
             }}
           >
-            Add
+            {busy ? 'Adding…' : 'Add account'}
           </button>
         </div>
       </div>

@@ -4,34 +4,58 @@ import { ChangePassword } from './components/ChangePassword.js';
 import { Language } from './components/Language.js';
 import { AutoLock } from './components/AutoLock.js';
 import { sendMessage } from '../lib/send-message.js';
+import { ShieldIcon, LockIcon } from '../popup/components/Icons.js';
 
 export function App() {
   const [busy, setBusy] = useState(false);
+
   return (
-    <div style="max-width:680px;margin:0 auto;padding:24px 20px 80px">
-      <div class="header" style="margin-bottom:8px">
-        <h1>⚙ AeroPad Settings</h1>
-      </div>
-      <p class="muted" style="margin-bottom:8px">Manage your vault, language, and security.</p>
-      <ImportExport />
-      <ChangePassword />
-      <Language />
-      <AutoLock />
-      <section>
-        <h2>Lock</h2>
-        <p class="muted">Lock the vault now. You'll need to enter your master password to unlock it again.</p>
-        <div class="actions-row">
-          <button
-            class="secondary"
-            disabled={busy}
-            onClick={async () => {
-              setBusy(true);
-              await sendMessage({ kind: 'lock' });
-              location.reload();
-            }}
-          >Lock now</button>
+    <div class="settings-wrapper">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <div class="brand-icon" style="width:38px;height:38px">
+          <ShieldIcon size={20} />
         </div>
-      </section>
+        <div>
+          <h1 style="font-size:20px;margin:0">AeroPad Settings</h1>
+          <p class="muted" style="margin:2px 0 0">Local-first encrypted vault & 2FA authenticator configuration</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <ImportExport />
+          <AutoLock />
+          <Language />
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <ChangePassword />
+          <div class="settings-card" style="border-color:rgba(239,68,68,0.25)">
+            <div class="settings-card-header">
+              <h2 style="color:var(--danger)">
+                <LockIcon size={16} />
+                Lock Vault
+              </h2>
+            </div>
+            <p class="muted">
+              Immediately lock the vault in memory. You will need your master password to unlock and decrypt your credentials.
+            </p>
+            <div class="actions-row">
+              <button
+                class="danger"
+                disabled={busy}
+                onClick={async () => {
+                  setBusy(true);
+                  await sendMessage({ kind: 'lock' });
+                  location.reload();
+                }}
+              >
+                {busy ? 'Locking…' : 'Lock now'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

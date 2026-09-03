@@ -81,6 +81,7 @@ const MOCK_INIT = `
     addEntry: (m) => { if (!state.vault) return { ok: false, error: 'locked' }; const e = Object.assign({}, m.entry, { id: Math.random().toString(36).slice(2), createdAt: Date.now() }); state.vault.codes.push(e); return { ok: true, data: e }; },
     saveNote: (m) => { if (!state.vault) return { ok: false, error: 'locked' }; const i = state.vault.notes.findIndex((x) => x.id === m.note.id); if (i >= 0) state.vault.notes[i] = m.note; else state.vault.notes.push(m.note); return { ok: true }; },
     deleteEntry: (m) => { if (!state.vault) return { ok: false, error: 'locked' }; state.vault.codes = state.vault.codes.filter((c) => c.id !== m.id); return { ok: true }; },
+    updateEntry: (m) => { if (!state.vault) return { ok: false, error: 'locked' }; const i = state.vault.codes.findIndex((c) => c.id === m.id); if (i >= 0) Object.assign(state.vault.codes[i], m.patch); return { ok: true }; },
     deleteNote: (m) => { if (!state.vault) return { ok: false, error: 'locked' }; state.vault.notes = state.vault.notes.filter((n) => n.id !== m.id); return { ok: true }; },
   };
 

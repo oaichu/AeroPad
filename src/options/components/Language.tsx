@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { loadLocale, t, type LocaleName } from '../../lib/i18n.js';
+import { SettingsIcon } from '../../popup/components/Icons.js';
 
 const LANGS: { code: LocaleName; name: string }[] = [
   { code: 'en', name: 'English' },
@@ -17,15 +18,24 @@ const LANGS: { code: LocaleName; name: string }[] = [
 export function Language() {
   const [dict, setDict] = useState<Record<string, string>>({});
   const [cur, setCur] = useState<LocaleName>('en');
+
   useEffect(() => {
     let cancelled = false;
     loadLocale(cur).then((d) => { if (!cancelled) setDict(d); });
     return () => { cancelled = true; };
   }, [cur]);
+
   return (
-    <section>
-      <h2>Language</h2>
-      <div class="row">
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <h2>
+          <SettingsIcon size={16} />
+          Display Language
+        </h2>
+      </div>
+      <p class="muted">Select your preferred interface language for AeroPad.</p>
+
+      <div class="settings-row" style="max-width:320px;margin-top:12px">
         <select
           value={cur}
           onChange={(e) => {
@@ -40,7 +50,12 @@ export function Language() {
           ))}
         </select>
       </div>
-      <p class="muted" style="margin-top:8px">Preview: {t(dict, 'app.unlock')}</p>
-    </section>
+
+      <div style="margin-top:10px;padding:8px 12px;border-radius:var(--radius-sm);background:var(--hover);border:1px solid var(--border);display:inline-block">
+        <span class="muted" style="font-size:12px">
+          Preview: <strong style="color:var(--fg)">{t(dict, 'app.unlock')}</strong>
+        </span>
+      </div>
+    </div>
   );
 }

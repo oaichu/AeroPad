@@ -1,13 +1,22 @@
 import { useState } from 'preact/hooks';
 import { sendMessage } from '../../lib/send-message.js';
+import { ShieldIcon } from '../../popup/components/Icons.js';
 
 export function ImportExport() {
   const [msg, setMsg] = useState<{ text: string; kind: 'success' | 'error' } | null>(null);
+
   return (
-    <section>
-      <h2>Backup</h2>
-      <p class="muted">Export your encrypted vault to a <code>.aeropad</code> file. Import replaces the current vault.</p>
-      <div class="actions-row">
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <h2>
+          <ShieldIcon size={16} />
+          Vault Backup & Restore
+        </h2>
+      </div>
+      <p class="muted">
+        Export your encrypted vault to a portable <code>.aeropad</code> backup file. Importing will replace or merge with your current vault.
+      </p>
+      <div class="actions-row" style="margin-top:14px">
         <button
           onClick={async () => {
             const r = await sendMessage({ kind: 'exportAeropad' });
@@ -19,32 +28,40 @@ export function ImportExport() {
               a.download = `aeropad-${new Date().toISOString().slice(0, 10)}.aeropad`;
               a.click();
               URL.revokeObjectURL(url);
-              setMsg({ text: 'Exported.', kind: 'success' });
+              setMsg({ text: 'Backup exported successfully.', kind: 'success' });
             } else {
               setMsg({ text: `Export failed: ${r.ok ? 'no data' : r.error}`, kind: 'error' });
             }
-            setTimeout(() => setMsg(null), 2500);
+            setTimeout(() => setMsg(null), 3000);
           }}
-        >Export .aeropad</button>
-        <label class="secondary" style="display:inline-flex;align-items:center;padding:8px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer">
-          Import…
+        >
+          Export .aeropad
+        </button>
+
+        <label class="secondary" style="position:relative;display:inline-flex;align-items:center;padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-weight:500;font-size:13px;margin:0">
+          Import .aeropad…
           <input
             type="file"
             accept=".aeropad,application/json"
-            style="display:none"
+            class="visually-hidden-file"
             onChange={async (e) => {
               const file = (e.target as HTMLInputElement).files?.[0];
               if (!file) return;
               const json = await file.text();
               const pw = prompt('Password for this backup (empty if none):') ?? '';
               const r = await sendMessage({ kind: 'importAeropad', json, password: pw, strategy: 'replace' });
-              setMsg(r.ok ? { text: 'Imported.', kind: 'success' } : { text: `Failed: ${r.error}`, kind: 'error' });
-              setTimeout(() => setMsg(null), 2500);
+              setMsg(r.ok ? { text: 'Backup imported successfully.', kind: 'success' } : { text: `Failed: ${r.error}`, kind: 'error' });
+              setTimeout(() => setMsg(null), 3000);
             }}
           />
         </label>
       </div>
-      {msg && <p class={msg.kind === 'success' ? 'muted' : 'error'} style="margin-top:6px">{msg.text}</p>}
-    </section>
+
+      {msg && (
+        <p class={msg.kind === 'success' ? 'muted' : 'error'} style="margin-top:10px;font-weight:500">
+          {msg.text}
+        </p>
+      )}
+    </div>
   );
 }
