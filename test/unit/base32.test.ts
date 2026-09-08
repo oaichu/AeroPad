@@ -16,6 +16,11 @@ describe('base32Decode', () => {
     expect(Array.from(base32Decode('JBSWY3DPEHPK3PXP===='))).toEqual(Array.from(base32Decode('JBSWY3DPEHPK3PXP')));
   });
 
+  it('handles dashes and spaces cleanly', () => {
+    expect(Array.from(base32Decode('JBSW-Y3DP-EHPK-3PXP'))).toEqual(Array.from(base32Decode('JBSWY3DPEHPK3PXP')));
+    expect(Array.from(base32Decode('  jbsw-y3dp ehpk-3pxp  '))).toEqual(Array.from(base32Decode('JBSWY3DPEHPK3PXP')));
+  });
+
   it('throws on invalid character', () => {
     expect(() => base32Decode('JBSW!3DPEHPK3PXP')).toThrow();
   });

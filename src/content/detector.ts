@@ -51,10 +51,12 @@ function injectIcon(input: HTMLInputElement): void {
         fieldSelector: input.name || input.id,
         domain: location.hostname,
       });
-      if (resp && typeof resp === 'object' && 'kind' in resp) {
-        const kind = (resp as { kind: unknown }).kind;
-        if (kind === 'fill_command') {
-          const code = (resp as { code?: unknown }).code;
+      if (resp && typeof resp === 'object') {
+        const payload = ('data' in resp && resp.data && typeof resp.data === 'object')
+          ? resp.data
+          : resp;
+        if ('kind' in payload && payload.kind === 'fill_command') {
+          const code = (payload as { code?: unknown }).code;
           if (typeof code === 'string') {
             input.value = code;
             input.dispatchEvent(new Event('input', { bubbles: true }));

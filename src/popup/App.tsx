@@ -222,31 +222,43 @@ export function App() {
           />
         ) : (
           <div class="notes-container">
-            <NotesList
-              notes={filteredNotes}
-              searchQuery={searchQuery}
-              selectedId={selectedNote}
-              onSelect={setSelectedNote}
-              onDelete={handleDeleteNote}
-            />
-            {currentNote ? (
-              <NoteEditor
-                note={currentNote}
-                onChange={async (n) => {
-                  await sendMessage({ kind: 'saveNote', note: n });
-                  await refresh();
-                }}
+            {notes.length === 0 ? (
+              <NotesList
+                notes={filteredNotes}
+                searchQuery={searchQuery}
+                selectedId={selectedNote}
+                onSelect={setSelectedNote}
                 onDelete={handleDeleteNote}
               />
             ) : (
-              <div class="empty-box" style="flex:1">
-                <strong style="color:var(--fg);font-size:12px">
-                  {notes.length === 0 ? 'No notes yet' : 'Select a note'}
-                </strong>
-                <span class="muted" style="font-size:11px">
-                  {notes.length === 0 ? 'Click "+ New note" below' : 'Choose a note from the left sidebar to read or edit'}
-                </span>
-              </div>
+              <>
+                <NotesList
+                  notes={filteredNotes}
+                  searchQuery={searchQuery}
+                  selectedId={selectedNote}
+                  onSelect={setSelectedNote}
+                  onDelete={handleDeleteNote}
+                />
+                {currentNote ? (
+                  <NoteEditor
+                    note={currentNote}
+                    onChange={async (n) => {
+                      const r = await sendMessage({ kind: 'saveNote', note: n });
+                      if (r.ok) {
+                        await refresh();
+                      } else {
+                        showToast('Failed to save note');
+                      }
+                    }}
+                    onDelete={handleDeleteNote}
+                  />
+                ) : (
+                  <div class="empty-box" style="flex:1">
+                    <strong style="color:var(--fg);font-size:12px">Select a note</strong>
+                    <span class="muted" style="font-size:11px">Choose a note from the left sidebar to read or edit</span>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -255,19 +267,21 @@ export function App() {
       {/* Bottom Action Dock */}
       <div class="bottom-dock">
         <button
-          onClick={() => {
+          onClick={async () => {
             if (tab === 'codes') {
               setShowAdd(true);
               return;
             }
             const id = crypto.randomUUID();
-            void sendMessage({
-              kind: 'saveNote',
-              note: { id, title: '', body: '', updatedAt: Date.now() },
-            }).then(async () => {
+            const newNote: Note = { id, title: '', body: '', updatedAt: Date.now() };
+            const r = await sendMessage({ kind: 'saveNote', note: newNote });
+            if (r.ok) {
               await refresh();
               setSelectedNote(id);
-            });
+              showToast('Note created');
+            } else {
+              showToast('Failed to create note');
+            }
           }}
         >
           <PlusIcon size={15} />

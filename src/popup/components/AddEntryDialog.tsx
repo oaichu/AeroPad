@@ -28,9 +28,9 @@ export function AddEntryDialog({ onAdd, onClose }: Props) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const cleanSecret = secret.replace(/\s/g, '').toUpperCase();
+  const cleanSecret = secret.replace(/[\s-]+/g, '').toUpperCase();
   const isValidSecret = /^[A-Z2-7]+=*$/.test(cleanSecret);
-  const canSubmit = issuer.trim().length > 0 && isValidSecret;
+  const canSubmit = (issuer.trim().length > 0 || account.trim().length > 0) && isValidSecret;
 
   const handleUriChange = (val: string) => {
     setUriInput(val);
@@ -137,7 +137,7 @@ export function AddEntryDialog({ onAdd, onClose }: Props) {
             onClick={async () => {
               setBusy(true); setErr(null);
               const r = await onAdd({
-                issuer: issuer.trim(),
+                issuer: issuer.trim() || account.trim() || 'Custom 2FA',
                 account: account.trim(),
                 secret: cleanSecret,
                 algorithm: algo,

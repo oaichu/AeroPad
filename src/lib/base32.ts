@@ -2,7 +2,7 @@
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
 export function base32Decode(input: string): Uint8Array {
-  const cleaned = input.toUpperCase().replace(/=+$/g, '').replace(/\s+/g, '');
+  const cleaned = input.toUpperCase().replace(/=+$/g, '').replace(/[\s-]+/g, '');
   if (cleaned.length === 0) return new Uint8Array(0);
 
   const out: number[] = [];

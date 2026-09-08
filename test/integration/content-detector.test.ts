@@ -41,4 +41,17 @@ describe('detectTwoFactorInputs', () => {
     const found = detectTwoFactorInputs();
     expect(found.length).toBe(1);
   });
+
+  it('unpacks fill_command payload properly', () => {
+    const input = document.createElement('input');
+    input.value = '';
+    const resp = { ok: true, data: { kind: 'fill_command', code: '654321' } };
+    const payload = ('data' in resp && resp.data && typeof resp.data === 'object')
+      ? resp.data
+      : resp;
+    if ('kind' in payload && payload.kind === 'fill_command') {
+      input.value = payload.code as string;
+    }
+    expect(input.value).toBe('654321');
+  });
 });

@@ -2,9 +2,12 @@
 import type { CodeEntry, TotpAlgorithm } from '../types/index.js';
 import { base32Decode } from './base32.js';
 
-const ALGO_MAP: Record<TotpAlgorithm, string> = {
-  SHA1: 'SHA-1', SHA256: 'SHA-256', SHA512: 'SHA-512',
-};
+export function normalizeTotpAlgorithm(algo: string = 'SHA1'): { type: TotpAlgorithm; webCrypto: string } {
+  const clean = String(algo || '').toUpperCase().replace(/-/g, '');
+  if (clean === 'SHA256') return { type: 'SHA256', webCrypto: 'SHA-256' };
+  if (clean === 'SHA512') return { type: 'SHA512', webCrypto: 'SHA-512' };
+  return { type: 'SHA1', webCrypto: 'SHA-1' };
+}
 
 function counter(t: number, period: number): Uint8Array {
   const c = Math.floor(t / period);
@@ -32,10 +35,11 @@ function hotp(secret: Uint8Array, counter: Uint8Array, algorithm: string, digits
 
 export async function totp(
   secret: string,
-  opts: { algorithm: TotpAlgorithm; digits: 6 | 8; period: number; t: number },
+  opts: { algorithm: TotpAlgorithm | string; digits: 6 | 8; period: number; t: number },
 ): Promise<string> {
   const key = base32Decode(secret);
-  return hotp(key, counter(opts.t, opts.period), ALGO_MAP[opts.algorithm], opts.digits);
+  const norm = normalizeTotpAlgorithm(opts.algorithm);
+  return hotp(key, counter(opts.t, opts.period), norm.webCrypto, opts.digits);
 }
 
 export async function currentCode(entry: CodeEntry, now: number = Date.now()): Promise<string> {
@@ -63,7 +67,7 @@ export function parseOtpauthUri(uri: string): ParsedOtpauth | null {
     const trimmed = uri.trim();
     if (!trimmed.toLowerCase().startsWith('otpauth://totp/')) return null;
     const url = new URL(trimmed);
-    const secret = (url.searchParams.get('secret') || '').replace(/\s/g, '').toUpperCase();
+    const secret = (url.searchParams.get('secret') || '').replace(/[\s-]+/g, '').toUpperCase();
     if (!secret || !/^[A-Z2-7]+=*$/.test(secret)) return null;
 
     let issuer = (url.searchParams.get('issuer') || '').trim();
@@ -76,9 +80,15 @@ export function parseOtpauthUri(uri: string): ParsedOtpauth | null {
     } else {
       account = rawLabel.trim();
     }
+    if (!issuer && account) {
+      issuer = account;
+    }
+    if (!issuer) {
+      issuer = 'Custom 2FA';
+    }
 
-    const algoParam = (url.searchParams.get('algorithm') || 'SHA1').toUpperCase();
-    const algorithm: TotpAlgorithm = (algoParam === 'SHA256' || algoParam === 'SHA512') ? algoParam : 'SHA1';
+    const algoParam = url.searchParams.get('algorithm') || 'SHA1';
+    const algorithm = normalizeTotpAlgorithm(algoParam).type;
 
     const digitsParam = Number(url.searchParams.get('digits'));
     const digits: 6 | 8 = digitsParam === 8 ? 8 : 6;
