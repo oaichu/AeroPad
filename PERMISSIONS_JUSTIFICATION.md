@@ -12,9 +12,6 @@ This document provides explicit technical justification for each permission decl
 ## 3. `commands`
 - **Justification:** Required to register the global browser keyboard shortcut `fill-current` (`Ctrl+Shift+F`), enabling users to autofill the active 2FA code without opening the popup UI.
 
-## 4. `offscreen`
-- **Justification:** Required in Manifest V3 to perform secure Web Cryptography operations (PBKDF2 key derivation and AES-GCM decryption) and QR code image analysis in an isolated offscreen document without blocking the background service worker thread.
-
-## 5. `host_permissions: ["<all_urls>"]`
+## 4. `host_permissions: ["<all_urls>"]`
 - **Justification:** Two-factor authentication is implemented across thousands of disparate domains, enterprise portals, and internal intranet sites. In order to offer autofill matching for the domain currently being logged into, the extension needs to match authentication pages across arbitrary domains.
 - **Security Safeguards:** Content scripts only read domain origins (`window.location.origin`) to query the local matching vault entry, and never transmit or exfiltrate any page content.

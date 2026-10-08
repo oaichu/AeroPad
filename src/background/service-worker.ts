@@ -24,14 +24,6 @@ export function resetForTests(): void {
   state.autoLockTimer = null;
 }
 
-async function loadAndDecrypt(password: string): Promise<Vault> {
-  const blob = await getVaultBlob();
-  if (!blob) throw new Error('No vault');
-  const key = await deriveKey(password, base64UrlToBytes(blob.salt));
-  const plaintext = await decrypt(base64UrlToBytes(blob.ciphertext), base64UrlToBytes(blob.iv), key);
-  return JSON.parse(new TextDecoder().decode(plaintext));
-}
-
 async function encryptAndPersist(opts: { salt?: Uint8Array } = {}): Promise<void> {
   if (!state.key || !state.vault) throw new Error('Locked');
   // Reuse the existing salt so the in-memory key remains consistent with
@@ -59,9 +51,11 @@ function scheduleAutoLock(): void {
   });
 }
 
-async function handleFillRequest(msg: FillRequestFromContent): Promise<Response> {
+async function handleFillRequest(msg: FillRequestFromContent, senderDomain?: string): Promise<Response> {
   if (!state.vault) return { ok: false, error: 'locked' };
-  const matches = matchEntryForDomain(state.vault.codes, msg.domain);
+  // Prefer the tab's real URL over the message body — a content script could
+  // lie about msg.domain to phish codes for other sites' entries.
+  const matches = matchEntryForDomain(state.vault.codes, senderDomain ?? msg.domain);
   if (matches.length === 0) {
     return { ok: true, data: { kind: 'fill_request_none', domain: msg.domain } };
   }
@@ -83,6 +77,9 @@ export async function handleMessage(msg: Request): Promise<Response> {
   try {
     switch (msg.kind) {
       case 'createVault': {
+        if (typeof msg.password !== 'string' || msg.password.length < 8) {
+          return { ok: false, error: 'weak_password' };
+        }
         const salt = randomBytes(16);
         const key = await deriveKey(msg.password, salt, KDF_ITERATIONS);
         const vault: Vault = { codes: [], notes: [] };
@@ -95,10 +92,14 @@ export async function handleMessage(msg: Request): Promise<Response> {
         return { ok: true };
       }
       case 'unlock': {
-        try { state.vault = await loadAndDecrypt(msg.password); }
-        catch { return { ok: false, error: 'wrong_password' }; }
-        const blob = await getVaultBlob();
-        state.key = await deriveKey(msg.password, base64UrlToBytes(blob!.salt));
+        try {
+          const blob = await getVaultBlob();
+          if (!blob) return { ok: false, error: 'wrong_password' };
+          const key = await deriveKey(msg.password, base64UrlToBytes(blob.salt));
+          const plaintext = await decrypt(base64UrlToBytes(blob.ciphertext), base64UrlToBytes(blob.iv), key);
+          state.vault = JSON.parse(new TextDecoder().decode(plaintext));
+          state.key = key;
+        } catch { state.vault = null; state.key = null; return { ok: false, error: 'wrong_password' }; }
         scheduleAutoLock();
         return { ok: true };
       }
@@ -125,6 +126,7 @@ export async function handleMessage(msg: Request): Promise<Response> {
         const i = state.vault.codes.findIndex((c) => c.id === msg.id);
         if (i < 0) return { ok: false, error: 'not_found' };
         const merged: CodeEntry = { ...state.vault.codes[i]!, ...msg.patch };
+        if (!isCodeEntry(merged)) return { ok: false, error: 'invalid_entry' };
         state.vault.codes[i] = merged;
         await encryptAndPersist();
         return { ok: true };
@@ -174,7 +176,10 @@ export async function handleMessage(msg: Request): Promise<Response> {
       }
       case 'exportAeropad': {
         if (!state.vault) return { ok: false, error: 'locked' };
-        return { ok: true, data: await exportVault(state.vault, msg.password ?? 'export') };
+        if (typeof msg.password !== 'string' || msg.password.length < 8) {
+          return { ok: false, error: 'export_password_required' };
+        }
+        return { ok: true, data: await exportVault(state.vault, msg.password) };
       }
       case 'importAeropad': {
         let incoming: Vault;
@@ -183,10 +188,16 @@ export async function handleMessage(msg: Request): Promise<Response> {
         } catch (e) {
           return { ok: false, error: e instanceof Error ? e.message : 'import_failed' };
         }
-        if (msg.strategy === 'replace') {
-          // 'replace' is valid even when locked: treat as a fresh vault
-          // initialized from the imported data. Re-derive the in-memory
-          // key from the import password + a brand new salt.
+        if (msg.strategy === 'replace' && state.vault && state.key) {
+          // Replacing an unlocked vault keeps the existing master password —
+          // the import password only unwraps the file. Silently re-keying the
+          // vault to the backup password (or worse, a weak/empty one) would
+          // downgrade the user's protection without their knowledge.
+          state.vault = incoming;
+          await encryptAndPersist();
+        } else if (msg.strategy === 'replace') {
+          // Locked replace: vault password becomes the backup password.
+          if (msg.password.length < 8) return { ok: false, error: 'weak_password' };
           const newSalt = randomBytes(16);
           state.key = await deriveKey(msg.password, newSalt, KDF_ITERATIONS);
           state.vault = incoming;
@@ -215,6 +226,9 @@ export async function handleMessage(msg: Request): Promise<Response> {
           return { ok: false, error: 'wrong_password' };
         }
         // Verified; re-derive with new password and rotate the salt together.
+        if (typeof msg.newPassword !== 'string' || msg.newPassword.length < 8) {
+          return { ok: false, error: 'weak_password' };
+        }
         const newSalt = randomBytes(16);
         state.key = await deriveKey(msg.newPassword, newSalt, KDF_ITERATIONS);
         await encryptAndPersist({ salt: newSalt });
@@ -236,15 +250,38 @@ export async function handleMessage(msg: Request): Promise<Response> {
   }
 }
 
+function senderHostname(sender: chrome.runtime.MessageSender): string | undefined {
+  try {
+    const url = sender.tab?.url ?? sender.url;
+    return url ? new URL(url).hostname : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 chrome.runtime.onMessage.addListener((
   msg: Request | FillRequestFromContent,
-  _sender,
+  sender,
   sendResponse: (response?: unknown) => void,
 ) => {
   if (msg.kind === 'fill_request') {
-    handleFillRequest(msg).then(sendResponse);
+    handleFillRequest(msg, senderHostname(sender)).then(sendResponse);
     return true;
   }
   handleMessage(msg).then(sendResponse);
   return true;
+});
+
+// Keyboard shortcut "fill-current": fill the best-matching code into the
+// active tab's detected 2FA field.
+chrome.commands?.onCommand.addListener(async (command: string) => {
+  if (command !== 'fill-current' || !state.vault) return;
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id || !tab.url) return;
+  let host: string;
+  try { host = new URL(tab.url).hostname; } catch { return; }
+  const matches = matchEntryForDomain(state.vault.codes, host);
+  if (matches.length !== 1) return;
+  const code = await currentCode(matches[0]!);
+  await chrome.tabs.sendMessage(tab.id, { kind: 'fill_command', code });
 });

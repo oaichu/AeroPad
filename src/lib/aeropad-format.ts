@@ -12,6 +12,13 @@ interface AeropadFile {
   meta: { createdAt: number; modifiedAt: number; entryCount: number };
 }
 
+// Accept files produced by this extension and the AeroPad web app
+// (600k–2M iters). Bound the value anyway: an attacker-controlled file
+// could otherwise freeze the service worker with e.g. iter = 2**31.
+const KDF_ITER_MIN = 1;
+const KDF_ITER_MAX = 5_000_000;
+const CIPHERTEXT_MAX = 16 * 1024 * 1024; // base64 chars, ~12 MB plaintext
+
 export async function exportVault(
   vault: Vault,
   password: string,
@@ -40,6 +47,13 @@ export async function importVault(json: string, password: string): Promise<Vault
   if (typeof file !== 'object' || file === null) throw new Error('Malformed .aeropad file');
   const f = file as Partial<AeropadFile>;
   if (f.v !== 1 || !f.kdf || !f.iv || !f.ciphertext) throw new Error('Unsupported .aeropad version');
+  if (f.kdf.algo !== 'PBKDF2-SHA256') throw new Error('Unsupported KDF algorithm');
+  if (!Number.isSafeInteger(f.kdf.iter) || f.kdf.iter < KDF_ITER_MIN || f.kdf.iter > KDF_ITER_MAX) {
+    throw new Error('Unsupported KDF iterations');
+  }
+  if (typeof f.ciphertext !== 'string' || f.ciphertext.length > CIPHERTEXT_MAX) {
+    throw new Error('Malformed .aeropad file');
+  }
 
   const key = await deriveKey(password, base64UrlToBytes(f.kdf.salt), f.kdf.iter);
   let plaintext: Uint8Array;

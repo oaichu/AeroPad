@@ -74,7 +74,33 @@ function injectIcon(input: HTMLInputElement): void {
   input.insertAdjacentElement('afterend', btn);
 }
 
-const observer = new MutationObserver(() => {
+function fillInto(input: HTMLInputElement, code: string): void {
+  input.value = code;
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+  input.focus();
+}
+
+// Receives fill_command from the service worker (popup "fill" action and the
+// fill-current keyboard command) and writes the code into the best field:
+// the focused eligible input if any, otherwise the first detected 2FA input.
+if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
+  chrome.runtime.onMessage.addListener((msg: unknown) => {
+    if (typeof msg !== 'object' || msg === null) return;
+    const m = msg as { kind?: unknown; code?: unknown };
+    if (m.kind !== 'fill_command' || typeof m.code !== 'string') return;
+    const active = document.activeElement;
+    if (active instanceof HTMLInputElement && matches2FA(active, active.form, active.form?.querySelector('input[type=password]') ?? null)) {
+      fillInto(active, m.code);
+      return;
+    }
+    const target = detectTwoFactorInputs()[0];
+    if (target) fillInto(target, m.code);
+  });
+}
+
+const observer = new MutationObserver((mutations) => {
+  if (!mutations.some((m) => m.addedNodes.length > 0)) return;
   for (const el of detectTwoFactorInputs()) injectIcon(el);
 });
 

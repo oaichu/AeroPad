@@ -6,7 +6,7 @@ import type { Response } from '../../src/lib/messages.js';
 beforeEach(() => resetForTests());
 
 async function bootstrap(): Promise<void> {
-  await handleMessage({ kind: 'createVault', password: 'pw' });
+  await handleMessage({ kind: 'createVault', password: 'password-1' });
 }
 
 function data<T>(r: Response): T {

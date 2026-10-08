@@ -19,14 +19,14 @@ describe('vault lifecycle', () => {
   });
 
   it('unlock with wrong password fails', async () => {
-    await handleMessage({ kind: 'createVault', password: 'right' });
+    await handleMessage({ kind: 'createVault', password: 'right-pass' });
     await handleMessage({ kind: 'lock' });
-    const r = await handleMessage({ kind: 'unlock', password: 'wrong' });
+    const r = await handleMessage({ kind: 'unlock', password: 'wrong-pass' });
     expect(r.ok).toBe(false);
   });
 
   it('lock wipes state and reports locked', async () => {
-    await handleMessage({ kind: 'createVault', password: 'pw' });
+    await handleMessage({ kind: 'createVault', password: 'password-1' });
     await handleMessage({ kind: 'lock' });
     const r = await handleMessage({ kind: 'isUnlocked' });
     if (r.ok) expect(r.data).toBe('locked');

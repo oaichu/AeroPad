@@ -33,7 +33,8 @@ export function AutoLock() {
       <div class="actions-row" style="margin-top:12px">
         <button
           onClick={async () => {
-            await setSessionLock({ lastUnlockedAt: Date.now(), autoLockMinutes: m });
+            const minutes = Number.isFinite(m) ? Math.min(1440, Math.max(1, Math.round(m))) : 15;
+            await setSessionLock({ lastUnlockedAt: Date.now(), autoLockMinutes: minutes });
             setMsg('Saved timeout preference.');
             setTimeout(() => setMsg(''), 2500);
           }}

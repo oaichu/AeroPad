@@ -19,7 +19,13 @@ export function ImportExport() {
       <div class="actions-row" style="margin-top:14px">
         <button
           onClick={async () => {
-            const r = await sendMessage({ kind: 'exportAeropad' });
+            const pw = prompt('Set a password for this backup (min 8 characters):') ?? '';
+            if (pw.length < 8) {
+              setMsg({ text: 'Export cancelled: a password of at least 8 characters is required.', kind: 'error' });
+              setTimeout(() => setMsg(null), 3000);
+              return;
+            }
+            const r = await sendMessage({ kind: 'exportAeropad', password: pw });
             if (r.ok && typeof r.data === 'string') {
               const blob = new Blob([r.data], { type: 'application/json' });
               const url = URL.createObjectURL(blob);
