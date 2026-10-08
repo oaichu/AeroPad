@@ -1062,6 +1062,11 @@ var TRANSLATIONS = {
     lock_subtitle: "Enter your master password to decrypt your encrypted vault.",
     lock_password_ph: "Master password",
     lock_unlock_btn: "Unlock Vault",
+    lock_setup_title: "Create your master password",
+    lock_setup_subtitle: "AeroPad encrypts everything before saving — set one master password to unlock on this device.",
+    lock_setup_confirm_ph: "Confirm master password",
+    lock_setup_btn: "Create Encrypted Vault",
+    lock_storage_unavailable: "This browser cannot open encrypted storage (IndexedDB unavailable)",
     lock_wrong_pw: "Wrong password — try again",
     lock_error_generic: "Decryption failed — data may be corrupted",
     legacy_recovery_required: "Legacy storage needs recovery before it can be unlocked safely.",
@@ -1173,6 +1178,11 @@ var TRANSLATIONS = {
     lock_subtitle: "Nhập mật khẩu chính để giải mã kho đã được mã hóa.",
     lock_password_ph: "Mật khẩu chính",
     lock_unlock_btn: "Mở Khóa Kho",
+    lock_setup_title: "Tạo mật khẩu chính",
+    lock_setup_subtitle: "AeroPad mã hóa mọi thứ trước khi lưu — đặt một mật khẩu chính để mở khóa trên thiết bị này.",
+    lock_setup_confirm_ph: "Xác nhận mật khẩu chính",
+    lock_setup_btn: "Tạo Kho Mã Hóa",
+    lock_storage_unavailable: "Trình duyệt không thể mở bộ nhớ mã hóa (IndexedDB không khả dụng)",
     lock_wrong_pw: "Sai mật khẩu — thử lại",
     lock_error_generic: "Giải mã thất bại — dữ liệu có thể đã hỏng",
     lock_no_recovery: "Không có khôi phục: mật khẩu chính là chìa khóa duy nhất. Quên là mất dữ liệu vĩnh viễn.",
@@ -1279,6 +1289,11 @@ var TRANSLATIONS = {
     lock_subtitle: "输入主密码以解密已加密的保险库。",
     lock_password_ph: "主密码",
     lock_unlock_btn: "解锁保险库",
+    lock_setup_title: "创建主密码",
+    lock_setup_subtitle: "AeroPad 在保存前加密所有内容 — 设置一个主密码以在此设备上解锁。",
+    lock_setup_confirm_ph: "确认主密码",
+    lock_setup_btn: "创建加密保险库",
+    lock_storage_unavailable: "此浏览器无法打开加密存储（IndexedDB 不可用）",
     lock_wrong_pw: "密码错误 — 请重试",
     lock_error_generic: "解密失败 — 数据可能已损坏",
     lock_no_recovery: "无法恢复：主密码是唯一密钥。忘记即永久丢失数据。",
@@ -1385,6 +1400,11 @@ var TRANSLATIONS = {
     lock_subtitle: "마스터 비밀번호를 입력하여 암호화된 금고를 복호화하세요.",
     lock_password_ph: "마스터 비밀번호",
     lock_unlock_btn: "금고 열기",
+    lock_setup_title: "마스터 비밀번호 생성",
+    lock_setup_subtitle: "AeroPad는 저장하기 전에 모든 것을 암호화합니다 — 이 기기에서 잠금을 해제할 마스터 비밀번호를 설정하세요.",
+    lock_setup_confirm_ph: "마스터 비밀번호 확인",
+    lock_setup_btn: "암호화된 금고 생성",
+    lock_storage_unavailable: "이 브라우저는 암호화 저장소를 열 수 없습니다(IndexedDB 사용 불가)",
     lock_wrong_pw: "비밀번호가 틀렸습니다 — 다시 시도하세요",
     lock_error_generic: "복호화 실패 — 데이터가 손상되었을 수 있습니다",
     lock_no_recovery: "복구 불가: 마스터 비밀번호가 유일한 열쇠입니다. 잊어버리면 데이터를 영영 잃습니다.",
@@ -1491,6 +1511,11 @@ var TRANSLATIONS = {
     lock_subtitle: "マスターパスワードを入力して暗号化されたボールトを復号します。",
     lock_password_ph: "マスターパスワード",
     lock_unlock_btn: "ボールトを解除",
+    lock_setup_title: "マスターパスワードを作成",
+    lock_setup_subtitle: "AeroPadは保存前にすべてを暗号化します — このデバイスで解除するためのマスターパスワードを設定してください。",
+    lock_setup_confirm_ph: "マスターパスワード確認",
+    lock_setup_btn: "暗号化ボールトを作成",
+    lock_storage_unavailable: "このブラウザは暗号化ストレージを開けません（IndexedDB が利用できません）",
     lock_wrong_pw: "パスワードが違います — もう一度お試しください",
     lock_error_generic: "復号に失敗 — データが破損している可能性があります",
     lock_no_recovery: "復元はできません：マスターパスワードが唯一の鍵です。忘れるとデータは永久に失われます。",
@@ -1597,6 +1622,11 @@ var TRANSLATIONS = {
     lock_subtitle: "Introduce tu contraseña maestra para descifrar tu bóveda cifrada.",
     lock_password_ph: "Contraseña maestra",
     lock_unlock_btn: "Desbloquear Bóveda",
+    lock_setup_title: "Crea tu contraseña maestra",
+    lock_setup_subtitle: "AeroPad cifra todo antes de guardarlo — establece una contraseña maestra para desbloquear en este dispositivo.",
+    lock_setup_confirm_ph: "Confirmar contraseña maestra",
+    lock_setup_btn: "Crear bóveda cifrada",
+    lock_storage_unavailable: "Este navegador no puede abrir el almacenamiento cifrado (IndexedDB no disponible)",
     lock_wrong_pw: "Contraseña incorrecta — inténtalo de nuevo",
     lock_error_generic: "Fallo al descifrar — los datos pueden estar corruptos",
     lock_no_recovery: "Sin recuperación: la contraseña maestra es la única clave. Si la olvidas, pierdes los datos para siempre.",
@@ -1703,6 +1733,11 @@ var TRANSLATIONS = {
     lock_subtitle: "Masukkan kata sandi utama untuk mendekripsi brankas terenkripsi.",
     lock_password_ph: "Kata sandi utama",
     lock_unlock_btn: "Buka Brankas",
+    lock_setup_title: "Buat kata sandi utama",
+    lock_setup_subtitle: "AeroPad mengenkripsi semuanya sebelum menyimpan — atur satu kata sandi utama untuk membuka di perangkat ini.",
+    lock_setup_confirm_ph: "Konfirmasi kata sandi utama",
+    lock_setup_btn: "Buat Brankas Terenkripsi",
+    lock_storage_unavailable: "Peramban ini tidak dapat membuka penyimpanan terenkripsi (IndexedDB tidak tersedia)",
     lock_wrong_pw: "Kata sandi salah — coba lagi",
     lock_error_generic: "Dekripsi gagal — data mungkin rusak",
     lock_no_recovery: "Tidak ada pemulihan: kata sandi utama adalah satu-satunya kunci. Lupa = data hilang selamanya.",
@@ -1828,6 +1863,11 @@ var ADDITIONAL_TRANSLATIONS = {
     lock_unlock_btn: "فتح الخزنة",
     lock_wrong_pw: "كلمة المرور غير صحيحة — حاول مجددًا",
     lock_error_generic: "فشل فك التشفير — قد تكون البيانات تالفة",
+    lock_setup_title: "أنشئ كلمة المرور الرئيسية",
+    lock_setup_subtitle: "يقوم AeroPad بتشفير كل شيء قبل الحفظ — عيّن كلمة مرور رئيسية واحدة للفتح على هذا الجهاز.",
+    lock_setup_confirm_ph: "تأكيد كلمة المرور الرئيسية",
+    lock_setup_btn: "إنشاء خزنة مشفرة",
+    lock_storage_unavailable: "لا يمكن لهذا المتصفح فتح التخزين المشفر (IndexedDB غير متوفر)",
     legacy_recovery_required: "تحتاج بيانات التخزين القديمة إلى استعادة قبل فتحها بأمان.",
     legacy_recovery_reset: "مسح البيانات القديمة غير المكتملة والبدء من جديد",
     legacy_recovery_help: "يحتوي هذا المتصفح على سجلات قديمة ناقصة أو تالفة. لا يمكن فتح هذه الحالة بأمان باستخدام كلمة مرور.",
@@ -1949,6 +1989,11 @@ var ADDITIONAL_TRANSLATIONS = {
     lock_unlock_btn: "वॉल्ट खोलें",
     lock_wrong_pw: "गलत पासवर्ड — फिर कोशिश करें",
     lock_error_generic: "डिक्रिप्शन विफल — डेटा खराब हो सकता है",
+    lock_setup_title: "अपना मास्टर पासवर्ड बनाएं",
+    lock_setup_subtitle: "AeroPad सहेजने से पहले सब कुछ एन्क्रिप्ट करता है — इस डिवाइस पर अनलॉक करने के लिए एक मास्टर पासवर्ड सेट करें।",
+    lock_setup_confirm_ph: "मास्टर पासवर्ड की पुष्टि करें",
+    lock_setup_btn: "एन्क्रिप्टेड वॉल्ट बनाएं",
+    lock_storage_unavailable: "यह ब्राउज़र एन्क्रिप्टेड स्टोरेज नहीं खोल सकता (IndexedDB अनुपलब्ध)",
     legacy_recovery_required: "सुरक्षित रूप से खोलने से पहले पुराने स्टोरेज को रिकवर करना होगा।",
     legacy_recovery_reset: "अधूरा पुराना डेटा हटाकर नए सिरे से शुरू करें",
     legacy_recovery_help: "इस ब्राउज़र में अधूरे या खराब पुराने रिकॉर्ड हैं। इस स्थिति को पासवर्ड से सुरक्षित रूप से नहीं खोला जा सकता।",
@@ -2070,6 +2115,11 @@ var ADDITIONAL_TRANSLATIONS = {
     lock_unlock_btn: "Desbloquear cofre",
     lock_wrong_pw: "Senha incorreta — tente novamente",
     lock_error_generic: "Falha ao descriptografar — os dados podem estar corrompidos",
+    lock_setup_title: "Crie sua senha mestra",
+    lock_setup_subtitle: "O AeroPad criptografa tudo antes de salvar — defina uma senha mestra para desbloquear neste dispositivo.",
+    lock_setup_confirm_ph: "Confirmar senha mestra",
+    lock_setup_btn: "Criar cofre criptografado",
+    lock_storage_unavailable: "Este navegador não consegue abrir o armazenamento criptografado (IndexedDB indisponível)",
     legacy_recovery_required: "O armazenamento antigo precisa ser recuperado antes do desbloqueio seguro.",
     legacy_recovery_reset: "Limpar dados antigos incompletos e começar de novo",
     legacy_recovery_help: "Este navegador contém registros antigos incompletos ou corrompidos. Não é seguro desbloquear este estado com uma senha.",
@@ -2104,6 +2154,8 @@ var AUTO_LOCK_MS = 15 * 60 * 1e3;
 var vaultStorageMode = "legacy";
 var vaultAdapter = null;
 var vaultStore = null;
+var vaultSetupMode = false;
+var pendingSetupPayload = null;
 var vaultMetadata = { createdAt: Date.now(), updatedAt: Date.now() };
 var appInitialized = false;
 var autoLockTimer = null;
@@ -2164,7 +2216,7 @@ function applyVaultPayload(payload) {
   vaultMetadata = normalized?.metadata || vaultMetadata;
 }
 function clearTransientSecrets() {
-  ["lockPasswordInput", "secNewPassword", "secConfirmPassword", "secCurrentPassword", "secNewPassword2", "secConfirmPassword2", "genSecret", "genPassword", "genIssuer", "genAccount", "modalSecret", "modalPassword", "decPasswordInput", "decSecret", "decIssuer", "decAccount", "rawOtpInput", "backupRestorePassword"].forEach((id) => {
+  ["lockPasswordInput", "lockConfirmInput", "secNewPassword", "secConfirmPassword", "secCurrentPassword", "secNewPassword2", "secConfirmPassword2", "genSecret", "genPassword", "genIssuer", "genAccount", "modalSecret", "modalPassword", "decPasswordInput", "decSecret", "decIssuer", "decAccount", "rawOtpInput", "backupRestorePassword"].forEach((id) => {
     const field = document.getElementById(id);
     if (field) field.value = "";
   });
@@ -2197,6 +2249,8 @@ function clearVaultSession() {
   if (autoLockTimer) clearInterval(autoLockTimer);
   autoLockTimer = null;
   vaultStore = null;
+  vaultSetupMode = false;
+  pendingSetupPayload = null;
   appState.notes = [];
   appState.totpAccounts = [];
   appState.activeNoteId = null;
@@ -2266,8 +2320,9 @@ async function bootVault() {
   }
   const legacy = await readLegacyVault(localStorage);
   if (legacy.state === "ready" || legacy.state === "empty") {
-    applyVaultPayload(legacy.payload || { notes: DEFAULT_NOTES, totpAccounts: DEFAULT_VAULT_ACCOUNTS });
-    initAll();
+    pendingSetupPayload = legacy.payload || { notes: DEFAULT_NOTES, totpAccounts: DEFAULT_VAULT_ACCOUNTS };
+    vaultSetupMode = true;
+    showLockOverlay();
     return;
   }
   legacyRecoveryState = legacy;
@@ -2304,13 +2359,13 @@ function showLockOverlay() {
   overlay.classList.remove("hidden");
   overlay.setAttribute("aria-hidden", "false");
   const title = document.getElementById("lockTitle");
-  if (title) title.textContent = t("lock_title");
   const subtitle = document.getElementById("lockSubtitle");
-  if (subtitle) subtitle.textContent = t("lock_subtitle");
   const btn = document.getElementById("unlockVaultBtn");
   const recoveryOnly = legacyRecoveryState && legacyRecoveryState.reason !== "password-required";
+  if (title) title.textContent = vaultSetupMode ? t("lock_setup_title") : t("lock_title");
+  if (subtitle) subtitle.textContent = vaultSetupMode ? t("lock_setup_subtitle") : t("lock_subtitle");
   if (btn) {
-    btn.textContent = t("lock_unlock_btn");
+    btn.textContent = vaultSetupMode ? t("lock_setup_btn") : t("lock_unlock_btn");
     btn.classList.toggle("hidden", Boolean(recoveryOnly));
   }
   const resetBtn = document.getElementById("legacyRecoveryResetBtn");
@@ -2327,8 +2382,16 @@ function showLockOverlay() {
     input.classList.toggle("hidden", Boolean(recoveryOnly));
     input.disabled = Boolean(recoveryOnly);
     input.placeholder = t("lock_password_ph");
+    input.autocomplete = vaultSetupMode ? "new-password" : "current-password";
     input.value = "";
     if (!recoveryOnly) input.focus();
+  }
+  const confirmInput = document.getElementById("lockConfirmInput");
+  if (confirmInput) {
+    confirmInput.classList.toggle("hidden", !vaultSetupMode || Boolean(recoveryOnly));
+    confirmInput.disabled = !vaultSetupMode || Boolean(recoveryOnly);
+    confirmInput.placeholder = t("lock_setup_confirm_ph");
+    confirmInput.value = "";
   }
 }
 function resetLegacyRecovery() {
@@ -2342,7 +2405,45 @@ function resetLegacyRecovery() {
   }
   window.location.reload();
 }
+async function attemptVaultSetup() {
+  const input = document.getElementById("lockPasswordInput");
+  const confirmInput = document.getElementById("lockConfirmInput");
+  const errorEl = document.getElementById("lockError");
+  const btn = document.getElementById("unlockVaultBtn");
+  const password = input ? input.value : "";
+  if (!btn || btn.disabled) return;
+  if (password.length < 8) {
+    if (errorEl) errorEl.textContent = t("sec_pw_too_short");
+    return;
+  }
+  if (password !== (confirmInput ? confirmInput.value : "")) {
+    if (errorEl) errorEl.textContent = t("sec_pw_mismatch");
+    return;
+  }
+  btn.disabled = true;
+  if (errorEl) errorEl.textContent = "";
+  try {
+    applyVaultPayload(pendingSetupPayload);
+    await setMasterPassword(password);
+    const overlay = document.getElementById("lockOverlay");
+    overlay?.classList.add("hidden");
+    overlay?.setAttribute("aria-hidden", "true");
+    if (input) input.value = "";
+    if (confirmInput) confirmInput.value = "";
+    vaultSetupMode = false;
+    pendingSetupPayload = null;
+    initAll();
+    showToast(t("sec_encrypted_ok"));
+  } catch (err) {
+    console.error("Vault setup failed:", err);
+    const storageGone = err instanceof TypeError || /IndexedDB/i.test(String(err?.message ?? ""));
+    if (errorEl) errorEl.textContent = storageGone ? t("lock_storage_unavailable") : t("lock_error_generic");
+  } finally {
+    btn.disabled = false;
+  }
+}
 async function attemptUnlock() {
+  if (vaultSetupMode) return attemptVaultSetup();
   const input = document.getElementById("lockPasswordInput");
   const errorEl = document.getElementById("lockError");
   const btn = document.getElementById("unlockVaultBtn");
@@ -2582,8 +2683,10 @@ function initNavigation() {
 function initLockOverlay() {
   document.getElementById("unlockVaultBtn")?.addEventListener("click", attemptUnlock);
   document.getElementById("legacyRecoveryResetBtn")?.addEventListener("click", resetLegacyRecovery);
-  document.getElementById("lockPasswordInput")?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") attemptUnlock();
+  ["lockPasswordInput", "lockConfirmInput"].forEach((id) => {
+    document.getElementById(id)?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") attemptUnlock();
+    });
   });
 }
 async function exportEncryptedBackup() {
@@ -3291,8 +3394,10 @@ function renderQRCode() {
   const accVal = document.getElementById("genAccount")?.value.trim();
   const prevIss = document.getElementById("previewIssuer");
   const prevAcc = document.getElementById("previewAccount");
-  if (prevIss) prevIss.textContent = issVal || "---";
-  if (prevAcc) prevAcc.textContent = accVal || "user@account";
+  const metaInfo = document.querySelector(".qr-meta-info");
+  if (metaInfo) metaInfo.classList.toggle("hidden", !uri);
+  if (prevIss) prevIss.textContent = issVal || "";
+  if (prevAcc) prevAcc.textContent = accVal || "";
   if (!uri) {
     container.innerHTML = `<span style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:10px;">${t("no_qr_placeholder")}</span>`;
     return;
@@ -3495,6 +3600,8 @@ function startGlobalTOTPTimer() {
       const dPeriod = currentDecodedItem.period || 30;
       const { percent } = getTOTPCountdown(now, dPeriod);
       decProg.style.width = `${percent}%`;
+    } else if (decProg) {
+      decProg.style.width = "0";
     }
     const changedAccounts = [];
     appState.totpAccounts.forEach((acc) => {

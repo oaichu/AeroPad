@@ -341,7 +341,7 @@
                     <button type="button" id="genPassBtn" class="btn-text-action" title="Generate Secure Password">🎲 <span data-i18n="gen_pass_quick">Generate</span></button>
                   </div>
                   <div class="password-input-wrap">
-                    <input type="password" id="genPassword" class="glass-input font-mono" placeholder="e.g. •••••••• (Optional account login password)">
+                    <input type="password" id="genPassword" class="glass-input font-mono" placeholder="e.g. ••••••••" aria-label="Optional account password">
                     <button type="button" class="btn-toggle-eye" id="toggleGenPassVisibility" title="Toggle Show/Hide Password">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-open"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-closed hidden"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
@@ -365,9 +365,9 @@
                 <div class="qr-canvas-container" id="qrContainer">
                   <span style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:10px;" data-i18n="no_qr_placeholder">No QR Code yet.<br>Generate or enter a Secret Key.</span>
                 </div>
-                <div class="qr-meta-info">
-                  <div class="qr-issuer-name" id="previewIssuer">---</div>
-                  <div class="qr-account-name" id="previewAccount">user@account</div>
+                <div class="qr-meta-info hidden">
+                  <div class="qr-issuer-name" id="previewIssuer"></div>
+                  <div class="qr-account-name" id="previewAccount"></div>
                 </div>
                 <div class="qr-actions">
                   <button id="downloadQRBtn" class="btn-glass btn-sm">
@@ -511,6 +511,7 @@
       <h3 id="lockTitle">Vault Locked</h3>
       <p class="text-secondary" id="lockSubtitle">Enter your master password to decrypt your encrypted vault.</p>
       <input type="password" id="lockPasswordInput" class="glass-input" placeholder="Master password" autocomplete="current-password">
+      <input type="password" id="lockConfirmInput" class="glass-input hidden" placeholder="Confirm master password" autocomplete="new-password">
       <div class="lock-error" id="lockError" role="alert"></div>
       <button id="unlockVaultBtn" class="btn-primary-gradient full-width">Unlock Vault</button>
       <button id="legacyRecoveryResetBtn" class="btn-danger-ghost full-width hidden" type="button">Clear incomplete legacy data &amp; start fresh</button>

@@ -7,12 +7,30 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'sha256-KFaHfpbI58uwvBviEfrsiq4+4OdDc+kXqCNEh/WJRew='; style-src 'self' 'sha256-RO8FwuYPG7Nbx0KIZIQdUvNfe3ZNc1bIN/5f5WK4RBE=' 'sha256-LQqblBZ9gi3lDvhdmKtGaEG4fI9ItQIZh2VNuG7v4eM='; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'sha256-rRmEeDjKJ6tUGkOXoxrQrqrozHtDxhL7coK07vNZqIY='; style-src 'self' 'sha256-RO8FwuYPG7Nbx0KIZIQdUvNfe3ZNc1bIN/5f5WK4RBE=' 'sha256-eog/l5ObiuRCXHtjvPoE9KQwnL37YKGS1LwYssVDBPw='; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"
+        }
       ]
     }
   ]

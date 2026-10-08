@@ -155,7 +155,7 @@ function makeIndexedDBHarness() {
   return api;
 }
 
-async function boot({ preSeed, fakes } = {}) {
+async function boot({ preSeed, fakes, autoSetup = true } = {}) {
   fakeNowMs = 1755800000000; // arbitrary epoch, lands mid-window
   clipboardCalls = [];
   confirmResponses = [];
@@ -170,6 +170,10 @@ async function boot({ preSeed, fakes } = {}) {
   if (preSeed) preSeed(window);
   setupWindow(window);
   if (fakes) fakes(window); // browser APIs jsdom lacks (Image/canvas for QR)
+  // Fresh/plaintext boots now gate on master-password setup — give every test a
+  // working IndexedDB so the setup commit can land, then drive it for them.
+  const idb = window.indexedDB?.open ? null : makeIndexedDBHarness();
+  if (idb) Object.defineProperty(window, 'indexedDB', { value: idb, configurable: true });
   window.eval(appJs);
 
   // Wait for jsdom's ONE real DOMContentLoaded (fires on the next tick)
@@ -178,7 +182,17 @@ async function boot({ preSeed, fakes } = {}) {
     window.document.addEventListener('DOMContentLoaded', resolve, { once: true });
   });
   await new Promise(r => setTimeout(r, 50));
-  return { dom, window, document: window.document };
+
+  const confirmInput = window.document.getElementById('lockConfirmInput');
+  const isSetupPrompt = confirmInput && !confirmInput.classList.contains('hidden') && !confirmInput.disabled;
+  if (autoSetup && isSetupPrompt) {
+    const setupPw = 'e2e auto-setup master password';
+    window.document.getElementById('lockPasswordInput').value = setupPw;
+    confirmInput.value = setupPw;
+    window.document.getElementById('unlockVaultBtn').click();
+    await waitFor(() => window.document.getElementById('lockOverlay').classList.contains('hidden'), 30000);
+  }
+  return { dom, window, document: window.document, idb };
 }
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -515,6 +529,7 @@ console.log('\n=== TEST 8: aeropad-standalone.html boots and computes correctly 
     pretendToBeVisual: true,
   });
   setupWindow(dom.window);
+  Object.defineProperty(dom.window, 'indexedDB', { value: makeIndexedDBHarness(), configurable: true });
   const m = standalone.match(/<script>([\s\S]*?)<\/script>\s*<\/body>/);
   dom.window.eval(m[1]);
   await new Promise((resolve) => {
@@ -524,6 +539,13 @@ console.log('\n=== TEST 8: aeropad-standalone.html boots and computes correctly 
   await sleep(100);
 
   const d = dom.window.document;
+  const standaloneConfirm = d.getElementById('lockConfirmInput');
+  if (standaloneConfirm && !standaloneConfirm.classList.contains('hidden')) {
+    d.getElementById('lockPasswordInput').value = 'standalone setup password';
+    standaloneConfirm.value = 'standalone setup password';
+    d.getElementById('unlockVaultBtn').click();
+    await waitFor(() => d.getElementById('lockOverlay').classList.contains('hidden'), 30000);
+  }
   d.getElementById('quickAdd2FABtn').click();
   d.getElementById('modalIssuer').value = 'SA';
   d.getElementById('modalAccount').value = 's@a.io';
@@ -542,22 +564,38 @@ console.log('\n=== TEST 9: AES-256-GCM vault encryption lifecycle ===');
   const MASTER_PW = 'correct horse battery staple';
   const indexedDB = makeIndexedDBHarness();
 
-  // 9a — legacy in-memory data is migrated into one encrypted v2 record
-  const b1 = await boot({ fakes: w => { Object.defineProperty(w, 'indexedDB', { value: indexedDB, configurable: true }); } });
+  // 9a — a fresh boot gates on master-password setup: no interactive session
+  // may run without a VaultStore, otherwise edits die silently on reload.
+  const b1 = await boot({ fakes: w => { Object.defineProperty(w, 'indexedDB', { value: indexedDB, configurable: true }); }, autoSetup: false });
+  const overlay1 = b1.document.getElementById('lockOverlay');
+  const confirmInput = b1.document.getElementById('lockConfirmInput');
+  check('fresh boot requires master-password setup', !!overlay1 && !overlay1.classList.contains('hidden')
+    && !!confirmInput && !confirmInput.classList.contains('hidden'));
+
+  b1.document.getElementById('lockPasswordInput').value = 'short';
+  b1.document.getElementById('lockConfirmInput').value = 'short';
+  b1.document.getElementById('unlockVaultBtn').click();
+  await sleep(120);
+  check('setup rejects passwords under 8 characters', /8/.test(b1.document.getElementById('lockError')?.textContent || '') && indexedDB.records.size === 0);
+  b1.document.getElementById('lockPasswordInput').value = MASTER_PW;
+  b1.document.getElementById('lockConfirmInput').value = 'different password';
+  b1.document.getElementById('unlockVaultBtn').click();
+  await sleep(120);
+  check('setup rejects mismatched confirmation', /match|khớp/i.test(b1.document.getElementById('lockError')?.textContent || '') && indexedDB.records.size === 0);
+
+  b1.document.getElementById('lockConfirmInput').value = MASTER_PW;
+  b1.document.getElementById('unlockVaultBtn').click();
+  const encrypted = await waitFor(() => indexedDB.records.get('current')?.generation === 1);
+  check('one v2 record is committed at first-run setup', encrypted && indexedDB.records.size === 1);
+
   b1.document.getElementById('quickAdd2FABtn').click();
   b1.document.getElementById('modalIssuer').value = 'EncTest';
   b1.document.getElementById('modalAccount').value = 'enc@test.io';
   b1.document.getElementById('modalSecret').value = SECRET;
   b1.document.getElementById('confirmAdd2FABtn').click();
-  await sleep(300);
-
-  b1.document.getElementById('vaultLockBtn').click(); // opens security modal
-  b1.document.getElementById('secNewPassword').value = MASTER_PW;
-  b1.document.getElementById('secConfirmPassword').value = MASTER_PW;
-  b1.document.getElementById('secSetPasswordBtn').click();
-  const encrypted = await waitFor(() => indexedDB.records.get('current')?.generation === 1);
+  await waitFor(() => indexedDB.records.get('current')?.generation === 2);
   const rawRecord = indexedDB.records.get('current');
-  check('one v2 record is committed', encrypted && indexedDB.records.size === 1);
+  check('account add commits the same encrypted record', rawRecord?.generation === 2);
   check('ciphertext at rest does NOT contain the secret', !rawRecord.ciphertext.includes(SECRET));
   check('ciphertext at rest does NOT contain issuer either', !rawRecord.ciphertext.includes('EncTest'));
   check('legacy localStorage keys are removed only after v2 commit', !b1.window.localStorage.getItem('aeropad_notes') && !b1.window.localStorage.getItem('aeropad_totp'));
