@@ -116,6 +116,25 @@ test('OTPAuth - Canonicalizes supported algorithm spellings', () => {
   assert.equal(parsed.algo, 'SHA256');
 });
 
+test('OTPAuth - Flags issuer param/label mismatch instead of silently overriding', () => {
+  const conflicted = parseOTPAuthURI(
+    'otpauth://totp/Google:victim%40gmail.com?secret=JBSWY3DPEHPK3PXP&issuer=TotallyLegitCorp'
+  );
+  assert.equal(conflicted.isValid, true);
+  assert.equal(conflicted.issuer, 'TotallyLegitCorp');
+  assert.equal(conflicted.issuerConflict, true);
+
+  const consistent = parseOTPAuthURI(
+    'otpauth://totp/Google:victim%40gmail.com?secret=JBSWY3DPEHPK3PXP&issuer=Google'
+  );
+  assert.equal(consistent.issuerConflict, false);
+
+  const labelOnly = parseOTPAuthURI(
+    'otpauth://totp/Google:victim%40gmail.com?secret=JBSWY3DPEHPK3PXP'
+  );
+  assert.equal(labelOnly.issuerConflict, false);
+});
+
 test('OTPAuth - Accepts compatible direct Base32 secret lengths from 8 to 128', () => {
   const short = parseOTPAuthURI('JBSWY3DP');
   const long = parseOTPAuthURI('A'.repeat(128));

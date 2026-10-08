@@ -90,6 +90,9 @@ function assertStandaloneCsp() {
   assert(headerCsp && vercelCsp && headerCsp === vercelCsp, 'deployment CSP policies must match');
   assert(headerCsp.includes(`script-src 'self' ${scriptTokens}`), 'standalone script CSP hash is stale');
   assert(headerCsp.includes(`style-src 'self' ${styleTokens}`), 'standalone style CSP hash is stale');
+  const metaCsp = html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]*)">/)?.[1];
+  assert(metaCsp, 'standalone must embed a CSP <meta> for headerless contexts (file://, local HTTP)');
+  assert(`${metaCsp}; frame-ancestors 'none'` === headerCsp, 'standalone meta CSP must mirror the header policy');
   console.log('[verify] standalone CSP hashes: PASS');
 }
 

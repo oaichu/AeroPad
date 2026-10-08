@@ -134,7 +134,9 @@ function parseOTPAuthURI(input) {
       const separator = label.indexOf(":");
       const labelIssuer = separator === -1 ? "" : label.slice(0, separator);
       const labelAccount = separator === -1 ? label : label.slice(separator + 1);
-      const issuer = url.searchParams.get("issuer")?.trim() || labelIssuer || "Custom 2FA";
+      const issuerParam = url.searchParams.get("issuer")?.trim() || "";
+      const issuerConflict = Boolean(labelIssuer && issuerParam && labelIssuer !== issuerParam);
+      const issuer = issuerParam || labelIssuer || "Custom 2FA";
       const account = labelAccount || "User";
       const secretParam = url.searchParams.get("secret");
       if (secretParam === null || secretParam.trim() === "") {
@@ -168,7 +170,8 @@ function parseOTPAuthURI(input) {
         secret,
         digits: digitsResult.value,
         period: periodResult.value,
-        algo
+        algo,
+        issuerConflict
       };
     } catch {
       return invalid("invalid_uri", "Invalid URI");
@@ -184,7 +187,8 @@ function parseOTPAuthURI(input) {
       secret: cleanBase32,
       digits: 6,
       period: 30,
-      algo: "SHA1"
+      algo: "SHA1",
+      issuerConflict: false
     };
   }
   return invalid("unrecognized_format", "Unrecognized format");
@@ -325,6 +329,30 @@ function validateVaultPayload(payload) {
   integer(payload.metadata.createdAt, 0, Number.MAX_SAFE_INTEGER, "invalid_payload");
   integer(payload.metadata.updatedAt, 0, Number.MAX_SAFE_INTEGER, "invalid_payload");
   return payload;
+}
+var RECORD_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+function rekeyUnsafeIds(records, prefix, makeId) {
+  const seen = /* @__PURE__ */ new Set();
+  return records.map((record) => {
+    let next = record;
+    if (typeof record.id !== "string" || !RECORD_ID_PATTERN.test(record.id) || seen.has(record.id)) {
+      let id;
+      do {
+        id = makeId(prefix);
+      } while (seen.has(id));
+      next = { ...record, id };
+    }
+    seen.add(next.id);
+    return next;
+  });
+}
+function sanitizeVaultPayloadIds(payload, makeId) {
+  if (!object(payload)) fail("invalid_payload");
+  return {
+    ...payload,
+    notes: Array.isArray(payload.notes) ? rekeyUnsafeIds(payload.notes, "note", makeId) : payload.notes,
+    totpAccounts: Array.isArray(payload.totpAccounts) ? rekeyUnsafeIds(payload.totpAccounts, "totp", makeId) : payload.totpAccounts
+  };
 }
 function validateVaultEnvelope(envelope) {
   if (!object(envelope) || envelope.id !== "current" || envelope.format !== "aeropad-vault" || envelope.version !== 2 || !object(envelope.kdf) || !object(envelope.cipher)) fail("invalid_envelope");
@@ -807,7 +835,7 @@ async function copyVaultCode(acc) {
     return;
   }
   const ok = await copyTextToClipboard(code);
-  if (ok) showToast(`${t("toast_code_copied")} ${code}`);
+  if (ok) showToast(t("toast_code_copied"));
   else showToast(t("toast_copy_failed"), "error");
 }
 function generateId(prefix) {
@@ -962,6 +990,8 @@ var TRANSLATIONS = {
     backup_restored: "Backup restored — vault locked for unlock.",
     backup_failed: "Backup operation failed — current vault was kept.",
     backup_restore_confirm: "Restore this encrypted backup? Current vault data will be replaced after password verification.",
+    backup_rollback_confirm: "This backup is older than the current vault. Restoring rolls back newer changes. Continue anyway?",
+    toast_issuer_conflict: "Warning: the URI issuer parameter does not match the label issuer — verify before saving.",
     mode_edit: "Edit",
     mode_split: "Split",
     mode_preview: "Preview",
@@ -1016,7 +1046,7 @@ var TRANSLATIONS = {
     toast_secret_copied: "Secret key copied",
     toast_otp_copied: "OTP Auth link copied",
     toast_qr_downloaded: "QR Code downloaded as PNG",
-    toast_code_copied: "2FA code copied:",
+    toast_code_copied: "2FA code copied.",
     toast_totp_added: "2FA account added to Vault",
     toast_qr_detected: "QR Code detected and decoded successfully!",
     toast_required_fields: "Please fill in all required fields (*)",
@@ -1127,7 +1157,7 @@ var TRANSLATIONS = {
     toast_secret_copied: "Đã sao chép khóa bí mật",
     toast_otp_copied: "Đã sao chép đường dẫn OTP Auth",
     toast_qr_downloaded: "Đã tải xuống ảnh mã QR",
-    toast_code_copied: "Đã sao chép mã 2FA:",
+    toast_code_copied: "Đã sao chép mã 2FA.",
     toast_totp_added: "Đã thêm tài khoản vào Vault",
     toast_qr_detected: "Đã phát hiện và giải mã mã QR thành công!",
     toast_required_fields: "Vui lòng điền đầy đủ các mục bắt buộc (*)",
@@ -1233,7 +1263,7 @@ var TRANSLATIONS = {
     toast_secret_copied: "密钥已复制",
     toast_otp_copied: "OTP 链接已复制",
     toast_qr_downloaded: "二维码已下载为 PNG",
-    toast_code_copied: "2FA 验证码已复制：",
+    toast_code_copied: "2FA 验证码已复制。",
     toast_totp_added: "已添加 2FA 账户至保险库",
     toast_qr_detected: "成功识别并解码二维码！",
     toast_required_fields: "请填写所有必填项（*）",
@@ -1339,7 +1369,7 @@ var TRANSLATIONS = {
     toast_secret_copied: "비밀키가 복사되었습니다",
     toast_otp_copied: "OTP 링크가 복사되었습니다",
     toast_qr_downloaded: "QR 코드가 PNG로 다운로드되었습니다",
-    toast_code_copied: "2FA 코드가 복사되었습니다:",
+    toast_code_copied: "2FA 코드가 복사되었습니다.",
     toast_totp_added: "금고에 2FA 계정이 추가되었습니다",
     toast_qr_detected: "QR 코드가 감지되어 디코드되었습니다!",
     toast_required_fields: "모든 필수 항목(*)을 입력해 주세요",
@@ -1445,7 +1475,7 @@ var TRANSLATIONS = {
     toast_secret_copied: "シークレットキーをコピーしました",
     toast_otp_copied: "OTPリンクをコピーしました",
     toast_qr_downloaded: "QRコードをPNGで保存しました",
-    toast_code_copied: "2FAコードをコピーしました:",
+    toast_code_copied: "2FAコードをコピーしました。",
     toast_totp_added: "2FAアカウントをボールトに追加しました",
     toast_qr_detected: "QRコードを検出してデコードしました！",
     toast_required_fields: "すべての必須項目（*）を入力してください",
@@ -1551,7 +1581,7 @@ var TRANSLATIONS = {
     toast_secret_copied: "Clave secreta copiada",
     toast_otp_copied: "Enlace OTP copiado",
     toast_qr_downloaded: "Código QR descargado como PNG",
-    toast_code_copied: "Código 2FA copiado:",
+    toast_code_copied: "Código 2FA copiado.",
     toast_totp_added: "Cuenta 2FA agregada a la Bóveda",
     toast_qr_detected: "¡Código QR detectado y decodificado!",
     toast_required_fields: "Por favor complete todos los campos obligatorios (*)",
@@ -1657,7 +1687,7 @@ var TRANSLATIONS = {
     toast_secret_copied: "Kunci rahasia disalin",
     toast_otp_copied: "Tautan OTP disalin",
     toast_qr_downloaded: "Kode QR diunduh sebagai PNG",
-    toast_code_copied: "Kode 2FA disalin:",
+    toast_code_copied: "Kode 2FA disalin.",
     toast_totp_added: "Akun 2FA ditambahkan ke Brankas",
     toast_qr_detected: "Kode QR terdeteksi dan berhasil didekode!",
     toast_required_fields: "Harap isi semua bidang yang wajib diisi (*)",
@@ -1780,7 +1810,7 @@ var ADDITIONAL_TRANSLATIONS = {
     toast_secret_copied: "تم نسخ المفتاح السري",
     toast_otp_copied: "تم نسخ رابط OTP",
     toast_qr_downloaded: "تم تنزيل QR بصيغة PNG",
-    toast_code_copied: "تم نسخ رمز 2FA:",
+    toast_code_copied: "تم نسخ رمز 2FA.",
     toast_totp_added: "تمت إضافة حساب 2FA إلى الخزنة",
     toast_qr_detected: "تم اكتشاف QR وفك ترميزه بنجاح!",
     toast_required_fields: "يرجى ملء جميع الحقول المطلوبة (*)",
@@ -1901,7 +1931,7 @@ var ADDITIONAL_TRANSLATIONS = {
     toast_secret_copied: "सीक्रेट की कॉपी हुई",
     toast_otp_copied: "OTP लिंक कॉपी हुआ",
     toast_qr_downloaded: "QR PNG डाउनलोड हुआ",
-    toast_code_copied: "2FA कोड कॉपी हुआ:",
+    toast_code_copied: "2FA कोड कॉपी हुआ।",
     toast_totp_added: "2FA अकाउंट वॉल्ट में जोड़ा गया",
     toast_qr_detected: "QR कोड सफलतापूर्वक डीकोड हुआ!",
     toast_required_fields: "सभी आवश्यक फ़ील्ड भरें (*)",
@@ -2022,7 +2052,7 @@ var ADDITIONAL_TRANSLATIONS = {
     toast_secret_copied: "Chave secreta copiada",
     toast_otp_copied: "Link OTP copiado",
     toast_qr_downloaded: "QR baixado como PNG",
-    toast_code_copied: "Código 2FA copiado:",
+    toast_code_copied: "Código 2FA copiado.",
     toast_totp_added: "Conta 2FA adicionada ao cofre",
     toast_qr_detected: "QR detectado e decodificado!",
     toast_required_fields: "Preencha todos os campos obrigatórios (*)",
@@ -2128,12 +2158,13 @@ function initAll() {
   armAutoLock();
 }
 function applyVaultPayload(payload) {
-  appState.notes = Array.isArray(payload?.notes) ? payload.notes : DEFAULT_NOTES;
-  appState.totpAccounts = Array.isArray(payload?.totpAccounts) ? payload.totpAccounts : DEFAULT_VAULT_ACCOUNTS;
-  vaultMetadata = payload?.metadata || vaultMetadata;
+  const normalized = payload && typeof payload === "object" ? sanitizeVaultPayloadIds(payload, generateId) : payload;
+  appState.notes = Array.isArray(normalized?.notes) ? normalized.notes : DEFAULT_NOTES;
+  appState.totpAccounts = Array.isArray(normalized?.totpAccounts) ? normalized.totpAccounts : DEFAULT_VAULT_ACCOUNTS;
+  vaultMetadata = normalized?.metadata || vaultMetadata;
 }
 function clearTransientSecrets() {
-  ["lockPasswordInput", "secNewPassword", "secConfirmPassword", "secCurrentPassword", "secNewPassword2", "secConfirmPassword2", "genSecret", "genPassword", "modalSecret", "modalPassword", "decPasswordInput", "decSecret", "backupRestorePassword"].forEach((id) => {
+  ["lockPasswordInput", "secNewPassword", "secConfirmPassword", "secCurrentPassword", "secNewPassword2", "secConfirmPassword2", "genSecret", "genPassword", "genIssuer", "genAccount", "modalSecret", "modalPassword", "decPasswordInput", "decSecret", "decIssuer", "decAccount", "rawOtpInput", "backupRestorePassword"].forEach((id) => {
     const field = document.getElementById(id);
     if (field) field.value = "";
   });
@@ -2149,6 +2180,8 @@ function clearTransientSecrets() {
   });
   const fileInput = document.getElementById("backupFileInput");
   if (fileInput) fileInput.value = "";
+  const qr = document.getElementById("qrContainer");
+  if (qr) qr.innerHTML = "";
   pendingBackupFile = null;
   document.querySelectorAll(".pass-masked-val").forEach((el) => {
     el.textContent = "••••••••••••";
@@ -2604,7 +2637,10 @@ async function restoreEncryptedBackup() {
   try {
     if (vaultStore.getStatus().state === "save-failed") throw new Error("backup_save_failed");
     await vaultStore.flush();
-    await restoreBackup(vaultAdapter, await readBackupFile(pendingBackupFile), password);
+    const backup = await parseBackup(await readBackupFile(pendingBackupFile));
+    const committedGeneration = vaultStore.getStatus().generation;
+    if (backup.envelope.generation < committedGeneration && !window.confirm(t("backup_rollback_confirm"))) return;
+    await restoreBackup(vaultAdapter, backup, password);
     clearVaultSession();
     showToast(t("backup_restored"));
   } catch (error) {
@@ -2989,7 +3025,12 @@ function updateStorageStat() {
   const el = document.getElementById("storageUsage");
   if (el) el.textContent = `${kb} KB`;
   const bar = document.getElementById("storageProgressBar");
-  if (bar) bar.style.width = `${Math.min(100, bytes2 / (5 * 1024 * 1024) * 100).toFixed(1)}%`;
+  if (!bar) return;
+  const paint = (quota) => {
+    bar.style.width = `${Math.min(100, bytes2 / quota * 100).toFixed(1)}%`;
+  };
+  if (navigator.storage?.estimate) navigator.storage.estimate().then(({ quota }) => paint(quota || 5 * 1024 * 1024)).catch(() => paint(5 * 1024 * 1024));
+  else paint(5 * 1024 * 1024);
 }
 function initTOTPStudio() {
   renderTOTPCards();
@@ -3289,7 +3330,9 @@ function downloadQRPNG() {
   a.click();
   showToast(t("toast_qr_downloaded"));
 }
+var totpRenderSeq = 0;
 async function renderTOTPCards() {
+  const renderSeq = ++totpRenderSeq;
   const grid = document.getElementById("totpCardsGrid");
   if (!grid) return;
   grid.innerHTML = "";
@@ -3325,20 +3368,21 @@ async function renderTOTPCards() {
       algo: normalizeAlgorithm2(acc.algo),
       timestamp: renderTimestamp
     });
+    if (renderSeq !== totpRenderSeq) return;
     const formattedCode = formatOTPCode(currentCode);
     const hasPassword = Boolean(acc.password && acc.password.trim().length > 0);
     const passwordRowHTML = hasPassword ? `
       <div class="totp-card-password-row">
         <div class="pass-label-col">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pass-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          <span class="pass-masked-val" id="pass-val-${acc.id}">••••••••••••</span>
+          <span class="pass-masked-val" id="pass-val-${escapeHTML(acc.id)}">••••••••••••</span>
         </div>
         <div class="pass-actions-col">
-          <button class="btn-icon-xs toggle-card-pass" data-id="${acc.id}" title="Show/Hide Password">
+          <button class="btn-icon-xs toggle-card-pass" data-id="${escapeHTML(acc.id)}" title="Show/Hide Password">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-open"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-closed hidden"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
           </button>
-          <button class="btn-icon-xs copy-card-pass" data-id="${acc.id}" title="Copy Password">
+          <button class="btn-icon-xs copy-card-pass" data-id="${escapeHTML(acc.id)}" title="Copy Password">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
           </button>
         </div>
@@ -3359,7 +3403,7 @@ async function renderTOTPCards() {
       </div>
 
       <div class="totp-code-box">
-        <div class="totp-code-text" id="code-${acc.id}">${formattedCode}</div>
+        <div class="totp-code-text" id="code-${escapeHTML(acc.id)}">${formattedCode}</div>
         <button class="btn-copy-code" title="Copy 6-digit code">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         </button>
@@ -3372,7 +3416,7 @@ async function renderTOTPCards() {
         <span class="font-mono text-cyan">${periodLabel}</span>
       </div>
       <div class="totp-card-progress">
-        <div class="totp-card-progress-bar" id="prog-${acc.id}"></div>
+        <div class="totp-card-progress-bar" id="prog-${escapeHTML(acc.id)}"></div>
       </div>
     `;
     card.querySelector(".btn-copy-code")?.addEventListener("click", (e) => {
@@ -3727,6 +3771,7 @@ async function handleOTPAuthInput(input) {
     return;
   }
   const { issuer, account, secret, digits, period, algo } = parsed;
+  if (parsed.issuerConflict) showToast(t("toast_issuer_conflict"));
   currentDecodedSecret = secret;
   currentDecodedItem = parsed;
   lastDecodedTOTPWindow = getTOTPWindowIndex(Math.floor(Date.now() / 1e3), period);

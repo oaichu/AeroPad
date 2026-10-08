@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
-import { decryptVault, encryptVault, buildVaultAAD } from '../src/crypto/vault-crypto.js';
+import { decryptVault, encryptVault, buildVaultAAD, sanitizeVaultPayloadIds } from '../src/crypto/vault-crypto.js';
 const password = 'correct horse battery staple'; const payload = {
   schemaVersion: 2,
   notes: [{ id: 'n1', title: 'Ops', content: 'rotate keys', tags: ['security'], updatedAt: 1 }],
@@ -55,4 +55,30 @@ test('Vault crypto - rejects bounded-envelope violations before deriveKey', asyn
     await assert.rejects(decryptVault(candidate, password, { crypto: deriveSpy }));
   }
   assert.equal(deriveCalls, 0);
+});
+
+test('Vault payload - re-keys hostile and duplicate record ids before the DOM sees them', () => {
+  let counter = 0;
+  const makeId = prefix => `${prefix}-new-${counter++}`;
+  const hostileId = 'x"><img src=x onerror=alert(1)>';
+  const dirty = {
+    ...payload,
+    notes: [
+      { id: 'ok-note', title: 'a', content: '', tags: [], updatedAt: 1 },
+      { id: hostileId, title: 'b', content: '', tags: [], updatedAt: 2 }
+    ],
+    totpAccounts: [
+      { id: 'totp-same', issuer: 'A', account: 'a@x.io', secret: 'JBSWY3DPEHPK3PXP', digits: 6, period: 30, algo: 'SHA1' },
+      { id: 'totp-same', issuer: 'B', account: 'b@x.io', secret: 'JBSWY3DPEHPK3PXP', digits: 6, period: 30, algo: 'SHA1' },
+      { id: hostileId, issuer: 'C', account: 'c@x.io', secret: 'JBSWY3DPEHPK3PXP', digits: 6, period: 30, algo: 'SHA1' }
+    ]
+  };
+  const clean = sanitizeVaultPayloadIds(dirty, makeId);
+  assert.equal(clean.notes[0].id, 'ok-note');
+  assert.match(clean.notes[1].id, /^note-new-/);
+  const accountIds = clean.totpAccounts.map(account => account.id);
+  assert.deepEqual([...new Set(accountIds)].length, 3);
+  assert.ok(accountIds.every(id => /^[A-Za-z0-9_-]{1,64}$/.test(id)));
+  assert.equal(clean.totpAccounts[0].id, 'totp-same');
+  assert.equal(clean.totpAccounts[2].issuer, 'C');
 });

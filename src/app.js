@@ -6,9 +6,9 @@
 import { Base32 } from './crypto/base32.js';
 import { buildOTPAuthURI, parseOTPAuthURI } from './crypto/otpauth.js';
 import { generateTOTP, normalizeAlgorithm } from './crypto/totp.js';
-import { decryptVault } from './crypto/vault-crypto.js';
+import { decryptVault, sanitizeVaultPayloadIds } from './crypto/vault-crypto.js';
 import { IndexedDBVaultAdapter } from './storage/indexeddb-adapter.js';
-import { createBackup, restoreBackup, serializeBackup } from './storage/backup.js';
+import { createBackup, parseBackup, restoreBackup, serializeBackup } from './storage/backup.js';
 import { completeLegacyMigration, readLegacyVault } from './storage/legacy-migration.js';
 import { VaultStore } from './storage/vault-store.js';
 import { NOTE_SEARCH_DEBOUNCE_MS, searchNotes as searchLocalNotes } from './notes/notes-manager.js';
@@ -64,7 +64,7 @@ async function copyVaultCode(acc) {
     return;
   }
   const ok = await copyTextToClipboard(code);
-  if (ok) showToast(`${t('toast_code_copied')} ${code}`);
+  if (ok) showToast(t('toast_code_copied'));
   else showToast(t('toast_copy_failed'), 'error');
 }
 
@@ -238,6 +238,8 @@ const TRANSLATIONS = {
     backup_restored: 'Backup restored — vault locked for unlock.',
     backup_failed: 'Backup operation failed — current vault was kept.',
     backup_restore_confirm: 'Restore this encrypted backup? Current vault data will be replaced after password verification.',
+    backup_rollback_confirm: 'This backup is older than the current vault. Restoring rolls back newer changes. Continue anyway?',
+    toast_issuer_conflict: 'Warning: the URI issuer parameter does not match the label issuer — verify before saving.',
     mode_edit: 'Edit',
     mode_split: 'Split',
     mode_preview: 'Preview',
@@ -292,7 +294,7 @@ const TRANSLATIONS = {
     toast_secret_copied: 'Secret key copied',
     toast_otp_copied: 'OTP Auth link copied',
     toast_qr_downloaded: 'QR Code downloaded as PNG',
-    toast_code_copied: '2FA code copied:',
+    toast_code_copied: '2FA code copied.',
     toast_totp_added: '2FA account added to Vault',
     toast_qr_detected: 'QR Code detected and decoded successfully!',
     toast_required_fields: 'Please fill in all required fields (*)',
@@ -403,7 +405,7 @@ const TRANSLATIONS = {
     toast_secret_copied: 'Đã sao chép khóa bí mật',
     toast_otp_copied: 'Đã sao chép đường dẫn OTP Auth',
     toast_qr_downloaded: 'Đã tải xuống ảnh mã QR',
-    toast_code_copied: 'Đã sao chép mã 2FA:',
+    toast_code_copied: 'Đã sao chép mã 2FA.',
     toast_totp_added: 'Đã thêm tài khoản vào Vault',
     toast_qr_detected: 'Đã phát hiện và giải mã mã QR thành công!',
     toast_required_fields: 'Vui lòng điền đầy đủ các mục bắt buộc (*)',
@@ -509,7 +511,7 @@ const TRANSLATIONS = {
     toast_secret_copied: '密钥已复制',
     toast_otp_copied: 'OTP 链接已复制',
     toast_qr_downloaded: '二维码已下载为 PNG',
-    toast_code_copied: '2FA 验证码已复制：',
+    toast_code_copied: '2FA 验证码已复制。',
     toast_totp_added: '已添加 2FA 账户至保险库',
     toast_qr_detected: '成功识别并解码二维码！',
     toast_required_fields: '请填写所有必填项（*）',
@@ -615,7 +617,7 @@ const TRANSLATIONS = {
     toast_secret_copied: '비밀키가 복사되었습니다',
     toast_otp_copied: 'OTP 링크가 복사되었습니다',
     toast_qr_downloaded: 'QR 코드가 PNG로 다운로드되었습니다',
-    toast_code_copied: '2FA 코드가 복사되었습니다:',
+    toast_code_copied: '2FA 코드가 복사되었습니다.',
     toast_totp_added: '금고에 2FA 계정이 추가되었습니다',
     toast_qr_detected: 'QR 코드가 감지되어 디코드되었습니다!',
     toast_required_fields: '모든 필수 항목(*)을 입력해 주세요',
@@ -721,7 +723,7 @@ const TRANSLATIONS = {
     toast_secret_copied: 'シークレットキーをコピーしました',
     toast_otp_copied: 'OTPリンクをコピーしました',
     toast_qr_downloaded: 'QRコードをPNGで保存しました',
-    toast_code_copied: '2FAコードをコピーしました:',
+    toast_code_copied: '2FAコードをコピーしました。',
     toast_totp_added: '2FAアカウントをボールトに追加しました',
     toast_qr_detected: 'QRコードを検出してデコードしました！',
     toast_required_fields: 'すべての必須項目（*）を入力してください',
@@ -827,7 +829,7 @@ const TRANSLATIONS = {
     toast_secret_copied: 'Clave secreta copiada',
     toast_otp_copied: 'Enlace OTP copiado',
     toast_qr_downloaded: 'Código QR descargado como PNG',
-    toast_code_copied: 'Código 2FA copiado:',
+    toast_code_copied: 'Código 2FA copiado.',
     toast_totp_added: 'Cuenta 2FA agregada a la Bóveda',
     toast_qr_detected: '¡Código QR detectado y decodificado!',
     toast_required_fields: 'Por favor complete todos los campos obligatorios (*)',
@@ -933,7 +935,7 @@ const TRANSLATIONS = {
     toast_secret_copied: 'Kunci rahasia disalin',
     toast_otp_copied: 'Tautan OTP disalin',
     toast_qr_downloaded: 'Kode QR diunduh sebagai PNG',
-    toast_code_copied: 'Kode 2FA disalin:',
+    toast_code_copied: 'Kode 2FA disalin.',
     toast_totp_added: 'Akun 2FA ditambahkan ke Brankas',
     toast_qr_detected: 'Kode QR terdeteksi dan berhasil didekode!',
     toast_required_fields: 'Harap isi semua bidang yang wajib diisi (*)',
@@ -1002,7 +1004,7 @@ const ADDITIONAL_TRANSLATIONS = {
     modal_password_placeholder: 'مثال: •••••••• (اتركه فارغًا عند عدم الحاجة)', gen_pass_quick: 'إنشاء', word_unit: 'كلمات', char_unit: 'أحرف', read_unit: 'دقيقة قراءة',
     toast_created_note: 'تم إنشاء ملاحظة جديدة', toast_deleted_note: 'تم حذف الملاحظة', toast_deleted_totp: 'تم حذف حساب 2FA', toast_copied_note: 'تم نسخ محتوى الملاحظة',
     toast_secret_copied: 'تم نسخ المفتاح السري', toast_otp_copied: 'تم نسخ رابط OTP', toast_qr_downloaded: 'تم تنزيل QR بصيغة PNG',
-    toast_code_copied: 'تم نسخ رمز 2FA:', toast_totp_added: 'تمت إضافة حساب 2FA إلى الخزنة', toast_qr_detected: 'تم اكتشاف QR وفك ترميزه بنجاح!',
+    toast_code_copied: 'تم نسخ رمز 2FA.', toast_totp_added: 'تمت إضافة حساب 2FA إلى الخزنة', toast_qr_detected: 'تم اكتشاف QR وفك ترميزه بنجاح!',
     toast_required_fields: 'يرجى ملء جميع الحقول المطلوبة (*)', toast_copy_failed: 'فشل النسخ — انسخ النص يدويًا', toast_invalid_code: 'لا يوجد رمز صالح الآن — انتظر التحديث التالي',
     toast_invalid_secret: 'مفتاح غير صالح: استخدم A–Z والأرقام 2–7 فقط (8 أحرف على الأقل)', toast_not_an_image: 'الملف ليس صورة قابلة للقراءة',
     toast_qr_read_failed: 'تعذرت قراءة الملف', toast_image_too_large: 'الصورة كبيرة جدًا (الحد 4096×4096)', confirm_delete_note: 'حذف هذه الملاحظة نهائيًا؟',
@@ -1036,7 +1038,7 @@ const ADDITIONAL_TRANSLATIONS = {
     dec_live_label: 'रीयल-टाइम 6-अंकीय कोड:', save_dec_to_vault: 'यह अकाउंट वॉल्ट में सहेजें', modal_add_title: 'नया 2FA अकाउंट जोड़ें', cancel_btn: 'रद्द करें', confirm_add_btn: 'वॉल्ट में जोड़ें',
     modal_password_label: 'अकाउंट पासवर्ड (वैकल्पिक)', modal_password_placeholder: 'उदाहरण: •••••••• (जरूरत न हो तो खाली छोड़ें)', gen_pass_quick: 'बनाएं', word_unit: 'शब्द', char_unit: 'अक्षर', read_unit: 'मिनट पढ़ने का समय',
     toast_created_note: 'नया नोट बनाया गया', toast_deleted_note: 'नोट हटाया गया', toast_deleted_totp: '2FA अकाउंट हटाया गया', toast_copied_note: 'नोट की सामग्री कॉपी हुई', toast_secret_copied: 'सीक्रेट की कॉपी हुई',
-    toast_otp_copied: 'OTP लिंक कॉपी हुआ', toast_qr_downloaded: 'QR PNG डाउनलोड हुआ', toast_code_copied: '2FA कोड कॉपी हुआ:', toast_totp_added: '2FA अकाउंट वॉल्ट में जोड़ा गया',
+    toast_otp_copied: 'OTP लिंक कॉपी हुआ', toast_qr_downloaded: 'QR PNG डाउनलोड हुआ', toast_code_copied: '2FA कोड कॉपी हुआ।', toast_totp_added: '2FA अकाउंट वॉल्ट में जोड़ा गया',
     toast_qr_detected: 'QR कोड सफलतापूर्वक डीकोड हुआ!', toast_required_fields: 'सभी आवश्यक फ़ील्ड भरें (*)', toast_copy_failed: 'कॉपी विफल — टेक्स्ट को मैन्युअल रूप से कॉपी करें',
     toast_invalid_code: 'अभी कोई मान्य कोड नहीं — अगले रिफ्रेश की प्रतीक्षा करें', toast_invalid_secret: 'अमान्य सीक्रेट: केवल A–Z और 2–7 (कम से कम 8 अक्षर)', toast_not_an_image: 'यह पढ़ने योग्य इमेज नहीं है',
     toast_qr_read_failed: 'फ़ाइल पढ़ी नहीं जा सकी', toast_image_too_large: 'इमेज बहुत बड़ी है (अधिकतम 4096×4096)', confirm_delete_note: 'यह नोट हमेशा के लिए हटाएं?', confirm_delete_totp: 'यह 2FA अकाउंट हटाएं? सीक्रेट हमेशा के लिए खो जाएगा!',
@@ -1064,7 +1066,7 @@ const ADDITIONAL_TRANSLATIONS = {
     dec_result_title: 'Informações da conta 2FA', dec_live_label: 'CÓDIGO DE 6 DÍGITOS EM TEMPO REAL:', save_dec_to_vault: 'Salvar esta conta no cofre', modal_add_title: 'Adicionar conta 2FA', cancel_btn: 'Cancelar', confirm_add_btn: 'Adicionar ao cofre',
     modal_password_label: 'Senha da conta (opcional)', modal_password_placeholder: 'ex.: •••••••• (deixe vazio se não precisar)', gen_pass_quick: 'Gerar', word_unit: 'palavras', char_unit: 'caracteres', read_unit: 'min de leitura',
     toast_created_note: 'Nova nota criada', toast_deleted_note: 'Nota excluída', toast_deleted_totp: 'Conta 2FA excluída', toast_copied_note: 'Conteúdo da nota copiado', toast_secret_copied: 'Chave secreta copiada', toast_otp_copied: 'Link OTP copiado', toast_qr_downloaded: 'QR baixado como PNG',
-    toast_code_copied: 'Código 2FA copiado:', toast_totp_added: 'Conta 2FA adicionada ao cofre', toast_qr_detected: 'QR detectado e decodificado!', toast_required_fields: 'Preencha todos os campos obrigatórios (*)', toast_copy_failed: 'Falha ao copiar — copie o texto manualmente',
+    toast_code_copied: 'Código 2FA copiado.', toast_totp_added: 'Conta 2FA adicionada ao cofre', toast_qr_detected: 'QR detectado e decodificado!', toast_required_fields: 'Preencha todos os campos obrigatórios (*)', toast_copy_failed: 'Falha ao copiar — copie o texto manualmente',
     toast_invalid_code: 'Nenhum código válido agora — aguarde a próxima atualização', toast_invalid_secret: 'Chave inválida: use apenas A–Z e 2–7 (mínimo de 8 caracteres)', toast_not_an_image: 'O arquivo não é uma imagem legível', toast_qr_read_failed: 'Não foi possível ler o arquivo', toast_image_too_large: 'Imagem muito grande (máximo 4096×4096)',
     confirm_delete_note: 'Excluir esta nota permanentemente?', confirm_delete_totp: 'Excluir esta conta 2FA? A chave secreta será perdida para sempre!', lock_title: 'Cofre bloqueado', lock_subtitle: 'Digite sua senha mestra para descriptografar os dados.', lock_password_ph: 'Senha mestra', lock_unlock_btn: 'Desbloquear cofre', lock_wrong_pw: 'Senha incorreta — tente novamente', lock_error_generic: 'Falha ao descriptografar — os dados podem estar corrompidos',
     legacy_recovery_required: 'O armazenamento antigo precisa ser recuperado antes do desbloqueio seguro.', legacy_recovery_reset: 'Limpar dados antigos incompletos e começar de novo', legacy_recovery_help: 'Este navegador contém registros antigos incompletos ou corrompidos. Não é seguro desbloquear este estado com uma senha.', legacy_recovery_confirm: 'Limpar os registros antigos incompletos e iniciar um cofre novo? Não é possível desfazer.',
@@ -1149,13 +1151,14 @@ function initAll() {
 }
 
 function applyVaultPayload(payload) {
-  appState.notes = Array.isArray(payload?.notes) ? payload.notes : DEFAULT_NOTES;
-  appState.totpAccounts = Array.isArray(payload?.totpAccounts) ? payload.totpAccounts : DEFAULT_VAULT_ACCOUNTS;
-  vaultMetadata = payload?.metadata || vaultMetadata;
+  const normalized = payload && typeof payload === 'object' ? sanitizeVaultPayloadIds(payload, generateId) : payload;
+  appState.notes = Array.isArray(normalized?.notes) ? normalized.notes : DEFAULT_NOTES;
+  appState.totpAccounts = Array.isArray(normalized?.totpAccounts) ? normalized.totpAccounts : DEFAULT_VAULT_ACCOUNTS;
+  vaultMetadata = normalized?.metadata || vaultMetadata;
 }
 
 function clearTransientSecrets() {
-  ['lockPasswordInput', 'secNewPassword', 'secConfirmPassword', 'secCurrentPassword', 'secNewPassword2', 'secConfirmPassword2', 'genSecret', 'genPassword', 'modalSecret', 'modalPassword', 'decPasswordInput', 'decSecret', 'backupRestorePassword'].forEach(id => {
+  ['lockPasswordInput', 'secNewPassword', 'secConfirmPassword', 'secCurrentPassword', 'secNewPassword2', 'secConfirmPassword2', 'genSecret', 'genPassword', 'genIssuer', 'genAccount', 'modalSecret', 'modalPassword', 'decPasswordInput', 'decSecret', 'decIssuer', 'decAccount', 'rawOtpInput', 'backupRestorePassword'].forEach(id => {
     const field = document.getElementById(id);
     if (field) field.value = '';
   });
@@ -1171,6 +1174,8 @@ function clearTransientSecrets() {
   });
   const fileInput = document.getElementById('backupFileInput');
   if (fileInput) fileInput.value = '';
+  const qr = document.getElementById('qrContainer');
+  if (qr) qr.innerHTML = '';
   pendingBackupFile = null;
   document.querySelectorAll('.pass-masked-val').forEach(el => { el.textContent = '••••••••••••'; });
   if (typeof currentDecodedSecret !== 'undefined') currentDecodedSecret = null;
@@ -1674,7 +1679,10 @@ async function restoreEncryptedBackup() {
   try {
     if (vaultStore.getStatus().state === 'save-failed') throw new Error('backup_save_failed');
     await vaultStore.flush();
-    await restoreBackup(vaultAdapter, await readBackupFile(pendingBackupFile), password);
+    const backup = await parseBackup(await readBackupFile(pendingBackupFile));
+    const committedGeneration = vaultStore.getStatus().generation;
+    if (backup.envelope.generation < committedGeneration && !window.confirm(t('backup_rollback_confirm'))) return;
+    await restoreBackup(vaultAdapter, backup, password);
     clearVaultSession();
     showToast(t('backup_restored'));
   } catch (error) {
@@ -2101,9 +2109,13 @@ function updateStorageStat() {
   const kb = (bytes / 1024).toFixed(1);
   const el = document.getElementById('storageUsage');
   if (el) el.textContent = `${kb} KB`;
-  // LocalStorage quota is ~5MB — reflect actual usage instead of a static 2%
   const bar = document.getElementById('storageProgressBar');
-  if (bar) bar.style.width = `${Math.min(100, (bytes / (5 * 1024 * 1024)) * 100).toFixed(1)}%`;
+  if (!bar) return;
+  const paint = quota => { bar.style.width = `${Math.min(100, (bytes / quota) * 100).toFixed(1)}%`; };
+  // Vault data lives in IndexedDB, whose quota is device/browser dependent and
+  // far above the ~5MB localStorage cap — prefer the real estimate when exposed.
+  if (navigator.storage?.estimate) navigator.storage.estimate().then(({ quota }) => paint(quota || 5 * 1024 * 1024)).catch(() => paint(5 * 1024 * 1024));
+  else paint(5 * 1024 * 1024);
 }
 
 // ==========================================
@@ -2464,7 +2476,12 @@ function downloadQRPNG() {
   showToast(t('toast_qr_downloaded'));
 }
 
+// Async renders can interleave (unlock + init + language switch) and would
+// otherwise duplicate cards — a stale render aborts after its next await.
+let totpRenderSeq = 0;
+
 async function renderTOTPCards() {
+  const renderSeq = ++totpRenderSeq;
   const grid = document.getElementById('totpCardsGrid');
   if (!grid) return;
   grid.innerHTML = '';
@@ -2503,6 +2520,7 @@ async function renderTOTPCards() {
       algo: normalizeAlgorithm(acc.algo),
       timestamp: renderTimestamp
     });
+    if (renderSeq !== totpRenderSeq) return;
     const formattedCode = formatOTPCode(currentCode);
 
     const hasPassword = Boolean(acc.password && acc.password.trim().length > 0);
@@ -2510,14 +2528,14 @@ async function renderTOTPCards() {
       <div class="totp-card-password-row">
         <div class="pass-label-col">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pass-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          <span class="pass-masked-val" id="pass-val-${acc.id}">••••••••••••</span>
+          <span class="pass-masked-val" id="pass-val-${escapeHTML(acc.id)}">••••••••••••</span>
         </div>
         <div class="pass-actions-col">
-          <button class="btn-icon-xs toggle-card-pass" data-id="${acc.id}" title="Show/Hide Password">
+          <button class="btn-icon-xs toggle-card-pass" data-id="${escapeHTML(acc.id)}" title="Show/Hide Password">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-open"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-closed hidden"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
           </button>
-          <button class="btn-icon-xs copy-card-pass" data-id="${acc.id}" title="Copy Password">
+          <button class="btn-icon-xs copy-card-pass" data-id="${escapeHTML(acc.id)}" title="Copy Password">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
           </button>
         </div>
@@ -2539,7 +2557,7 @@ async function renderTOTPCards() {
       </div>
 
       <div class="totp-code-box">
-        <div class="totp-code-text" id="code-${acc.id}">${formattedCode}</div>
+        <div class="totp-code-text" id="code-${escapeHTML(acc.id)}">${formattedCode}</div>
         <button class="btn-copy-code" title="Copy 6-digit code">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         </button>
@@ -2552,7 +2570,7 @@ async function renderTOTPCards() {
         <span class="font-mono text-cyan">${periodLabel}</span>
       </div>
       <div class="totp-card-progress">
-        <div class="totp-card-progress-bar" id="prog-${acc.id}"></div>
+        <div class="totp-card-progress-bar" id="prog-${escapeHTML(acc.id)}"></div>
       </div>
     `;
 
@@ -2983,6 +3001,7 @@ async function handleOTPAuthInput(input) {
   }
 
   const { issuer, account, secret, digits, period, algo } = parsed;
+  if (parsed.issuerConflict) showToast(t('toast_issuer_conflict'));
   currentDecodedSecret = secret;
   currentDecodedItem = parsed;
   lastDecodedTOTPWindow = getTOTPWindowIndex(Math.floor(Date.now() / 1000), period);

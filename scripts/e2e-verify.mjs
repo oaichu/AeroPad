@@ -303,7 +303,9 @@ console.log('\n=== TEST 2+3: SEC-002 — copy after crossing the 30s window retu
   check('card click copies the CURRENT code', copiedViaCard === window2Ref,
     `copied="${copiedViaCard}"`);
 
-  check('success toast names the copied code', lastToast(document).includes(window2Ref), lastToast(document));
+  // SEC-005: the toast must not display the live credential — copying is
+  // confirmed without shoulder-surfing the OTP digits on screen.
+  check('success toast confirms copy without exposing the code', !lastToast(document).includes(window2Ref), lastToast(document));
 
   dom.window.close();
 }
@@ -1010,6 +1012,30 @@ console.log('\n=== TEST 17: SEC-004 — user-controlled toast content and dialog
   check('security modal close returns focus to trigger', document.activeElement === securityTrigger);
   check('lock overlay declares dialog semantics',
     document.getElementById('lockOverlay').getAttribute('role') === 'dialog' && document.getElementById('lockOverlay').getAttribute('aria-modal') === 'true');
+  dom.window.close();
+}
+
+// ============================================================
+console.log('\n=== TEST 18: SEC-005 — hostile and duplicate record ids are re-keyed before rendering ===');
+{
+  const hostileId = 'x"><img src=x onerror="window.__pwned=1">';
+  const { dom, document, window } = await boot({
+    preSeed: (w) => {
+      w.localStorage.setItem('aeropad_notes', '[]');
+      w.localStorage.setItem('aeropad_totp', JSON.stringify([
+        { id: hostileId, issuer: 'Evil', account: 'e@x.io', secret: SECRET, digits: 6, period: 30, algo: 'SHA1' },
+        { id: 'totp-dup', issuer: 'One', account: 'a@x.io', secret: SECRET, digits: 6, period: 30, algo: 'SHA1' },
+        { id: 'totp-dup', issuer: 'Two', account: 'b@x.io', secret: SECRET, digits: 6, period: 30, algo: 'SHA1' }
+      ]));
+    },
+  });
+  check('three cards render after id normalization', await waitFor(() => document.querySelectorAll('#totpCardsGrid .totp-card').length === 3));
+  const grid = document.getElementById('totpCardsGrid');
+  check('hostile account id injects no markup', !grid.innerHTML.includes('<img') && !grid.innerHTML.includes('onerror'));
+  check('payload did not execute', window.__pwned === undefined);
+  const codeIds = [...grid.querySelectorAll('[id^="code-"]')].map(el => el.id);
+  check('card code ids are unique after dedupe', codeIds.length === 3 && new Set(codeIds).size === 3, codeIds.join(','));
+  check('re-keyed ids match the generated-id grammar', codeIds.every(id => /^code-[A-Za-z0-9_-]{1,64}$/.test(id)));
   dom.window.close();
 }
 

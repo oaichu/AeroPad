@@ -77,6 +77,34 @@ export function validateVaultPayload(payload) {
   return payload;
 }
 
+export const RECORD_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+
+function rekeyUnsafeIds(records, prefix, makeId) {
+  const seen = new Set();
+  return records.map(record => {
+    let next = record;
+    if (typeof record.id !== 'string' || !RECORD_ID_PATTERN.test(record.id) || seen.has(record.id)) {
+      let id;
+      do { id = makeId(prefix); } while (seen.has(id));
+      next = { ...record, id };
+    }
+    seen.add(next.id);
+    return next;
+  });
+}
+
+// Record ids land in DOM id/data-* attributes — payloads from restored backups
+// or legacy storage may carry attacker-chosen ids, so re-key anything that does
+// not match the generated-id grammar (and any duplicates) before the UI sees it.
+export function sanitizeVaultPayloadIds(payload, makeId) {
+  if (!object(payload)) fail('invalid_payload');
+  return {
+    ...payload,
+    notes: Array.isArray(payload.notes) ? rekeyUnsafeIds(payload.notes, 'note', makeId) : payload.notes,
+    totpAccounts: Array.isArray(payload.totpAccounts) ? rekeyUnsafeIds(payload.totpAccounts, 'totp', makeId) : payload.totpAccounts
+  };
+}
+
 export function validateVaultEnvelope(envelope) {
   if (!object(envelope) || envelope.id !== 'current' || envelope.format !== 'aeropad-vault' || envelope.version !== 2 || !object(envelope.kdf) || !object(envelope.cipher)) fail('invalid_envelope');
   const generation = integer(envelope.generation, 1, Number.MAX_SAFE_INTEGER, 'invalid_generation');

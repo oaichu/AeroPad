@@ -1,0 +1,10 @@
+.redteam/
+.omo/
+.opencode/
+tests/
+docs/
+specs/
+scripts/
+.github/
+node_modules/
+*.log

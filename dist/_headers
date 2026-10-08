@@ -6,4 +6,4 @@
   Referrer-Policy: no-referrer
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-R7AwIKiqjeFVFF+Es9vlqjWPH5nxfystMh5YwTdO0Zg='; style-src 'self' 'sha256-RO8FwuYPG7Nbx0KIZIQdUvNfe3ZNc1bIN/5f5WK4RBE=' 'sha256-LQqblBZ9gi3lDvhdmKtGaEG4fI9ItQIZh2VNuG7v4eM='; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-KFaHfpbI58uwvBviEfrsiq4+4OdDc+kXqCNEh/WJRew='; style-src 'self' 'sha256-RO8FwuYPG7Nbx0KIZIQdUvNfe3ZNc1bIN/5f5WK4RBE=' 'sha256-LQqblBZ9gi3lDvhdmKtGaEG4fI9ItQIZh2VNuG7v4eM='; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'

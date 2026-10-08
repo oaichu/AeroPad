@@ -86,7 +86,9 @@ export function parseOTPAuthURI(input) {
       const labelIssuer = separator === -1 ? '' : label.slice(0, separator);
       const labelAccount = separator === -1 ? label : label.slice(separator + 1);
 
-      const issuer = url.searchParams.get('issuer')?.trim() || labelIssuer || 'Custom 2FA';
+      const issuerParam = url.searchParams.get('issuer')?.trim() || '';
+      const issuerConflict = Boolean(labelIssuer && issuerParam && labelIssuer !== issuerParam);
+      const issuer = issuerParam || labelIssuer || 'Custom 2FA';
       const account = labelAccount || 'User';
 
       const secretParam = url.searchParams.get('secret');
@@ -127,7 +129,8 @@ export function parseOTPAuthURI(input) {
         secret,
         digits: digitsResult.value,
         period: periodResult.value,
-        algo
+        algo,
+        issuerConflict
       };
     } catch {
       return invalid('invalid_uri', 'Invalid URI');
@@ -145,7 +148,8 @@ export function parseOTPAuthURI(input) {
       secret: cleanBase32,
       digits: 6,
       period: 30,
-      algo: 'SHA1'
+      algo: 'SHA1',
+      issuerConflict: false
     };
   }
 

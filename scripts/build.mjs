@@ -129,6 +129,20 @@ function updateSecurityHeaders() {
   );
   if (updatedHeaders !== headers) writeFileSync(headersPath, updatedHeaders);
 
+  // The standalone file is also opened over file:// where HTTP headers never
+  // arrive — mirror the policy as a meta tag (frame-ancestors is header-only).
+  const metaCsp = csp.replace(/;\s*frame-ancestors 'none'$/, '');
+  const metaTag = `<meta http-equiv="Content-Security-Policy" content="${metaCsp}">`;
+  const metaPattern = /<meta http-equiv="Content-Security-Policy" content="[^"]*">/;
+  const standalonePath = rootPath('aeropad-standalone.html');
+  let withMeta = readFileSync(standalonePath, 'utf8');
+  if (metaPattern.test(withMeta)) {
+    withMeta = withMeta.replace(metaPattern, metaTag);
+  } else {
+    withMeta = withMeta.replace('<meta charset="UTF-8">', `<meta charset="UTF-8">\n  ${metaTag}`);
+  }
+  writeFileSync(standalonePath, withMeta);
+
   const vercelPath = rootPath('vercel.json');
   const vercel = readFileSync(vercelPath, 'utf8');
   if (!/("key": "Content-Security-Policy", "value": ")[^"]*(")/.test(vercel)) {
