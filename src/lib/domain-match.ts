@@ -45,8 +45,11 @@ function hostOf(domain: string): string {
 
 // Registrable domain approximation: last two labels, or last three when the
 // final two are a known two-part public suffix (co.uk, com.au, ...).
+// IP literals and localhost are their own registrable domain.
 export function registrableDomain(host: string): string {
-  const labels = hostOf(host).split('.').filter(Boolean);
+  const h = hostOf(host);
+  if (/^[\d.]+$|^[0-9a-f:]+$|^localhost$/.test(h)) return h;
+  const labels = h.split('.').filter(Boolean);
   if (labels.length <= 2) return labels.join('.');
   const lastTwo = labels.slice(-2).join('.');
   if (TWO_PART_SUFFIXES.has(lastTwo) && labels.length >= 3) {

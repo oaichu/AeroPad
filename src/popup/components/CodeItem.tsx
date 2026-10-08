@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { CodeEntry } from '../../types/index.js';
 import { currentCode, remainingSeconds } from '../../lib/totp.js';
-import { CopyIcon, CheckIcon, EditIcon, TrashIcon } from './Icons.js';
+import { CopyIcon, CheckIcon, EditIcon, TrashIcon, KeyIcon } from './Icons.js';
 
 interface Props {
   entry: CodeEntry;
   onCopy?: ((code: string) => void) | undefined;
   onEdit?: ((entry: CodeEntry) => void) | undefined;
   onDelete?: ((id: string) => void) | undefined;
+  onFill?: ((entry: CodeEntry) => void) | undefined;
 }
 
 function getBrandColor(issuer: string): { bg: string; color: string; label: string } {
@@ -40,7 +41,7 @@ function formatCode(raw: string): string {
   return raw;
 }
 
-export function CodeItem({ entry, onCopy, onEdit, onDelete }: Props) {
+export function CodeItem({ entry, onCopy, onEdit, onDelete, onFill }: Props) {
   const [code, setCode] = useState('••••••');
   const [remain, setRemain] = useState(entry.period);
   const [copied, setCopied] = useState(false);
@@ -87,6 +88,16 @@ export function CodeItem({ entry, onCopy, onEdit, onDelete }: Props) {
           </div>
         </div>
         <div class="card-actions">
+          {onFill && (
+            <button
+              class="ghost"
+              title="Fill code into current page"
+              aria-label="Fill code into current page"
+              onClick={(e) => { e.stopPropagation(); onFill(entry); }}
+            >
+              <KeyIcon size={14} />
+            </button>
+          )}
           {onEdit && (
             <button
               class="ghost"

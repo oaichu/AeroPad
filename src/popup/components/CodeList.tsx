@@ -8,9 +8,10 @@ interface Props {
   onEdit?: ((entry: CodeEntry) => void) | undefined;
   onDelete?: ((id: string) => void) | undefined;
   onCopy?: ((code: string) => void) | undefined;
+  onFill?: ((entry: CodeEntry) => void) | undefined;
 }
 
-export function CodeList({ entries, searchQuery = '', onEdit, onDelete, onCopy }: Props) {
+export function CodeList({ entries, searchQuery = '', onEdit, onDelete, onCopy, onFill }: Props) {
   if (entries.length === 0) {
     if (searchQuery.trim()) {
       return (
@@ -44,6 +45,7 @@ export function CodeList({ entries, searchQuery = '', onEdit, onDelete, onCopy }
           onCopy={onCopy}
           onEdit={onEdit}
           onDelete={onDelete}
+          onFill={onFill}
         />
       ))}
     </div>

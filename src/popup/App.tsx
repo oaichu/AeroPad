@@ -219,6 +219,12 @@ export function App() {
             onEdit={(entry) => setEditingEntry(entry)}
             onDelete={handleDeleteEntry}
             onCopy={() => showToast('Copied to clipboard')}
+            onFill={async (entry) => {
+              const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+              if (!activeTab?.id) { showToast('No active tab'); return; }
+              const r = await sendMessage({ kind: 'fillOnTab', tabId: activeTab.id, entryId: entry.id });
+              showToast(r.ok ? 'Code filled into page' : `Fill failed: ${r.ok ? '' : r.error}`);
+            }}
           />
         ) : (
           <div class="notes-container">
