@@ -1,64 +1,67 @@
 :root {
   color-scheme: dark light;
-  --bg: #0b0f19;
-  --card-bg: #111827;
-  --card-hover: #172033;
-  --input-bg: #0d1321;
-  --border: rgba(255, 255, 255, 0.09);
-  --border-hover: rgba(255, 255, 255, 0.18);
-  --fg: #f3f4f6;
-  --fg-secondary: #9ca3af;
-  --muted: #6b7280;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-  --accent-glow: rgba(59, 130, 246, 0.25);
+  /* AeroPad aurora theme — synced with the web app design system */
+  --bg: #07090e;
+  --card-bg: rgba(16, 22, 34, 0.78);
+  --card-hover: rgba(24, 32, 48, 0.9);
+  --input-bg: rgba(7, 10, 16, 0.7);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.16);
+  --fg: #f8fafc;
+  --fg-secondary: #94a3b8;
+  --muted: #64748b;
+  --accent: #00f2fe;
+  --accent-hover: #4facfe;
+  --accent-indigo: #6366f1;
+  --accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #6366f1 100%);
+  --accent-glow: rgba(0, 242, 254, 0.18);
   --hover: rgba(255, 255, 255, 0.05);
   --hover-btn: rgba(255, 255, 255, 0.08);
   --success: #10b981;
   --success-bg: rgba(16, 185, 129, 0.14);
   --warning: #f59e0b;
   --warning-bg: rgba(245, 158, 11, 0.14);
-  --danger: #ef4444;
-  --danger-bg: rgba(239, 68, 68, 0.14);
+  --danger: #f43f5e;
+  --danger-bg: rgba(244, 63, 94, 0.14);
   --ring-track: rgba(255, 255, 255, 0.1);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.5);
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-lg: 0 20px 40px -12px rgba(0, 0, 0, 0.7);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
   --radius-full: 9999px;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: #f8fafc;
-    --card-bg: #ffffff;
-    --card-hover: #f1f5f9;
+    --bg: #f4f6fb;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --card-hover: #ffffff;
     --input-bg: #ffffff;
-    --border: #e2e8f0;
-    --border-hover: #cbd5e1;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-hover: rgba(0, 0, 0, 0.16);
     --fg: #0f172a;
     --fg-secondary: #475569;
-    --muted: #64748b;
-    --accent: #2563eb;
-    --accent-hover: #1d4ed8;
-    --accent-gradient: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-    --accent-glow: rgba(37, 99, 235, 0.15);
-    --hover: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #0284c7;
+    --accent-hover: #0369a1;
+    --accent-indigo: #4f46e5;
+    --accent-gradient: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%);
+    --accent-glow: rgba(2, 132, 199, 0.15);
+    --hover: #eef2f7;
     --hover-btn: #e2e8f0;
     --success: #059669;
     --success-bg: rgba(5, 150, 105, 0.1);
     --warning: #d97706;
     --warning-bg: rgba(217, 119, 6, 0.1);
-    --danger: #dc2626;
-    --danger-bg: rgba(220, 38, 38, 0.1);
+    --danger: #e11d48;
+    --danger-bg: rgba(225, 29, 72, 0.1);
     --ring-track: #e2e8f0;
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.12);
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 8px 24px -8px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 20px 40px -12px rgba(15, 23, 42, 0.15);
   }
 }
 
@@ -69,7 +72,7 @@ html, body {
   padding: 0;
   background: var(--bg);
   color: var(--fg);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Inter var", "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 13px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -85,12 +88,32 @@ html, body {
   min-height: 480px;
   background: var(--bg);
   color: var(--fg);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Inter var", "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 13px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+}
+
+/* Aurora ambient glow — matches the web app canvas */
+body.popup-page::before {
+  content: "";
+  position: fixed;
+  top: -90px;
+  right: -60px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 242, 254, 0.16) 0%, rgba(99, 102, 241, 0.1) 55%, transparent 75%);
+  filter: blur(48px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.popup-page #app {
+  position: relative;
+  z-index: 1;
 }
 
 #app {
@@ -176,7 +199,7 @@ input:hover, select:hover, textarea:hover {
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
+  box-shadow: 0 0 0 3px var(--accent-glow), 0 0 12px -2px var(--accent-glow);
 }
 
 /* Buttons */
@@ -192,7 +215,7 @@ button {
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: var(--accent-gradient);
-  color: #ffffff;
+  color: #07090e;
   cursor: pointer;
   transition: transform 80ms ease, background-color 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
   box-shadow: var(--shadow-sm);
@@ -200,7 +223,7 @@ button {
 
 button:hover:not(:disabled) {
   opacity: 0.95;
-  box-shadow: 0 2px 8px var(--accent-glow);
+  box-shadow: 0 4px 16px -2px var(--accent-glow);
 }
 
 button:active:not(:disabled) {
@@ -219,6 +242,7 @@ button.secondary {
   color: var(--fg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(8px);
 }
 
 button.secondary:hover:not(:disabled) {
@@ -272,14 +296,15 @@ button.danger:hover:not(:disabled) {
   width: 30px;
   height: 30px;
   background: var(--accent-gradient);
-  color: white;
+  color: #041018;
   border-radius: var(--radius-md);
-  box-shadow: 0 2px 8px var(--accent-glow);
+  box-shadow: 0 4px 14px -2px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .brand-title {
   font-size: 16px;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--fg);
   display: flex;
   align-items: center;
@@ -389,10 +414,10 @@ button.danger:hover:not(:disabled) {
 }
 
 .segmented-tabs button.active {
-  background: var(--bg);
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.14) 0%, rgba(99, 102, 241, 0.14) 100%);
   color: var(--fg);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  box-shadow: 0 0 12px -4px var(--accent-glow);
 }
 
 .tab-badge {
@@ -543,13 +568,19 @@ button.danger:hover:not(:disabled) {
   font-size: 21px;
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: var(--fg);
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--accent);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .code-digits.danger-state {
+  background: none;
+  -webkit-text-fill-color: var(--danger);
   color: var(--danger);
   animation: pulse-danger 1s infinite alternate;
 }
@@ -653,8 +684,8 @@ button.danger:hover:not(:disabled) {
 }
 
 .note-item.active {
-  background: var(--accent-glow);
-  border-color: var(--accent);
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.12) 0%, rgba(99, 102, 241, 0.12) 100%);
+  border-color: rgba(0, 242, 254, 0.4);
 }
 
 .note-item .note-title {
@@ -752,13 +783,15 @@ button.danger:hover:not(:disabled) {
 }
 
 .modal-content {
-  background: var(--bg);
+  background: rgba(13, 18, 30, 0.92);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
   color: var(--fg);
   border: 1px solid var(--border-hover);
   border-radius: var(--radius-lg);
   width: 330px;
   max-width: 100%;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   padding: 18px;
   animation: modal-scale 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -786,6 +819,12 @@ button.danger:hover:not(:disabled) {
 @keyframes modal-scale {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-color-scheme: light) {
+  .modal-content {
+    background: rgba(255, 255, 255, 0.94);
+  }
 }
 
 /* Strength meter */
