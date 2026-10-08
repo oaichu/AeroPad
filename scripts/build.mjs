@@ -144,15 +144,17 @@ function updateSecurityHeaders() {
   writeFileSync(standalonePath, withMeta);
 
   const vercelPath = rootPath('vercel.json');
-  const vercel = readFileSync(vercelPath, 'utf8');
-  if (!/("key": "Content-Security-Policy", "value": ")[^"]*(")/.test(vercel)) {
+  const vercel = JSON.parse(readFileSync(vercelPath, 'utf8'));
+  const cspHeader = (vercel.headers ?? [])
+    .flatMap((rule) => rule.headers ?? [])
+    .find((header) => header.key === 'Content-Security-Policy');
+  if (!cspHeader) {
     throw new Error('vercel.json CSP value not found');
   }
-  const updatedVercel = vercel.replace(
-    /("key": "Content-Security-Policy", "value": ")[^"]*(")/,
-    `$1${csp}$2`,
-  );
-  if (updatedVercel !== vercel) writeFileSync(vercelPath, updatedVercel);
+  if (cspHeader.value !== csp) {
+    cspHeader.value = csp;
+    writeFileSync(vercelPath, `${JSON.stringify(vercel, null, 2)}\n`);
+  }
 }
 
 async function buildApp() {
